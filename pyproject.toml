@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=66.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "app"
+description = "Achievement Service"
+version = "0.0.1"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    { name = "Alexander Kuzmin", email = "qrer71@yandex.ru" }
+]
+dependencies = [
+    "litestar<=2.10.0",
+    "python-ulid<=2.7.0",
+    "sqlalchemy<=2.0.31",
+    "uvicorn<=0.30.5"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest<=8.2.0",
+    "pytest-asyncio<=0.23.6",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
