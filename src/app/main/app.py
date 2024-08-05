@@ -15,9 +15,7 @@ def create_app() -> Litestar:
     app = Litestar(
         route_handlers=[UserController],
         dependencies={
-            "session": Provide(
-                session_factory
-            ),
+            "session": Provide(session_factory),
             "user_repository": Provide(UserRepository),
             "ioc": Provide(IoC)
         }
