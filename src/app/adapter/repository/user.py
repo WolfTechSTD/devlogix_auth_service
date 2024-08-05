@@ -13,6 +13,11 @@ class UserRepository(DatabaseRepository[Users]):
         await self.session.commit()
         return result
 
+    async def get_user(self, **kwargs: Any) -> Users | None:
+        stmt = select(Users).filter_by(**kwargs)
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
     async def check_user(self, username: str, email: str) -> bool:
         stmt = select(Users).where(
             or_(
