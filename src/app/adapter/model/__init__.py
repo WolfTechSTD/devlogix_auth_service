@@ -1,5 +1,5 @@
 from .base import BaseModel
-from .users import Users
+from .user import Users
 
 __all__ = (
     'BaseModel',
