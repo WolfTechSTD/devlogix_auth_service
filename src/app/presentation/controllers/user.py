@@ -10,12 +10,17 @@ from app.application.exceptions import (
 )
 from app.presentation.interactor import InteractorFactory
 from app.presentation.model.user import JsonCreateUser, JsonUser
+from app.presentation.opeapi.create_user import CreateUserOperation
+from app.presentation.opeapi.get_user import GetUserOperation
 
 
 class UserController(Controller):
     path = "/users"
 
-    @post()
+    @post(
+        operation_class=CreateUserOperation,
+        status_code=status_codes.HTTP_201_CREATED
+    )
     async def create_user(
             self,
             data: JsonCreateUser,
@@ -31,7 +36,10 @@ class UserController(Controller):
                 detail=str(err)
             )
 
-    @get("/{user_id:str}")
+    @get(
+        "/{user_id:str}",
+        operation_class=GetUserOperation
+    )
     async def get_user(
             self,
             user_id: str,
