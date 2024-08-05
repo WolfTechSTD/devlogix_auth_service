@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from typing import Self
 
 from pydantic import Field
@@ -17,6 +18,32 @@ class JsonUser(Base):
             id=value.id,
             username=value.username,
             email=value.email
+        )
+
+
+class JsonUserList(Base):
+    total: int = Field(..., description="Количество записей")
+    limit: int = Field(..., description="Лимит записей")
+    offset: int = Field(..., description="Текущая страница")
+    values: list[JsonUser] = Field(..., description="Пользователи")
+
+    @classmethod
+    def into(
+            cls,
+            total: int,
+            limit: int,
+            offset: int,
+            values: Iterator[UserView]
+    ):
+        return JsonUserList(
+            total=total,
+            limit=limit,
+            offset=offset,
+            values=[JsonUser(
+                id=value.id,
+                username=value.username,
+                email=value.email
+            ) for value in values]
         )
 
 
