@@ -36,7 +36,7 @@ class GetUserOperation(Operation):
         )]
         self.responses = {
             "200": OpenAPIResponse(
-                description="Created",
+                description="Ok",
                 content={
                     "json": OpenAPIMediaType(
                         schema=Schema(
