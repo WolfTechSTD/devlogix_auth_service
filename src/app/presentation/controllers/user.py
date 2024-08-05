@@ -9,9 +9,10 @@ from app.application.exceptions import (
     UserNotFoundException,
 )
 from app.presentation.interactor import InteractorFactory
-from app.presentation.model.user import JsonCreateUser, JsonUser
+from app.presentation.model.user import JsonCreateUser, JsonUser, JsonUserList
 from app.presentation.opeapi.create_user import CreateUserOperation
 from app.presentation.opeapi.get_user import GetUserOperation
+from app.presentation.opeapi.get_users import GetUsersOperation
 
 
 class UserController(Controller):
@@ -54,3 +55,16 @@ class UserController(Controller):
                 status_code=status_codes.HTTP_404_NOT_FOUND,
                 detail=str(err)
             )
+
+    @get(operation_class=GetUsersOperation)
+    async def get_users(
+            self,
+            ioc: Annotated[InteractorFactory, Dependency(
+                skip_validation=True
+            )],
+            limit: int = 10,
+            offset: int = 0
+    ) -> JsonUserList:
+        with ioc.add_user_usecase() as user_use_case:
+            users, total = await user_use_case.get_users(limit, offset)
+            return JsonUserList.into(total, limit, offset, users)

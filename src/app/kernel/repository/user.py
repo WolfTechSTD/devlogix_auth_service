@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from collections.abc import Iterator
 from typing import Protocol, Any
 
 from app.kernel.model.user import User
@@ -10,6 +11,13 @@ class UserRepository(Protocol):
 
     @abstractmethod
     async def get_user(self, **kwargs: Any) -> User | None: ...
+
+    @abstractmethod
+    async def get_users(
+            self,
+            limit: int,
+            offset: int
+    ) -> tuple[Iterator[User], int]: ...
 
     @abstractmethod
     async def check_user(self, username: str, email: str) -> bool: ...

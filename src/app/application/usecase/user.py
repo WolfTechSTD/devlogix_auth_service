@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from dataclasses import asdict
 
 from app.application.exceptions import (
@@ -17,8 +18,8 @@ class UserUseCase:
 
     async def create_user(self, source: CreateUserView) -> UserView:
         if await self.repository.check_user(
-            username=source.username,
-            email=source.email
+                username=source.username,
+                email=source.email
         ):
             raise UserExistsException()
         user = await self.repository.create_user(**asdict(source))
@@ -37,3 +38,18 @@ class UserUseCase:
             username=user.username,
             email=user.email
         )
+
+    async def get_users(
+            self,
+            limit: int,
+            offset: int
+    ) -> tuple[Iterator[UserView], int]:
+        users, total = await self.repository.get_users(
+            limit=limit,
+            offset=limit * offset
+        )
+        return ((UserView(
+            id=str(user.id),
+            username=user.username,
+            email=user.email
+        ) for user in users), 10)
