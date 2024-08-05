@@ -15,7 +15,9 @@ dependencies = [
     "litestar<=2.10.0",
     "python-ulid<=2.7.0",
     "sqlalchemy<=2.0.31",
-    "uvicorn<=0.30.5"
+    "uvicorn<=0.30.5",
+    "alembic<=1.13.2",
+    "asyncpg<=0.29.0"
 ]
 
 [project.optional-dependencies]
