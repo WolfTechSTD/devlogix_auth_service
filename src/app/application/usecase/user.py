@@ -1,6 +1,9 @@
 from dataclasses import asdict
 
-from app.application.exceptions import UserExistsException
+from app.application.exceptions import (
+    UserExistsException,
+    UserNotFoundException,
+)
 from app.application.model.user import CreateUserView, UserView
 from app.kernel.repository.user import UserRepository
 
@@ -19,6 +22,16 @@ class UserUseCase:
         ):
             raise UserExistsException()
         user = await self.repository.create_user(**asdict(source))
+        return UserView(
+            id=str(user.id),
+            username=user.username,
+            email=user.email
+        )
+
+    async def get_user(self, user_id: str) -> UserView:
+        user = await self.repository.get_user(id=user_id)
+        if user is None:
+            raise UserNotFoundException()
         return UserView(
             id=str(user.id),
             username=user.username,

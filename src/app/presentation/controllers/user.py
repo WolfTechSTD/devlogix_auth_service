@@ -1,10 +1,13 @@
 from typing import Annotated
 
-from litestar import Controller, post, status_codes
+from litestar import Controller, post, status_codes, get
 from litestar.exceptions import HTTPException
 from litestar.params import Dependency
 
-from app.application.exceptions import UserExistsException
+from app.application.exceptions import (
+    UserExistsException,
+    UserNotFoundException,
+)
 from app.presentation.interactor import InteractorFactory
 from app.presentation.model.user import JsonCreateUser, JsonUser
 
@@ -25,5 +28,21 @@ class UserController(Controller):
         except UserExistsException as err:
             raise HTTPException(
                 status_code=status_codes.HTTP_400_BAD_REQUEST,
+                detail=str(err)
+            )
+
+    @get("/{user_id:str}")
+    async def get_user(
+            self,
+            user_id: str,
+            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+    ) -> JsonUser:
+        try:
+            with ioc.add_user_usecase() as user_use_case:
+                user = await user_use_case.get_user(user_id)
+                return JsonUser.into(user)
+        except UserNotFoundException as err:
+            raise HTTPException(
+                status_code=status_codes.HTTP_404_NOT_FOUND,
                 detail=str(err)
             )
