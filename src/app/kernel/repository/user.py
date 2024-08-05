@@ -7,3 +7,6 @@ from app.kernel.model.user import User
 class UserRepository(Protocol):
     @abstractmethod
     async def create_user(self, **kwargs: Any) -> User: ...
+
+    @abstractmethod
+    async def check_user(self, username: str, email: str) -> bool: ...
