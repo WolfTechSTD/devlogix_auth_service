@@ -5,12 +5,16 @@ from typing import Protocol, TypeVar
 from app.kernel.model.id import Id
 
 NewModel = TypeVar("NewModel")
+UpdateModel = TypeVar("UpdateModel")
 Model = TypeVar("Model")
 
 
-class Repository(Protocol[NewModel, Model]):
+class Repository(Protocol[NewModel, UpdateModel, Model]):
     @abstractmethod
     async def insert(self, source: NewModel) -> Model: ...
+
+    @abstractmethod
+    async def update(self, source: UpdateModel) -> Model: ...
 
     @abstractmethod
     async def get(self, source: Id) -> Model | None: ...
