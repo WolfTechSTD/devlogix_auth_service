@@ -9,6 +9,7 @@ class User:
     username: str
     email: str
     password: str
+    is_active: bool
 
 
 @dataclass(slots=True)

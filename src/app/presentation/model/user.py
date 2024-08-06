@@ -10,13 +10,15 @@ class JsonUser(Base):
     id: str = Field(..., description="Уникальный идентификатор")
     username: str = Field(..., description="Юзернейм")
     email: str = Field(..., description="E-mail")
+    is_active: bool = Field(..., description="Статус пользователя")
 
     @classmethod
     def from_into(cls, value: UserView) -> Self:
         return JsonUser(
             id=value.id,
             username=value.username,
-            email=value.email
+            email=value.email,
+            is_active=value.is_active
         )
 
 
@@ -40,7 +42,8 @@ class JsonUserList(Base):
             values=[JsonUser(
                 id=user.id,
                 username=user.username,
-                email=user.email
+                email=user.email,
+                is_active=user.is_active
             ) for user in value.values]
         )
 
