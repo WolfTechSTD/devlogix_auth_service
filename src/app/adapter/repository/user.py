@@ -1,32 +1,41 @@
 from collections.abc import Iterator
-from typing import Any
 
 from sqlalchemy import insert, select, or_, func
-from ulid import ULID
 
 from app.adapter.model import Users
+from app.kernel.model.user import NewUser, User
+from app.kernel.model.user_id import UserId
 from .base import DatabaseRepository
 
 
 class UserRepository(DatabaseRepository[Users]):
-    async def create_user(self, **kwargs: Any) -> Users:
-        stmt = insert(Users).values(id=str(ULID()), **kwargs).returning(Users)
+    async def insert(self, source: NewUser) -> User:
+        stmt = insert(Users).values(
+            id=str(source.id),
+            username=source.username,
+            email=source.email,
+            password=source.password
+        ).returning(Users)
         result = (await self.session.execute(stmt)).scalar_one()
-        return result
+        return result.into()
 
-    async def get_user(self, **kwargs: Any) -> Users | None:
-        stmt = select(Users).filter_by(**kwargs)
+    async def get(self, source: UserId) -> User | None:
+        stmt = select(Users).where(Users.id == str(source))
         result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+
+        user = result.scalar_one_or_none()
+        if user is not None:
+            return user.into()
+        return None
 
     async def get_users(
             self,
             limit: int,
             offset: int
-    ) -> Iterator[Users]:
+    ) -> Iterator[User]:
         stmt = select(Users).limit(limit).offset(offset)
         result = await self.session.execute(stmt)
-        return result.scalars()
+        return (user.into() for user in result.scalars())
 
     async def get_total(self) -> int:
         stmt = select(func.count(Users.id))

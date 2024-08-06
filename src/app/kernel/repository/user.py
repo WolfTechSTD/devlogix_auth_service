@@ -1,16 +1,17 @@
 from abc import abstractmethod
 from collections.abc import Iterator
-from typing import Protocol, Any
+from typing import Protocol
 
-from app.kernel.model.user import User
+from app.kernel.model.user import User, NewUser
+from app.kernel.model.user_id import UserId
 
 
 class UserRepository(Protocol):
     @abstractmethod
-    async def create_user(self, **kwargs: Any) -> User: ...
+    async def insert(self, source: NewUser) -> User: ...
 
     @abstractmethod
-    async def get_user(self, **kwargs: Any) -> User | None: ...
+    async def get(self, source: UserId) -> User | None: ...
 
     @abstractmethod
     async def get_users(
