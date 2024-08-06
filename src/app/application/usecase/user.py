@@ -33,7 +33,8 @@ class UserUseCase:
         return UserView(
             id=str(user.id),
             username=user.username,
-            email=user.email
+            email=user.email,
+            is_active=user.is_active
         )
 
     async def get_users(
@@ -51,6 +52,7 @@ class UserUseCase:
             values=(UserView(
                 id=str(user.id),
                 username=user.username,
-                email=user.email
+                email=user.email,
+                is_active=user.is_active
             ) for user in users)
         )
