@@ -16,5 +16,5 @@ class IoC(InteractorFactory):
     @contextmanager
     def add_user_usecase(self) -> Iterator[UserUseCase]:
         yield UserUseCase(
-            repository=self.user_repository  # type: ignore
+            repository=self.user_repository
         )
