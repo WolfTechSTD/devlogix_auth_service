@@ -90,6 +90,10 @@ class GetUsersOperation(Operation):
                                         "email": Schema(
                                             type=OpenAPIType.STRING,
                                             description="E-mail"
+                                        ),
+                                        "isActive": Schema(
+                                            type=OpenAPIType.BOOLEAN,
+                                            description="Статус пользователя"
                                         )
                                     }
                                 )
@@ -103,12 +107,14 @@ class GetUsersOperation(Operation):
                                 {
                                     "id": "01J4HC5WQB3FK3FA1FMXYVYJ6Y",
                                     "username": "User1",
-                                    "email": "user1@gmail.com"
+                                    "email": "user1@gmail.com",
+                                    "isActive": True
                                 },
                                 {
                                     "id": "05J4HC5WQB3FK3FA1FMXYGFJ7B",
                                     "username": "User2",
-                                    "email": "user2@gmail.com"
+                                    "email": "user2@gmail.com",
+                                    "isActive": True
                                 }
                             ]
                         }

@@ -53,13 +53,18 @@ class GetUserOperation(Operation):
                                 "email": Schema(
                                     type=OpenAPIType.STRING,
                                     description="E-mail"
+                                ),
+                                "isActive": Schema(
+                                    type=OpenAPIType.BOOLEAN,
+                                    description="Статус пользователя"
                                 )
                             }
                         ),
                         example={
                             "id": "01J4HC5WQB3FK3FA1FMXYVYJ6Y",
                             "username": "User",
-                            "email": "user@gmail.com"
+                            "email": "user@gmail.com",
+                            "isActive": True
                         }
                     )
                 }
