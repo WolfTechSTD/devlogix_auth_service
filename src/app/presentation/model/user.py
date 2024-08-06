@@ -1,9 +1,8 @@
-from collections.abc import Iterator
 from typing import Self
 
 from pydantic import Field
 
-from app.application.model.user import CreateUserView, UserView
+from app.application.model.user import CreateUserView, UserView, UserListView
 from .base import Base
 
 
@@ -30,20 +29,19 @@ class JsonUserList(Base):
     @classmethod
     def into(
             cls,
-            total: int,
             limit: int,
             offset: int,
-            values: Iterator[UserView]
+            value: UserListView
     ):
         return JsonUserList(
-            total=total,
+            total=value.total,
             limit=limit,
             offset=offset,
             values=[JsonUser(
-                id=value.id,
-                username=value.username,
-                email=value.email
-            ) for value in values]
+                id=user.id,
+                username=user.username,
+                email=user.email
+            ) for user in value.values]
         )
 
 
