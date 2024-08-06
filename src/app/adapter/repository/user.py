@@ -8,7 +8,7 @@ from app.kernel.model.id import Id
 from .base import DatabaseRepository
 
 
-class UserRepository(DatabaseRepository[Users]):
+class UserRepository(DatabaseRepository[User]):
     async def insert(self, source: NewUser) -> User:
         stmt = insert(Users).values(
             id=str(source.id),
