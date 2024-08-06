@@ -2,7 +2,12 @@ from typing import Self
 
 from pydantic import Field
 
-from app.application.model.user import CreateUserView, UserView, UserListView
+from app.application.model.user import (
+    CreateUserView,
+    UserView,
+    UserListView,
+    UpdateUserView,
+)
 from .base import Base
 
 
@@ -58,4 +63,20 @@ class JsonCreateUser(Base):
             username=self.username,
             email=self.email,
             password=self.password
+        )
+
+
+class JsonUpdateUser(Base):
+    username: str | None = Field(..., description="Юзернейм")
+    email: str | None = Field(..., description="E-mail")
+    password: str | None = Field(..., description="Пароль")
+    is_active: bool | None = Field(..., description="Статус пользователя")
+
+    def into(self, user_id: str) -> UpdateUserView:
+        return UpdateUserView(
+            id=user_id,
+            username=self.username,
+            email=self.email,
+            password=self.password,
+            is_active=self.is_active
         )

@@ -4,8 +4,8 @@ from typing import cast, Self
 
 from ulid import ULID
 
-from app.kernel.model.user import NewUser, User
 from app.kernel.model.id import Id
+from app.kernel.model.user import NewUser, User, UpdateUser
 
 
 @dataclass(slots=True)
@@ -43,4 +43,22 @@ class CreateUserView:
             username=self.username,
             email=self.email,
             password=self.password
+        )
+
+
+@dataclass(slots=True)
+class UpdateUserView:
+    id: str
+    username: str | None
+    email: str | None
+    password: str | None
+    is_active: bool | None
+
+    def into(self) -> UpdateUser:
+        return UpdateUser(
+            id=cast(Id, self.id),
+            username=self.username,
+            email=self.email,
+            password=self.password,
+            is_active=self.is_active
         )

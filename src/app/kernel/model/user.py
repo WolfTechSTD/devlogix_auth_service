@@ -18,3 +18,12 @@ class NewUser:
     username: str
     email: str
     password: str
+
+
+@dataclass(slots=True)
+class UpdateUser:
+    id: Id
+    username: str
+    email: str
+    password: str
+    is_active: bool | None
