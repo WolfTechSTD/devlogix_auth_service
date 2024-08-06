@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import BaseModel
+from app.kernel.model.user import User
 
 
 class Users(BaseModel):
@@ -21,3 +22,11 @@ class Users(BaseModel):
     password: Mapped[str] = mapped_column(
         nullable=False
     )
+
+    def into(self) -> User:
+        return User(
+            id=self.id,
+            username=self.username,
+            email=self.email,
+            password=self.password
+        )
