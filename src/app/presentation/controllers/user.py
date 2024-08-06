@@ -29,8 +29,8 @@ class UserController(Controller):
     ) -> JsonUser:
         try:
             with ioc.add_user_usecase() as user_use_case:
-                user = await user_use_case.create_user(data.into(data))
-                return JsonUser.into(user)
+                user = await user_use_case.create_user(data.into())
+                return JsonUser.from_into(user)
         except UserExistsException as err:
             raise HTTPException(
                 status_code=status_codes.HTTP_400_BAD_REQUEST,
@@ -49,7 +49,7 @@ class UserController(Controller):
         try:
             with ioc.add_user_usecase() as user_use_case:
                 user = await user_use_case.get_user(user_id)
-                return JsonUser.into(user)
+                return JsonUser.from_into(user)
         except UserNotFoundException as err:
             raise HTTPException(
                 status_code=status_codes.HTTP_404_NOT_FOUND,
@@ -67,4 +67,4 @@ class UserController(Controller):
     ) -> JsonUserList:
         with ioc.add_user_usecase() as user_use_case:
             users = await user_use_case.get_users(limit, offset)
-            return JsonUserList.into(limit, offset, users)
+            return JsonUserList.from_into(limit, offset, users)

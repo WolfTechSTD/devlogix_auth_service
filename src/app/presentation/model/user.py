@@ -12,7 +12,7 @@ class JsonUser(Base):
     email: str = Field(..., description="E-mail")
 
     @classmethod
-    def into(cls, value: UserView) -> Self:
+    def from_into(cls, value: UserView) -> Self:
         return JsonUser(
             id=value.id,
             username=value.username,
@@ -27,7 +27,7 @@ class JsonUserList(Base):
     values: list[JsonUser] = Field(..., description="Пользователи")
 
     @classmethod
-    def into(
+    def from_into(
             cls,
             limit: int,
             offset: int,
@@ -50,10 +50,9 @@ class JsonCreateUser(Base):
     email: str = Field(..., description="E-mail")
     password: str = Field(..., description='Пароль')
 
-    @classmethod
-    def into(cls, value: Self) -> CreateUserView:
+    def into(self) -> CreateUserView:
         return CreateUserView(
-            username=value.username,
-            email=value.email,
-            password=value.password
+            username=self.username,
+            email=self.email,
+            password=self.password
         )

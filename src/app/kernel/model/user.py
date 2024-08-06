@@ -9,3 +9,11 @@ class User:
     username: str
     email: str
     password: str
+
+
+@dataclass(slots=True)
+class NewUser:
+    id: UserId
+    username: str
+    email: str
+    password: str
