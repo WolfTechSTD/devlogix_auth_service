@@ -66,5 +66,5 @@ class UserController(Controller):
             offset: int = 0
     ) -> JsonUserList:
         with ioc.add_user_usecase() as user_use_case:
-            users, total = await user_use_case.get_users(limit, offset)
-            return JsonUserList.into(total, limit, offset, users)
+            users = await user_use_case.get_users(limit, offset)
+            return JsonUserList.into(limit, offset, users)

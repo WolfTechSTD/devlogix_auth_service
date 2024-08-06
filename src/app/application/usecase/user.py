@@ -1,11 +1,10 @@
-from collections.abc import Iterator
 from dataclasses import asdict
 
 from app.application.exceptions import (
     UserExistsException,
     UserNotFoundException,
 )
-from app.application.model.user import CreateUserView, UserView
+from app.application.model.user import CreateUserView, UserView, UserListView
 from app.kernel.repository.user import UserRepository
 
 
@@ -23,6 +22,7 @@ class UserUseCase:
         ):
             raise UserExistsException()
         user = await self.repository.create_user(**asdict(source))
+        await self.repository.save()
         return UserView(
             id=str(user.id),
             username=user.username,
@@ -43,13 +43,17 @@ class UserUseCase:
             self,
             limit: int,
             offset: int
-    ) -> tuple[Iterator[UserView], int]:
-        users, total = await self.repository.get_users(
+    ) -> UserListView:
+        users = await self.repository.get_users(
             limit=limit,
             offset=limit * offset
         )
-        return ((UserView(
-            id=str(user.id),
-            username=user.username,
-            email=user.email
-        ) for user in users), 10)
+        total = await self.repository.get_total()
+        return UserListView(
+            total=total,
+            values=(UserView(
+                id=str(user.id),
+                username=user.username,
+                email=user.email
+            ) for user in users)
+        )
