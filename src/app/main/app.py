@@ -7,17 +7,21 @@ from app.adapter.persistence.connect import (
 from app.adapter.repository.user import UserRepository
 from app.presentation.controllers.user import UserController
 from .ioc import IoC
+from .config import load_config
 
 
 def create_app() -> Litestar:
-    session_factory = create_async_session_maker()
+    config = load_config()
+    db = config.db
+    session_factory = create_async_session_maker(db.db_url)
 
     app = Litestar(
+        debug=config.debug,
         route_handlers=[UserController],
         dependencies={
             "session": Provide(session_factory),
-            "user_repository": Provide(UserRepository),
-            "ioc": Provide(IoC)
+            "user_repository": Provide(UserRepository, sync_to_thread=True),
+            "ioc": Provide(IoC, sync_to_thread=True)
         }
     )
     return app
