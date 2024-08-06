@@ -10,9 +10,9 @@ from app.application.exceptions import (
 )
 from app.presentation.interactor import InteractorFactory
 from app.presentation.model.user import JsonCreateUser, JsonUser, JsonUserList
-from app.presentation.opeapi.create_user import CreateUserOperation
-from app.presentation.opeapi.get_user import GetUserOperation
-from app.presentation.opeapi.get_users import GetUsersOperation
+from app.presentation.openapi.create_user import CreateUserOperation
+from app.presentation.openapi.get_user import GetUserOperation
+from app.presentation.openapi.get_users import GetUsersOperation
 
 
 class UserController(Controller):
