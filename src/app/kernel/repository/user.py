@@ -14,7 +14,7 @@ class UserRepository(Protocol):
     async def get(self, source: Id) -> User | None: ...
 
     @abstractmethod
-    async def get_users(
+    async def get_list(
             self,
             limit: int,
             offset: int
