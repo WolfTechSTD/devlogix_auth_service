@@ -5,7 +5,7 @@ from typing import cast, Self
 from ulid import ULID
 
 from app.kernel.model.user import NewUser, User
-from app.kernel.model.user_id import UserId
+from app.kernel.model.id import Id
 
 
 @dataclass
@@ -37,7 +37,7 @@ class CreateUserView:
 
     def into(self) -> NewUser:
         return NewUser(
-            id=cast(UserId, ULID()),
+            id=cast(Id, ULID()),
             username=self.username,
             email=self.email,
             password=self.password

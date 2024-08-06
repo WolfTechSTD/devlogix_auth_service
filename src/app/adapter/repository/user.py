@@ -4,7 +4,7 @@ from sqlalchemy import insert, select, or_, func
 
 from app.adapter.model import Users
 from app.kernel.model.user import NewUser, User
-from app.kernel.model.user_id import UserId
+from app.kernel.model.id import Id
 from .base import DatabaseRepository
 
 
@@ -19,7 +19,7 @@ class UserRepository(DatabaseRepository[Users]):
         result = (await self.session.execute(stmt)).scalar_one()
         return result.into()
 
-    async def get(self, source: UserId) -> User | None:
+    async def get(self, source: Id) -> User | None:
         stmt = select(Users).where(Users.id == str(source))
         result = await self.session.execute(stmt)
 
@@ -28,7 +28,7 @@ class UserRepository(DatabaseRepository[Users]):
             return user.into()
         return None
 
-    async def get_users(
+    async def get_list(
             self,
             limit: int,
             offset: int

@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 
-from .user_id import UserId
+from .id import Id
 
 
 @dataclass(slots=True)
 class User:
-    id: UserId
+    id: Id
     username: str
     email: str
     password: str
@@ -13,7 +13,7 @@ class User:
 
 @dataclass(slots=True)
 class NewUser:
-    id: UserId
+    id: Id
     username: str
     email: str
     password: str

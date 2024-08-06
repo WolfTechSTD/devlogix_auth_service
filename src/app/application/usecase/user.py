@@ -5,7 +5,7 @@ from app.application.exceptions import (
     UserNotFoundException,
 )
 from app.application.model.user import CreateUserView, UserView, UserListView
-from app.kernel.model.user_id import UserId
+from app.kernel.model.id import Id
 from app.kernel.repository.user import UserRepository
 
 
@@ -27,7 +27,7 @@ class UserUseCase:
         return UserView.from_into(user)
 
     async def get_user(self, user_id: str) -> UserView:
-        user = await self.repository.get(cast(UserId, user_id))
+        user = await self.repository.get(cast(Id, user_id))
         if user is None:
             raise UserNotFoundException()
         return UserView(
@@ -41,7 +41,7 @@ class UserUseCase:
             limit: int,
             offset: int
     ) -> UserListView:
-        users = await self.repository.get_users(
+        users = await self.repository.get_list(
             limit=limit,
             offset=limit * offset
         )
