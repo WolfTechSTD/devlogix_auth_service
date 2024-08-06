@@ -8,9 +8,10 @@ from sqlalchemy.ext.asyncio import (
 )
 
 
-def create_async_session_maker() -> Callable[[], AsyncIterator[AsyncSession]]:
-    # TODO: вынести в конфиг DATABASE_URL
-    engine = create_async_engine(os.getenv("DATABASE_URL"))
+def create_async_session_maker(
+        db_url: str
+) -> Callable[[], AsyncIterator[AsyncSession]]:
+    engine = create_async_engine(db_url)
     session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
     async def create_async_session() -> AsyncIterator[AsyncSession]:
