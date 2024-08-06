@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Mapped, mapped_column
-from ulid import ULID
+
 from .base import BaseModel
 
 
@@ -8,8 +8,7 @@ class Users(BaseModel):
         primary_key=True,
         nullable=False,
         unique=True,
-        autoincrement=False,
-        default=str(ULID())
+        autoincrement=False
     )
     username: Mapped[str] = mapped_column(
         unique=True,
