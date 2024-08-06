@@ -1,10 +1,10 @@
 from collections.abc import Iterator
 
-from sqlalchemy import insert, select, or_, func
+from sqlalchemy import insert, select, or_, func, delete
 
 from app.adapter.model import Users
-from app.kernel.model.user import NewUser, User
 from app.kernel.model.id import Id
+from app.kernel.model.user import NewUser, User
 from .base import DatabaseRepository
 
 
@@ -49,6 +49,10 @@ class UserRepository(DatabaseRepository[User]):
             )
         ).exists()
         return await self.session.scalar(select(stmt))
+
+    async def delete(self, source: Id) -> None:
+        stmt = delete(Users).where(Users.id == source)
+        await self.session.execute(stmt)
 
     async def save(self) -> None:
         await self.session.commit()

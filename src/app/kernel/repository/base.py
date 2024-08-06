@@ -20,3 +20,6 @@ class Repository(Protocol[NewModel, Model]):
 
     @abstractmethod
     async def save(self) -> None: ...
+
+    @abstractmethod
+    async def delete(self, source: Id) -> None: ...
