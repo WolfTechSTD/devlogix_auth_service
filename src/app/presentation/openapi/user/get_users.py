@@ -9,6 +9,8 @@ from litestar.openapi.spec import (
     OpenAPIMediaType,
 )
 
+from app.presentation.constants import OFFSET, LIMIT, TOTAL
+
 DESCRIPTION = """
 Получение пользователей
 
@@ -18,12 +20,6 @@ DESCRIPTION = """
 """
 
 SUMMARY = "Получение пользователей"
-
-LIMIT = 10
-
-OFFSET = 0
-
-TOTAL = 2
 
 
 @dataclass

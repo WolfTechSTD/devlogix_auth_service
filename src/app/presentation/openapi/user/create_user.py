@@ -46,7 +46,8 @@ class CreateUserOperation(Operation):
                                 type=OpenAPIType.STRING,
                                 description="Пароль"
                             )
-                        }
+                        },
+                        required=('username', 'email', 'password')
                     ),
                     example={
                         "username": "User",
