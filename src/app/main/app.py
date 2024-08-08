@@ -1,13 +1,18 @@
 from litestar import Litestar
 from litestar.di import Provide
+from litestar.openapi.config import OpenAPIConfig
+from litestar.openapi.plugins import (
+    SwaggerRenderPlugin,
+    RedocRenderPlugin,
+)
 
 from app.adapter.persistence.connect import (
     create_async_session_maker,
 )
 from app.adapter.repository.user import UserRepository
 from app.presentation.controllers.user import UserController
-from .ioc import IoC
 from .config import load_config
+from .ioc import IoC
 
 
 def create_app() -> Litestar:
@@ -22,6 +27,13 @@ def create_app() -> Litestar:
             "session": Provide(session_factory),
             "user_repository": Provide(UserRepository, sync_to_thread=True),
             "ioc": Provide(IoC, sync_to_thread=True)
-        }
+        },
+        openapi_config=OpenAPIConfig(
+            title="Auth Service",
+            description="Сервис аутентификации",
+            version="0.0.1",
+            render_plugins=[SwaggerRenderPlugin(),
+                            RedocRenderPlugin()]
+        )
     )
     return app
