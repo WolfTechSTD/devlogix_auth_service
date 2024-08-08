@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Self, Optional
 
 from pydantic import Field
 
@@ -8,14 +8,44 @@ from app.application.model.user import (
     UserListView,
     UpdateUserView,
 )
+from app.presentation.constants import TOTAL, LIMIT, OFFSET
 from .base import Base
 
 
 class JsonUser(Base):
-    id: str = Field(..., description="Уникальный идентификатор")
-    username: str = Field(..., description="Юзернейм")
-    email: str = Field(..., description="E-mail")
-    is_active: bool = Field(..., description="Статус пользователя")
+    id: str = Field(
+        ...,
+        description="Уникальный идентификатор",
+        json_schema_extra={
+            "title": "id",
+            "description": "Уникальный идентификатор",
+            "example": "01J4HC5WQB3FK3FA1FMXYVYJ6Y"
+        }
+    )
+    username: str = Field(
+        ...,
+        json_schema_extra={
+            "title": "username",
+            "description": "Юзернейм",
+            "example": "User"
+        }
+    )
+    email: str = Field(
+        ...,
+        json_schema_extra={
+            "title": "email",
+            "description": "E-mail",
+            "example": "user@gmail.com"
+        }
+    )
+    is_active: bool = Field(
+        ...,
+        json_schema_extra={
+            "title": "isActive",
+            "description": "Статус пользователя",
+            "example": True
+        }
+    )
 
     @classmethod
     def from_into(cls, value: UserView) -> Self:
@@ -28,9 +58,30 @@ class JsonUser(Base):
 
 
 class JsonUserList(Base):
-    total: int = Field(..., description="Количество записей")
-    limit: int = Field(..., description="Лимит записей")
-    offset: int = Field(..., description="Текущая страница")
+    total: int = Field(
+        ...,
+        json_schema_extra={
+            "title": "total",
+            "description": "Количество записей",
+            "example": TOTAL
+        }
+    )
+    limit: int = Field(
+        ...,
+        json_schema_extra={
+            "title": "limit",
+            "description": "Лимит записей",
+            "example": LIMIT
+        }
+    )
+    offset: int = Field(
+        ...,
+        json_schema_extra={
+            "title": "offset",
+            "description": "Текущая страница",
+            "example": OFFSET
+        }
+    )
     values: list[JsonUser] = Field(..., description="Пользователи")
 
     @classmethod
@@ -54,9 +105,30 @@ class JsonUserList(Base):
 
 
 class JsonCreateUser(Base):
-    username: str = Field(..., description="Юзернейм")
-    email: str = Field(..., description="E-mail")
-    password: str = Field(..., description='Пароль')
+    username: str = Field(
+        ...,
+        json_schema_extra={
+            "title": "username",
+            "description": "Юзернейм",
+            "example": "User"
+        }
+    )
+    email: str = Field(
+        ...,
+        json_schema_extra={
+            "title": "email",
+            "description": "E-mail",
+            "example": "user@gmail.com"
+        }
+    )
+    password: str = Field(
+        ...,
+        json_schema_extra={
+            "title": "password",
+            "description": "Пароль",
+            "example": "UserPassword"
+        }
+    )
 
     def into(self) -> CreateUserView:
         return CreateUserView(
@@ -67,10 +139,34 @@ class JsonCreateUser(Base):
 
 
 class JsonUpdateUser(Base):
-    username: str | None = Field(..., description="Юзернейм")
-    email: str | None = Field(..., description="E-mail")
-    password: str | None = Field(..., description="Пароль")
-    is_active: bool | None = Field(..., description="Статус пользователя")
+    username: Optional[str] = Field(
+        ...,
+        json_schema_extra={
+            "title": "username",
+            "description": "Юзернейм",
+        }
+    )
+    email: Optional[str] = Field(
+        ...,
+        json_schema_extra={
+            "title": "email",
+            "description": "E-mail",
+        }
+    )
+    password: Optional[str] = Field(
+        ...,
+        json_schema_extra={
+            "title": "password",
+            "description": "Пароль",
+        }
+    )
+    is_active: Optional[bool] = Field(
+        ...,
+        json_schema_extra={
+            "title": "isActive",
+            "description": "Статус пользователя",
+        }
+    )
 
     def into(self, user_id: str) -> UpdateUserView:
         return UpdateUserView(
