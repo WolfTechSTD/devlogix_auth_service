@@ -2,8 +2,7 @@ from typing import Annotated
 
 from litestar import Controller, post, status_codes, get, patch
 from litestar.exceptions import HTTPException
-from litestar.params import Dependency
-from litestar.params import Parameter
+from litestar.params import Dependency, Parameter
 
 from app.application.exceptions import (
     UserExistsException,
@@ -18,10 +17,10 @@ from app.presentation.model.user import (
     JsonUserList,
     JsonUpdateUser,
 )
-from app.presentation.openapi.create_user import CreateUserOperation
-from app.presentation.openapi.get_user import GetUserOperation
-from app.presentation.openapi.get_users import GetUsersOperation
-
+from app.presentation.openapi.user.create_user import CreateUserOperation
+from app.presentation.openapi.user.get_user import GetUserOperation
+from app.presentation.openapi.user.get_users import GetUsersOperation
+from app.presentation.openapi.user.update_user import UpdateUserOperation
 
 LENGTH_ID = 26
 
@@ -83,7 +82,10 @@ class UserController(Controller):
             users = await user_use_case.get_users(limit, offset)
             return JsonUserList.from_into(limit, offset, users)
 
-    @patch("/{user_id:str}",)
+    @patch(
+        "/{user_id:str}",
+        operation_class=UpdateUserOperation,
+    )
     async def update_user(
             self,
             user_id: Annotated[str, Parameter(
