@@ -10,9 +10,16 @@ class DatabaseConfig:
 
 
 @dataclass
+class JWTConfig:
+    secret_key: str
+    algorithm: str
+
+
+@dataclass
 class ApplicationConfig:
     debug: bool
     db: DatabaseConfig
+    jwt: JWTConfig
 
 
 def get_str_env(key: str) -> str:
@@ -26,8 +33,16 @@ def _load_database_config() -> DatabaseConfig:
     return DatabaseConfig(db_url=os.getenv("DATABASE_URL"))
 
 
+def _load_jwt_config() -> JWTConfig:
+    return JWTConfig(
+        secret_key=os.getenv("SECRET_KEY"),
+        algorithm=os.getenv("ALGORITHM")
+    )
+
+
 def load_config() -> ApplicationConfig:
     return ApplicationConfig(
         debug=True if get_str_env("DEBUG") in ("true", "True") else False,
-        db=_load_database_config()
+        db=_load_database_config(),
+        jwt=_load_jwt_config()
     )
