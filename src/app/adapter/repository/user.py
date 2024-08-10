@@ -57,6 +57,22 @@ class UserRepository(DatabaseRepository[User]):
             return user.into()
         return None
 
+    async def get_user(
+            self,
+            username: str | None,
+            email: str | None
+    ) -> User | None:
+        stmt = select(Users).where(
+            or_(
+                Users.username == username,
+                Users.email == email
+            )
+        )
+        result = (await self.session.execute(stmt)).scalar_one_or_none()
+        if result is not None:
+            return result.into()
+        return result
+
     async def get_list(
             self,
             limit: int,

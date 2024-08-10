@@ -8,18 +8,19 @@ from app.application.exceptions import (
     UserExistsException,
     UserNotFoundException,
     UserWithUsernameExistsException,
-    UserWithEmailExistsException,
+    UserWithEmailExistsException, UserLoginException,
 )
 from app.presentation.interactor import InteractorFactory
 from app.presentation.model.user import (
     JsonCreateUser,
     JsonUser,
     JsonUserList,
-    JsonUpdateUser,
+    JsonUpdateUser, JsonUserLogin,
 )
 from app.presentation.openapi.user.create_user import CreateUserOperation
 from app.presentation.openapi.user.get_user import GetUserOperation
 from app.presentation.openapi.user.get_users import GetUsersOperation
+from app.presentation.openapi.user.login import UserLoginOperation
 from app.presentation.openapi.user.update_user import UpdateUserOperation
 
 LENGTH_ID = 26
@@ -44,6 +45,25 @@ class UserController(Controller):
         except UserExistsException as err:
             raise HTTPException(
                 status_code=status_codes.HTTP_400_BAD_REQUEST,
+                detail=str(err)
+            )
+
+    @post(
+        "/login",
+        operation_class=UserLoginOperation
+    )
+    async def login(
+            self,
+            data: JsonUserLogin,
+            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+    ) -> JsonUser:
+        try:
+            with ioc.add_user_usecase() as user_use_case:
+                user = await user_use_case.login(data.into())
+                return JsonUser.from_into(user)
+        except UserLoginException as err:
+            raise HTTPException(
+                status_code=status_codes.HTTP_403_FORBIDDEN,
                 detail=str(err)
             )
 

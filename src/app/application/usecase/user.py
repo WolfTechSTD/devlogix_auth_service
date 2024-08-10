@@ -5,12 +5,13 @@ from app.application.exceptions import (
     UserNotFoundException,
     UserWithUsernameExistsException,
     UserWithEmailExistsException,
+    UserLoginException,
 )
 from app.application.model.user import (
     CreateUserView,
     UserView,
     UserListView,
-    UpdateUserView,
+    UpdateUserView, UserLoginView,
 )
 from app.kernel.model.id import Id
 from app.kernel.repository.user import UserRepository
@@ -37,6 +38,17 @@ class UserUseCase:
         )
         user = await self.repository.insert(source.into())
         await self.repository.save()
+        return UserView.from_into(user)
+
+    async def login(self, source: UserLoginView) -> UserView:
+        user = await self.repository.get_user(source.username, source.email)
+        if user is None:
+            raise UserLoginException()
+        if not self.password_provider.verify_password(
+                source.password,
+                user.password
+        ):
+            raise UserLoginException()
         return UserView.from_into(user)
 
     async def update_user(self, source: UpdateUserView) -> UserView:

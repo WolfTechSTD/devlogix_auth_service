@@ -28,3 +28,9 @@ class UserRepository(Repository[NewUser, UpdateUser, User]):
             user_id: Id,
             email: str
     ) -> bool: ...
+
+    @abstractmethod
+    async def get_user(
+            self,
+            username: str | None,
+            email: str | None) -> User | None: ...
