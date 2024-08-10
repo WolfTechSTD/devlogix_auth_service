@@ -14,7 +14,7 @@ from app.adapter.security.jwt import JWTProvider
 from app.presentation.controllers.user import UserController
 from .config import load_config
 from .ioc import IoC
-from ..adapter.security.password import PasswordProvider
+from app.adapter.security.password import PasswordProvider
 
 
 def create_app() -> Litestar:
