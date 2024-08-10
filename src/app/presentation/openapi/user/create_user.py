@@ -47,7 +47,7 @@ class CreateUserOperation(Operation):
                                 description="Пароль"
                             )
                         },
-                        required=('username', 'email', 'password')
+                        required=("username", "email", "password")
                     ),
                     example={
                         "username": "User",
