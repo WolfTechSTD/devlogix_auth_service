@@ -19,7 +19,9 @@ dependencies = [
     "alembic<=1.13.2",
     "asyncpg<=0.29.0",
     "pydantic<=2.8.2",
-    "pyjwt<=2.9.0"
+    "pyjwt<=2.9.0",
+    "passlib<=1.7.4",
+    "argon2_cffi<=23.1.0"
 ]
 
 [project.optional-dependencies]
