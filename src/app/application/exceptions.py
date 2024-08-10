@@ -12,6 +12,11 @@ class UserNotFoundException(UserExistsException):
         return "Пользователь не найден"
 
 
+class UserLoginException(UserExistsException):
+    def __str__(self) -> str:
+        return "Данные введены неверно"
+
+
 class UserWithUsernameExistsException(UserExistsException):
     def __str__(self) -> str:
         return "Пользователь с таким юзернейм уже существует"
