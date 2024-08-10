@@ -1,12 +1,12 @@
 from typing import Self, Optional
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from app.application.model.user import (
     CreateUserView,
     UserView,
     UserListView,
-    UpdateUserView,
+    UpdateUserView, UserLoginView,
 )
 from app.presentation.constants import TOTAL, LIMIT, OFFSET
 from .base import Base
@@ -140,28 +140,28 @@ class JsonCreateUser(Base):
 
 class JsonUpdateUser(Base):
     username: Optional[str] = Field(
-        ...,
+        None,
         json_schema_extra={
             "title": "username",
             "description": "Юзернейм",
         }
     )
     email: Optional[str] = Field(
-        ...,
+        None,
         json_schema_extra={
             "title": "email",
             "description": "E-mail",
         }
     )
     password: Optional[str] = Field(
-        ...,
+        None,
         json_schema_extra={
             "title": "password",
             "description": "Пароль",
         }
     )
     is_active: Optional[bool] = Field(
-        ...,
+        None,
         json_schema_extra={
             "title": "isActive",
             "description": "Статус пользователя",
@@ -175,4 +175,49 @@ class JsonUpdateUser(Base):
             email=self.email,
             password=self.password,
             is_active=self.is_active
+        )
+
+
+class JsonUserLogin(Base):
+    username: Optional[str] = Field(
+        None,
+        json_schema_extra={
+            "title": "username",
+            "description": "Юзернейм",
+        }
+    )
+    email: Optional[str] = Field(
+        None,
+        json_schema_extra={
+            "title": "email",
+            "description": "E-mail",
+        }
+    )
+    password: str = Field(
+        ...,
+        json_schema_extra={
+            "title": "password",
+            "description": "Пароль",
+        }
+    )
+
+    @model_validator(mode="after")
+    def check_username_and_email(self) -> Self:
+        username = self.username
+        email = self.email
+        if username is None and email is None:
+            raise ValueError(
+                "The email or username field should not be blank"
+            )
+        elif username and email:
+            raise ValueError(
+                "The email or username field must be filled in"
+            )
+        return self
+
+    def into(self) -> UserLoginView:
+        return UserLoginView(
+            username=self.username,
+            email=self.email,
+            password=self.password
         )

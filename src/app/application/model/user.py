@@ -62,3 +62,10 @@ class UpdateUserView:
             password=self.password,
             is_active=self.is_active
         )
+
+
+@dataclass(slots=True)
+class UserLoginView:
+    username: str | None
+    email: str | None
+    password: str | None
