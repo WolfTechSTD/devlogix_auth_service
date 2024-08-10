@@ -14,14 +14,17 @@ from app.application.model.user import (
 )
 from app.kernel.model.id import Id
 from app.kernel.repository.user import UserRepository
+from app.kernel.security.password import PasswordProvider
 
 
 class UserUseCase:
     def __init__(
             self,
-            repository: UserRepository
+            repository: UserRepository,
+            password_provider: PasswordProvider
     ) -> None:
         self.repository = repository
+        self.password_provider = password_provider
 
     async def create_user(self, source: CreateUserView) -> UserView:
         if await self.repository.check_user(
@@ -29,6 +32,9 @@ class UserUseCase:
                 email=source.email
         ):
             raise UserExistsException()
+        source.password = self.password_provider.get_password_hash(
+            source.password
+        )
         user = await self.repository.insert(source.into())
         await self.repository.save()
         return UserView.from_into(user)
@@ -48,6 +54,11 @@ class UserUseCase:
                 source.email or ""
         ):
             raise UserWithEmailExistsException()
+
+        if source.password is not None:
+            source.password = self.password_provider.get_password_hash(
+                source.password
+            )
 
         user = await self.repository.update(source.into())
         await self.repository.save()

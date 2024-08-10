@@ -14,6 +14,7 @@ from app.adapter.security.jwt import JWTProvider
 from app.presentation.controllers.user import UserController
 from .config import load_config
 from .ioc import IoC
+from ..adapter.security.password import PasswordProvider
 
 
 def create_app() -> Litestar:
@@ -33,6 +34,10 @@ def create_app() -> Litestar:
                     jwt_config.secret_key,
                     jwt_config.algorithm
                 ), sync_to_thread=True
+            ),
+            "password_provider": Provide(
+                lambda: PasswordProvider(),
+                sync_to_thread=True
             )
         },
         openapi_config=OpenAPIConfig(
