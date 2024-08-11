@@ -215,7 +215,7 @@ class JsonUserLogin(Base):
             )
         return self
 
-    def into(self, value: str) -> UserLoginView:
+    def into(self, value: str | None) -> UserLoginView:
         return UserLoginView(
             username=self.username,
             email=self.email,
