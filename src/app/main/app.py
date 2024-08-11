@@ -7,20 +7,22 @@ from litestar.openapi.plugins import (
 )
 
 from app.adapter.persistence.connect import (
-    create_async_session_maker,
+    create_async_session_maker, redis_connect,
 )
+from app.adapter.repository.cookie_token import CookieTokenRepository
 from app.adapter.repository.user import UserRepository
 from app.adapter.security.jwt import JWTProvider
+from app.adapter.security.password import PasswordProvider
 from app.presentation.controllers.user import UserController
 from .config import load_config
 from .ioc import IoC
-from app.adapter.security.password import PasswordProvider
 
 
 def create_app() -> Litestar:
     config = load_config()
     db_config = config.db
     jwt_config = config.jwt
+    redis_config = config.redis
 
     app = Litestar(
         debug=config.debug,
@@ -29,6 +31,16 @@ def create_app() -> Litestar:
             "session": Provide(create_async_session_maker(db_config.db_url)),
             "user_repository": Provide(UserRepository, sync_to_thread=True),
             "ioc": Provide(IoC, sync_to_thread=True),
+            "redis_cookie": Provide(
+                lambda: redis_connect(
+                    redis_config.url_cookie_token
+                ),
+                sync_to_thread=True
+            ),
+            "cookie_token_repository": Provide(
+                CookieTokenRepository,
+                sync_to_thread=True
+            ),
             "jwt": Provide(
                 lambda: JWTProvider(
                     jwt_config.secret_key,
