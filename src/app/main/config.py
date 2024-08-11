@@ -16,10 +16,16 @@ class JWTConfig:
 
 
 @dataclass
+class RedisConfig:
+    url_cookie_token: str
+
+
+@dataclass
 class ApplicationConfig:
     debug: bool
     db: DatabaseConfig
     jwt: JWTConfig
+    redis: RedisConfig
 
 
 def get_str_env(key: str) -> str:
@@ -27,6 +33,10 @@ def get_str_env(key: str) -> str:
     if not value:
         raise ConfigParseError(f"{key} must be set")
     return value
+
+
+def _load_redis_config() -> RedisConfig:
+    return RedisConfig(url_cookie_token=os.getenv('REDIS_URL_COOKIE_TOKEN'))
 
 
 def _load_database_config() -> DatabaseConfig:
@@ -44,5 +54,6 @@ def load_config() -> ApplicationConfig:
     return ApplicationConfig(
         debug=True if get_str_env("DEBUG") in ("true", "True") else False,
         db=_load_database_config(),
-        jwt=_load_jwt_config()
+        jwt=_load_jwt_config(),
+        redis=_load_redis_config()
     )
