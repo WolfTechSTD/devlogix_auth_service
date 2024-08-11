@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from litestar import Controller, post, status_codes, get, patch
+from litestar import Controller, post, status_codes, get, patch, Response, Request
 from litestar.exceptions import HTTPException
 from litestar.params import Dependency, Parameter
 
@@ -15,7 +15,8 @@ from app.presentation.model.user import (
     JsonCreateUser,
     JsonUser,
     JsonUserList,
-    JsonUpdateUser, JsonUserLogin,
+    JsonUpdateUser,
+    JsonUserLogin,
 )
 from app.presentation.openapi.user.create_user import CreateUserOperation
 from app.presentation.openapi.user.get_user import GetUserOperation
@@ -54,13 +55,23 @@ class UserController(Controller):
     )
     async def login(
             self,
+            request: Request,
             data: JsonUserLogin,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
-    ) -> JsonUser:
+    ) -> Response[None]:
+        token = request.cookies.get("session")
         try:
             with ioc.add_user_usecase() as user_use_case:
-                user = await user_use_case.login(data.into())
-                return JsonUser.from_into(user)
+                cookie = await user_use_case.login(data.into(token))
+                response = Response(None)
+                response.set_cookie(
+                    key=cookie.key,
+                    value=cookie.token,
+                    expires=cookie.lifetime_seconds,
+                    secure=True,
+                    httponly=True
+                )
+                return response
         except UserLoginException as err:
             raise HTTPException(
                 status_code=status_codes.HTTP_403_FORBIDDEN,

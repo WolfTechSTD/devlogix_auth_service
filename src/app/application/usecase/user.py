@@ -7,6 +7,9 @@ from app.application.exceptions import (
     UserWithEmailExistsException,
     UserLoginException,
 )
+from app.application.model.cookie_token import (
+    CookieTokenView,
+)
 from app.application.model.user import (
     CreateUserView,
     UserView,
@@ -14,6 +17,7 @@ from app.application.model.user import (
     UpdateUserView, UserLoginView,
 )
 from app.kernel.model.id import Id
+from app.kernel.repository.cookie_token import CookieTokenRepository
 from app.kernel.repository.user import UserRepository
 from app.kernel.security.password import PasswordProvider
 
@@ -22,10 +26,12 @@ class UserUseCase:
     def __init__(
             self,
             repository: UserRepository,
-            password_provider: PasswordProvider
+            password_provider: PasswordProvider,
+            cookie_token_repository: CookieTokenRepository
     ) -> None:
         self.repository = repository
         self.password_provider = password_provider
+        self.cookie_token_repository = cookie_token_repository
 
     async def create_user(self, source: CreateUserView) -> UserView:
         if await self.repository.check_user(
@@ -40,7 +46,7 @@ class UserUseCase:
         await self.repository.save()
         return UserView.from_into(user)
 
-    async def login(self, source: UserLoginView) -> UserView:
+    async def login(self, source: UserLoginView) -> CookieTokenView:
         user = await self.repository.get_user(source.username, source.email)
         if user is None:
             raise UserLoginException()
@@ -49,7 +55,14 @@ class UserUseCase:
                 user.password
         ):
             raise UserLoginException()
-        return UserView.from_into(user)
+
+        await self.cookie_token_repository.destroy(
+            source.token
+        )
+        cookie_token = await self.cookie_token_repository.write(
+            source.create_token(user).into()
+        )
+        return CookieTokenView.from_into(cookie_token)
 
     async def update_user(self, source: UpdateUserView) -> UserView:
         if not await self.repository.check_user_exists(cast(Id, source.id)):
