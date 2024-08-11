@@ -1,15 +1,11 @@
 from abc import abstractmethod
 from collections.abc import Iterator
-from typing import Protocol, TypeVar
+from typing import Protocol
 
 from app.kernel.model.id import Id
 
-NewModel = TypeVar("NewModel")
-UpdateModel = TypeVar("UpdateModel")
-Model = TypeVar("Model")
 
-
-class Repository(Protocol[NewModel, UpdateModel, Model]):
+class Repository[NewModel, UpdateModel, Model](Protocol):
     @abstractmethod
     async def insert(self, source: NewModel) -> Model: ...
 
@@ -27,3 +23,14 @@ class Repository(Protocol[NewModel, UpdateModel, Model]):
 
     @abstractmethod
     async def delete(self, source: Id) -> None: ...
+
+
+class RepositoryRedis[NewModel, Model](Protocol):
+    @abstractmethod
+    async def read[_Key](self, source: _Key) -> Model | None: ...
+
+    @abstractmethod
+    async def write(self, source: NewModel) -> Model: ...
+
+    @abstractmethod
+    async def destroy[_Key](self, source: _Key) -> None: ...
