@@ -55,10 +55,10 @@ class UserUseCase:
                 user.password
         ):
             raise UserLoginException()
-
-        await self.cookie_token_repository.destroy(
-            source.token
-        )
+        if source.token is not None:
+            await self.cookie_token_repository.destroy(
+                source.token
+            )
         cookie_token = await self.cookie_token_repository.write(
             source.create_token(user).into()
         )
