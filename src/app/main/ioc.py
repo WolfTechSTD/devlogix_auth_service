@@ -1,5 +1,5 @@
-from collections.abc import Iterator
-from contextlib import contextmanager
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from app.adapter.repository.cookie_token import CookieTokenRepository
 from app.adapter.repository.user import UserRepository
@@ -19,8 +19,8 @@ class IoC(InteractorFactory):
         self.password_provider = password_provider
         self.cookie_token_repository = cookie_token_repository
 
-    @contextmanager
-    def add_user_usecase(self) -> Iterator[UserUseCase]:
+    @asynccontextmanager
+    async def add_user_usecase(self) -> AsyncIterator[UserUseCase]:
         yield UserUseCase(
             repository=self.user_repository,
             password_provider=self.password_provider,
