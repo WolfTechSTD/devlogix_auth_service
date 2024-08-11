@@ -1,6 +1,13 @@
 from typing import Annotated
 
-from litestar import Controller, post, status_codes, get, patch, Response, Request
+from litestar import (
+    Controller,
+    post,
+    status_codes,
+    get,
+    patch,
+    Request,
+)
 from litestar.exceptions import HTTPException
 from litestar.params import Dependency, Parameter
 
@@ -10,7 +17,9 @@ from app.application.exceptions import (
     UserWithUsernameExistsException,
     UserWithEmailExistsException, UserLoginException,
 )
+from app.presentation.after_request.cookie_token import (set_cookie)
 from app.presentation.interactor import InteractorFactory
+from app.presentation.model.cookie_token import JsonCookieToken
 from app.presentation.model.user import (
     JsonCreateUser,
     JsonUser,
@@ -40,7 +49,7 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         try:
-            with ioc.add_user_usecase() as user_use_case:
+            async with ioc.add_user_usecase() as user_use_case:
                 user = await user_use_case.create_user(data.into())
                 return JsonUser.from_into(user)
         except UserExistsException as err:
@@ -51,27 +60,21 @@ class UserController(Controller):
 
     @post(
         "/login",
-        operation_class=UserLoginOperation
+        operation_class=UserLoginOperation,
+        status_code=status_codes.HTTP_200_OK,
+        after_request=set_cookie
     )
     async def login(
             self,
             request: Request,
             data: JsonUserLogin,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
-    ) -> Response[None]:
+    ) -> JsonCookieToken:
         token = request.cookies.get("session")
         try:
-            with ioc.add_user_usecase() as user_use_case:
+            async with ioc.add_user_usecase() as user_use_case:
                 cookie = await user_use_case.login(data.into(token))
-                response = Response(None)
-                response.set_cookie(
-                    key=cookie.key,
-                    value=cookie.token,
-                    expires=cookie.lifetime_seconds,
-                    secure=True,
-                    httponly=True
-                )
-                return response
+                return JsonCookieToken.from_into(cookie)
         except UserLoginException as err:
             raise HTTPException(
                 status_code=status_codes.HTTP_403_FORBIDDEN,
@@ -91,7 +94,7 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         try:
-            with ioc.add_user_usecase() as user_use_case:
+            async with ioc.add_user_usecase() as user_use_case:
                 user = await user_use_case.get_user(user_id)
                 return JsonUser.from_into(user)
         except UserNotFoundException as err:
@@ -109,7 +112,7 @@ class UserController(Controller):
             limit: int = 10,
             offset: int = 0
     ) -> JsonUserList:
-        with ioc.add_user_usecase() as user_use_case:
+        async with ioc.add_user_usecase() as user_use_case:
             users = await user_use_case.get_users(limit, offset)
             return JsonUserList.from_into(limit, offset, users)
 
@@ -127,7 +130,7 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         try:
-            with ioc.add_user_usecase() as user_use_case:
+            async with ioc.add_user_usecase() as user_use_case:
                 user = await user_use_case.update_user(data.into(user_id))
                 return JsonUser.from_into(user)
         except UserNotFoundException as err:
