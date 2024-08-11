@@ -1,9 +1,11 @@
+import secrets
 from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import cast, Self
 
 from ulid import ULID
 
+from app.application.model.cookie_token import CreateCookieTokenView
 from app.kernel.model.id import Id
 from app.kernel.model.user import NewUser, User, UpdateUser
 
@@ -69,3 +71,10 @@ class UserLoginView:
     username: str | None
     email: str | None
     password: str | None
+    token: str | None
+
+    def create_token(self, value: User) -> CreateCookieTokenView:
+        return CreateCookieTokenView(
+            user_id=value.id,
+            token=secrets.token_urlsafe()
+        )
