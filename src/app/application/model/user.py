@@ -55,6 +55,7 @@ class UpdateUserView:
     email: str | None
     password: str | None
     is_active: bool | None
+    token: str
 
     def into(self) -> UpdateUser:
         return UpdateUser(

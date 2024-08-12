@@ -168,13 +168,14 @@ class JsonUpdateUser(Base):
         }
     )
 
-    def into(self, user_id: str) -> UpdateUserView:
+    def into(self, user_id: str, token: str) -> UpdateUserView:
         return UpdateUserView(
             id=user_id,
             username=self.username,
             email=self.email,
             password=self.password,
-            is_active=self.is_active
+            is_active=self.is_active,
+            token=token
         )
 
 
