@@ -151,5 +151,29 @@ class UpdateUserOperation(Operation):
                         }
                     )
                 }
+            ),
+            "403": OpenAPIResponse(
+                description="Not Found",
+                content={
+                    "json": OpenAPIMediaType(
+                        schema=Schema(
+                            type=OpenAPIType.OBJECT,
+                            properties={
+                                "status_code": Schema(
+                                    type=OpenAPIType.INTEGER,
+                                    description="Статус-код HTTP"
+                                ),
+                                "detail": Schema(
+                                    type=OpenAPIType.STRING,
+                                    description="Описание ошибки"
+                                )
+                            }
+                        ),
+                        example={
+                            "status_code": 403,
+                            "detail": "Доступ запрещен"
+                        }
+                    )
+                }
             )
         }
