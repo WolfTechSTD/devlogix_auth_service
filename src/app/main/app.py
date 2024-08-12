@@ -6,6 +6,7 @@ from litestar.openapi.plugins import (
     RedocRenderPlugin,
 )
 
+from app.adapter.permissions.user import UserPermissions
 from app.adapter.persistence.connect import (
     create_async_session_maker, redis_connect,
 )
@@ -50,7 +51,8 @@ def create_app() -> Litestar:
             "password_provider": Provide(
                 lambda: PasswordProvider(),
                 sync_to_thread=True
-            )
+            ),
+            "user_permissions": Provide(UserPermissions, sync_to_thread=True)
         },
         openapi_config=OpenAPIConfig(
             title="Auth Service",
