@@ -2,6 +2,7 @@ from typing import Union
 
 from litestar import Request, Response, status_codes
 
+from app.adapter.exceptions.permissions import InvalidCookieTokenException
 from app.application.exceptions import (
     UserExistsException,
     UserLoginException,
@@ -32,7 +33,7 @@ def user_bad_request_exception_handler(
 
 def user_forbidden_exception_handler(
         _: Request,
-        exc: UserLoginException
+        exc: UserLoginException | InvalidCookieTokenException
 ) -> Response:
     return Response(
         content={
