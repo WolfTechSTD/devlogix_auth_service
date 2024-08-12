@@ -10,6 +10,7 @@ from litestar import (
 )
 from litestar.params import Dependency, Parameter
 
+from app.adapter.exceptions.permissions import InvalidCookieTokenException
 from app.application.exceptions import (
     UserExistsException,
     UserNotFoundException,
@@ -18,6 +19,7 @@ from app.application.exceptions import (
     UserLoginException,
     UserWithEmailAndUsernameExistsException,
 )
+from app.kernel.permissions.user import UserPermissions
 from app.presentation.after_request.cookie_token import (set_cookie)
 from app.presentation.exception_handlers.user import (
     user_bad_request_exception_handler,
@@ -50,7 +52,10 @@ class UserController(Controller):
         UserNotFoundException: user_not_found_exception_handler,
         UserWithUsernameExistsException: user_bad_request_exception_handler,
         UserWithEmailExistsException: user_bad_request_exception_handler,
-        UserWithEmailAndUsernameExistsException: user_bad_request_exception_handler
+        UserWithEmailAndUsernameExistsException: (
+            user_bad_request_exception_handler
+        ),
+        InvalidCookieTokenException: user_forbidden_exception_handler
     }
 
     @post(
@@ -85,31 +90,45 @@ class UserController(Controller):
 
     @get(
         "/{user_id:str}",
-        operation_class=GetUserOperation
+        operation_class=GetUserOperation,
     )
     async def get_user(
             self,
+            request: Request,
             user_id: Annotated[str, Parameter(
                 max_length=LENGTH_ID,
                 min_length=LENGTH_ID
             )],
-            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+            ioc: Annotated[InteractorFactory, Dependency(
+                skip_validation=True
+            )],
+            user_permissions: Annotated[UserPermissions, Dependency(
+                skip_validation=True
+            )],
     ) -> JsonUser:
-        async with ioc.add_user_usecase() as user_use_case:
-            user = await user_use_case.get_user(user_id)
+        token = request.cookies.get("session")
+        async with ioc.add_user_usecase(user_permissions) as user_use_case:
+            user = await user_use_case.get_user(user_id, token)
             return JsonUser.from_into(user)
 
-    @get(operation_class=GetUsersOperation)
+    @get(
+        operation_class=GetUsersOperation,
+    )
     async def get_users(
             self,
+            request: Request,
             ioc: Annotated[InteractorFactory, Dependency(
+                skip_validation=True
+            )],
+            user_permissions: Annotated[UserPermissions, Dependency(
                 skip_validation=True
             )],
             limit: int = 10,
             offset: int = 0
     ) -> JsonUserList:
-        async with ioc.add_user_usecase() as user_use_case:
-            users = await user_use_case.get_users(limit, offset)
+        token = request.cookies.get("session")
+        async with ioc.add_user_usecase(user_permissions) as user_use_case:
+            users = await user_use_case.get_users(limit, offset, token)
             return JsonUserList.from_into(limit, offset, users)
 
     @patch(
@@ -118,13 +137,18 @@ class UserController(Controller):
     )
     async def update_user(
             self,
+            request: Request,
             user_id: Annotated[str, Parameter(
                 max_length=LENGTH_ID,
                 min_length=LENGTH_ID
             )],
             data: JsonUpdateUser,
+            user_permissions: Annotated[UserPermissions, Dependency(
+                skip_validation=True
+            )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
-        async with ioc.add_user_usecase() as user_use_case:
-            user = await user_use_case.update_user(data.into(user_id))
+        token = request.cookies.get("session")
+        async with ioc.add_user_usecase(user_permissions) as user_use_case:
+            user = await user_use_case.update_user(data.into(user_id, token))
             return JsonUser.from_into(user)
