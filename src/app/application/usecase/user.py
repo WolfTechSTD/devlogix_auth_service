@@ -3,9 +3,10 @@ from typing import cast
 from app.application.exceptions import (
     UserExistsException,
     UserNotFoundException,
-    UserWithUsernameExistsException,
-    UserWithEmailExistsException,
     UserLoginException,
+    UserWithEmailAndUsernameExistsException,
+    UserWithEmailExistsException,
+    UserWithUsernameExistsException,
 )
 from app.application.model.cookie_token import (
     CookieTokenView,
@@ -67,24 +68,22 @@ class UserUseCase:
     async def update_user(self, source: UpdateUserView) -> UserView:
         if not await self.repository.check_user_exists(cast(Id, source.id)):
             raise UserNotFoundException()
-
-        if await self.repository.check_username_exists(
+        err = {
+            "username": await self.repository.check_username_exists(
                 user_id=cast(Id, source.id),
                 username=source.username or ""
-        ):
-            raise UserWithUsernameExistsException()
-
-        if await self.repository.check_email_exists(
+            ),
+            "email": await self.repository.check_email_exists(
                 cast(Id, source.id),
                 source.email or ""
-        ):
-            raise UserWithEmailExistsException()
-
-        if source.password is not None:
-            source.password = self.password_provider.get_password_hash(
-                source.password
             )
-
+        }
+        if err["email"] and err["username"]:
+            raise UserWithEmailAndUsernameExistsException()
+        elif err["email"]:
+            raise UserWithEmailExistsException()
+        elif err["username"]:
+            raise UserWithUsernameExistsException()
         user = await self.repository.update(source.into())
         await self.repository.save()
         return UserView(
