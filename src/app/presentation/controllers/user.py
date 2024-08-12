@@ -8,16 +8,22 @@ from litestar import (
     patch,
     Request,
 )
-from litestar.exceptions import HTTPException
 from litestar.params import Dependency, Parameter
 
 from app.application.exceptions import (
     UserExistsException,
     UserNotFoundException,
     UserWithUsernameExistsException,
-    UserWithEmailExistsException, UserLoginException,
+    UserWithEmailExistsException,
+    UserLoginException,
+    UserWithEmailAndUsernameExistsException,
 )
 from app.presentation.after_request.cookie_token import (set_cookie)
+from app.presentation.exception_handlers.user import (
+    user_bad_request_exception_handler,
+    user_forbidden_exception_handler,
+    user_not_found_exception_handler,
+)
 from app.presentation.interactor import InteractorFactory
 from app.presentation.model.cookie_token import JsonCookieToken
 from app.presentation.model.user import (
@@ -38,6 +44,14 @@ LENGTH_ID = 26
 
 class UserController(Controller):
     path = "/users"
+    exception_handlers = {
+        UserExistsException: user_bad_request_exception_handler,
+        UserLoginException: user_forbidden_exception_handler,
+        UserNotFoundException: user_not_found_exception_handler,
+        UserWithUsernameExistsException: user_bad_request_exception_handler,
+        UserWithEmailExistsException: user_bad_request_exception_handler,
+        UserWithEmailAndUsernameExistsException: user_bad_request_exception_handler
+    }
 
     @post(
         operation_class=CreateUserOperation,
@@ -48,15 +62,9 @@ class UserController(Controller):
             data: JsonCreateUser,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
-        try:
-            async with ioc.add_user_usecase() as user_use_case:
-                user = await user_use_case.create_user(data.into())
-                return JsonUser.from_into(user)
-        except UserExistsException as err:
-            raise HTTPException(
-                status_code=status_codes.HTTP_400_BAD_REQUEST,
-                detail=str(err)
-            )
+        async with ioc.add_user_usecase() as user_use_case:
+            user = await user_use_case.create_user(data.into())
+            return JsonUser.from_into(user)
 
     @post(
         "/login",
@@ -71,15 +79,9 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonCookieToken:
         token = request.cookies.get("session")
-        try:
-            async with ioc.add_user_usecase() as user_use_case:
-                cookie = await user_use_case.login(data.into(token))
-                return JsonCookieToken.from_into(cookie)
-        except UserLoginException as err:
-            raise HTTPException(
-                status_code=status_codes.HTTP_403_FORBIDDEN,
-                detail=str(err)
-            )
+        async with ioc.add_user_usecase() as user_use_case:
+            cookie = await user_use_case.login(data.into(token))
+            return JsonCookieToken.from_into(cookie)
 
     @get(
         "/{user_id:str}",
@@ -93,15 +95,9 @@ class UserController(Controller):
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
-        try:
-            async with ioc.add_user_usecase() as user_use_case:
-                user = await user_use_case.get_user(user_id)
-                return JsonUser.from_into(user)
-        except UserNotFoundException as err:
-            raise HTTPException(
-                status_code=status_codes.HTTP_404_NOT_FOUND,
-                detail=str(err)
-            )
+        async with ioc.add_user_usecase() as user_use_case:
+            user = await user_use_case.get_user(user_id)
+            return JsonUser.from_into(user)
 
     @get(operation_class=GetUsersOperation)
     async def get_users(
@@ -129,18 +125,6 @@ class UserController(Controller):
             data: JsonUpdateUser,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
-        try:
-            async with ioc.add_user_usecase() as user_use_case:
-                user = await user_use_case.update_user(data.into(user_id))
-                return JsonUser.from_into(user)
-        except UserNotFoundException as err:
-            raise HTTPException(
-                status_code=status_codes.HTTP_404_NOT_FOUND,
-                detail=str(err)
-            )
-        except (UserWithUsernameExistsException,
-                UserWithEmailExistsException) as err:
-            raise HTTPException(
-                status_code=status_codes.HTTP_400_BAD_REQUEST,
-                detail=str(err)
-            )
+        async with ioc.add_user_usecase() as user_use_case:
+            user = await user_use_case.update_user(data.into(user_id))
+            return JsonUser.from_into(user)
