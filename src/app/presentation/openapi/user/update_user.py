@@ -11,6 +11,15 @@ from litestar.openapi.spec import (
     Parameter,
 )
 
+from app.presentation.openapi.base import BaseParameters
+from app.presentation.openapi.exceptions.base import FORBIDDEN_EXCEPTION
+from app.presentation.openapi.exceptions.user import (
+    USER_EMAIL_EXISTS,
+    USER_USERNAME_EXISTS, USER_NOT_FOUND_EXCEPTION,
+)
+from app.presentation.openapi.security.base import BEARER_TOKEN
+from app.presentation.openapi.user.schema import UserParameterSchema
+
 DESCRIPTION = """
 Обновление пользователя.
 
@@ -25,6 +34,20 @@ DESCRIPTION = """
 
 SUMMARY = "Обновление пользователя"
 
+REQUEST_BODY_EXAMPLE = {
+    "username": "User",
+    "email": "user@gmail.com",
+    "password": "UserPassword",
+    "isActive": True
+}
+
+RESPONSE_EXAMPLE = {
+    "id": "01J4HC5WQB3FK3FA1FMXYVYJ6Y",
+    "username": "User",
+    "email": "user@gmail.com",
+    "isActive": True
+}
+
 
 @dataclass
 class UpdateUserOperation(Operation):
@@ -32,36 +55,20 @@ class UpdateUserOperation(Operation):
         self.tags = ["users"]
         self.summary = SUMMARY
         self.description = DESCRIPTION
+        self.security = [BEARER_TOKEN]
         self.request_body = RequestBody(
             content={
                 "json": OpenAPIMediaType(
                     schema=Schema(
                         type=OpenAPIType.OBJECT,
                         properties={
-                            "username": Schema(
-                                type=OpenAPIType.STRING,
-                                description="Юзернейм",
-                            ),
-                            "email": Schema(
-                                type=OpenAPIType.STRING,
-                                description="E-mail"
-                            ),
-                            "password": Schema(
-                                type=OpenAPIType.STRING,
-                                description="Пароль"
-                            ),
-                            "isActive": Schema(
-                                type=OpenAPIType.BOOLEAN,
-                                description="Статус пользователя"
-                            )
+                            "username": UserParameterSchema.username,
+                            "email": UserParameterSchema.email,
+                            "password": UserParameterSchema.password,
+                            "isActive": UserParameterSchema.is_active
                         }
                     ),
-                    example={
-                        "username": "User",
-                        "email": "user@gmail.com",
-                        "password": "UserPassword",
-                        "isActive": True
-                    }
+                    example=REQUEST_BODY_EXAMPLE
                 )
             }
         )
@@ -69,11 +76,7 @@ class UpdateUserOperation(Operation):
             name="user_id",
             param_in="path",
             required=True,
-            schema=Schema(
-                type=OpenAPIType.STRING,
-                description="Уникальный идентификатор",
-                default="01J4HC5WQB3FK3FA1FMXYVYJ6Y"
-            )
+            schema=UserParameterSchema.user_id
         )]
         self.responses = {
             "200": OpenAPIResponse(
@@ -83,30 +86,13 @@ class UpdateUserOperation(Operation):
                         schema=Schema(
                             type=OpenAPIType.OBJECT,
                             properties={
-                                "id": Schema(
-                                    type=OpenAPIType.STRING,
-                                    description="Уникальный идентификатор"
-                                ),
-                                "username": Schema(
-                                    type=OpenAPIType.STRING,
-                                    description="Юзернейм"
-                                ),
-                                "email": Schema(
-                                    type=OpenAPIType.STRING,
-                                    description="E-mail"
-                                ),
-                                "isActive": Schema(
-                                    type=OpenAPIType.BOOLEAN,
-                                    description="Статус пользователя"
-                                )
+                                "id": UserParameterSchema.id,
+                                "username": UserParameterSchema.username,
+                                "email": UserParameterSchema.email,
+                                "isActive": UserParameterSchema.is_active
                             }
                         ),
-                        example={
-                            "id": "01J4HC5WQB3FK3FA1FMXYVYJ6Y",
-                            "username": "User",
-                            "email": "user@gmail.com",
-                            "isActive": True
-                        }
+                        example=RESPONSE_EXAMPLE
                     )
                 }
             ),
@@ -117,36 +103,19 @@ class UpdateUserOperation(Operation):
                         schema=Schema(
                             type=OpenAPIType.OBJECT,
                             properties={
-                                "status_code": Schema(
-                                    type=OpenAPIType.INTEGER,
-                                    description="Статус-код HTTP"
-                                ),
-                                "detail": Schema(
-                                    type=OpenAPIType.STRING,
-                                    description="Описание ошибки"
-                                )
+                                "status_code": BaseParameters.status_code,
+                                "detail": BaseParameters.detail
                             }
                         ),
                         examples={
                             "Пользователь не найден": Example(
-                                value={
-                                    "status_code": 404,
-                                    "detail": "Пользователь не найден"
-                                }
+                                value=USER_NOT_FOUND_EXCEPTION
                             ),
                             "Пользователь с юзернейм уже существует": Example(
-                                value={
-                                    "status_code": 400,
-                                    "detail": "Пользователь с таким "
-                                              "юзернейм уже существует"
-                                }
+                                value=USER_USERNAME_EXISTS
                             ),
                             "Пользователь с почтой уже существует": Example(
-                                value={
-                                    "status_code": 400,
-                                    "detail": "Пользователь с такой "
-                                              "почтой уже существует"
-                                }
+                                value=USER_EMAIL_EXISTS
                             )
                         }
                     )
@@ -159,20 +128,11 @@ class UpdateUserOperation(Operation):
                         schema=Schema(
                             type=OpenAPIType.OBJECT,
                             properties={
-                                "status_code": Schema(
-                                    type=OpenAPIType.INTEGER,
-                                    description="Статус-код HTTP"
-                                ),
-                                "detail": Schema(
-                                    type=OpenAPIType.STRING,
-                                    description="Описание ошибки"
-                                )
+                                "status_code": BaseParameters.status_code,
+                                "detail": BaseParameters.detail
                             }
                         ),
-                        example={
-                            "status_code": 403,
-                            "detail": "Доступ запрещен"
-                        }
+                        example=FORBIDDEN_EXCEPTION
                     )
                 }
             )

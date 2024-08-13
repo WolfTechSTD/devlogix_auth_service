@@ -9,6 +9,13 @@ from litestar.openapi.spec import (
     OpenAPIType,
 )
 
+from app.presentation.openapi.base import BaseParameters
+from app.presentation.openapi.exceptions.base import (
+    FORBIDDEN_EXCEPTION,
+)
+from app.presentation.openapi.exceptions.user import USER_EXISTS_EXCEPTION
+from app.presentation.openapi.user.schema import UserParameterSchema
+
 DESCRIPTION = """
 Создание пользователя.
 
@@ -20,6 +27,19 @@ DESCRIPTION = """
 """
 
 SUMMARY = "Создание пользователя"
+
+REQUEST_BODY_EXAMPLE = {
+    "username": "User",
+    "email": "user@gmail.com",
+    "password": "UserPassword"
+}
+
+RESPONSE_EXAMPLE = {
+    "id": "01J4HC5WQB3FK3FA1FMXYVYJ6Y",
+    "username": "User",
+    "email": "user@gmail.com",
+    "isActive": True
+}
 
 
 @dataclass
@@ -34,26 +54,13 @@ class CreateUserOperation(Operation):
                     schema=Schema(
                         type=OpenAPIType.OBJECT,
                         properties={
-                            "username": Schema(
-                                type=OpenAPIType.STRING,
-                                description="Юзернейм"
-                            ),
-                            "email": Schema(
-                                type=OpenAPIType.STRING,
-                                description="E-mail"
-                            ),
-                            "password": Schema(
-                                type=OpenAPIType.STRING,
-                                description="Пароль"
-                            )
+                            "username": UserParameterSchema.username,
+                            "email": UserParameterSchema.email,
+                            "password": UserParameterSchema.password
                         },
                         required=("username", "email", "password")
                     ),
-                    example={
-                        "username": "User",
-                        "email": "user@gmail.com",
-                        "password": "UserPassword"
-                    },
+                    example=REQUEST_BODY_EXAMPLE,
                 )
             }
         )
@@ -65,30 +72,13 @@ class CreateUserOperation(Operation):
                         schema=Schema(
                             type=OpenAPIType.OBJECT,
                             properties={
-                                "id": Schema(
-                                    type=OpenAPIType.STRING,
-                                    description="Уникальный идентификатор"
-                                ),
-                                "username": Schema(
-                                    type=OpenAPIType.STRING,
-                                    description="Юзернейм"
-                                ),
-                                "email": Schema(
-                                    type=OpenAPIType.STRING,
-                                    description="E-mail"
-                                ),
-                                "isActive": Schema(
-                                    type=OpenAPIType.BOOLEAN,
-                                    description="Статус пользователя"
-                                )
+                                "id": UserParameterSchema.id,
+                                "username": UserParameterSchema.username,
+                                "email": UserParameterSchema.email,
+                                "isActive": UserParameterSchema.is_active
                             }
                         ),
-                        example={
-                            "id": "01J4HC5WQB3FK3FA1FMXYVYJ6Y",
-                            "username": "User",
-                            "email": "user@gmail.com",
-                            "isActive": True
-                        }
+                        example=RESPONSE_EXAMPLE
                     )
                 }
             ),
@@ -99,44 +89,26 @@ class CreateUserOperation(Operation):
                         schema=Schema(
                             type=OpenAPIType.OBJECT,
                             properties={
-                                "status_code": Schema(
-                                    type=OpenAPIType.INTEGER,
-                                    description="Статус-код HTTP"
-                                ),
-                                "detail": Schema(
-                                    type=OpenAPIType.STRING,
-                                    description="Описание ошибки"
-                                )
+                                "status_code": BaseParameters.status_code,
+                                "detail": BaseParameters.detail
                             }
                         ),
-                        example={
-                            "status_code": 400,
-                            "detail": "Пользователь уже существует"
-                        }
+                        example=USER_EXISTS_EXCEPTION
                     )
                 }
             ),
             "403": OpenAPIResponse(
-                description="Not Found",
+                description="Forbidden",
                 content={
                     "json": OpenAPIMediaType(
                         schema=Schema(
                             type=OpenAPIType.OBJECT,
                             properties={
-                                "status_code": Schema(
-                                    type=OpenAPIType.INTEGER,
-                                    description="Статус-код HTTP"
-                                ),
-                                "detail": Schema(
-                                    type=OpenAPIType.STRING,
-                                    description="Описание ошибки"
-                                )
+                                "status_code": BaseParameters.status_code,
+                                "detail": BaseParameters.detail
                             }
                         ),
-                        example={
-                            "status_code": 403,
-                            "detail": "Доступ запрещен"
-                        }
+                        example=FORBIDDEN_EXCEPTION
                     )
                 }
             )

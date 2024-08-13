@@ -10,6 +10,10 @@ from litestar.openapi.spec import (
     Example,
 )
 
+from app.presentation.openapi.base import BaseParameters
+from app.presentation.openapi.exceptions.base import INVALID_DATA_EXCEPTION
+from app.presentation.openapi.user.schema import UserParameterSchema
+
 DESCRIPTION = """
 Аутентификация
 
@@ -21,6 +25,16 @@ DESCRIPTION = """
 """
 
 SUMMARY = "Аутентификация"
+
+REQUEST_BODY_USERNAME_EXAMPLE = {
+    "username": "User",
+    "password": "UserPassword"
+}
+
+REQUEST_BODY_EMAIL_EXAMPLE = {
+    "email": "user@gmail.com",
+    "password": "UserPassword"
+}
 
 
 @dataclass
@@ -35,33 +49,18 @@ class UserLoginOperation(Operation):
                     schema=Schema(
                         type=OpenAPIType.OBJECT,
                         properties={
-                            "username": Schema(
-                                type=OpenAPIType.STRING,
-                                description="Юзернейм"
-                            ),
-                            "email": Schema(
-                                type=OpenAPIType.STRING,
-                                description="E-mail"
-                            ),
-                            "password": Schema(
-                                type=OpenAPIType.STRING,
-                                description="Пароль"
-                            )
+                            "username": UserParameterSchema.username,
+                            "email": UserParameterSchema.email,
+                            "password": UserParameterSchema.password
                         },
                         required=("password",)
                     ),
                     examples={
                         "Ввода с юзернеймом": Example(
-                            value={
-                                "username": "User",
-                                "password": "UserPassword"
-                            }
+                            value=REQUEST_BODY_USERNAME_EXAMPLE
                         ),
                         "Ввод с e-mail": Example(
-                            value={
-                                "email": "user@gmail.com",
-                                "password": "UserPassword"
-                            }
+                            value=REQUEST_BODY_EMAIL_EXAMPLE
                         )
                     }
                 )
@@ -79,20 +78,11 @@ class UserLoginOperation(Operation):
                         schema=Schema(
                             type=OpenAPIType.OBJECT,
                             properties={
-                                "status_code": Schema(
-                                    type=OpenAPIType.INTEGER,
-                                    description="Статус-код HTTp"
-                                ),
-                                "detail": Schema(
-                                    type=OpenAPIType.STRING,
-                                    description="Описание ошибки"
-                                )
+                                "status_code": BaseParameters.status_code,
+                                "detail": BaseParameters.detail
                             }
                         ),
-                        example={
-                            "status_code": 403,
-                            "detail": "Данные введены неверно"
-                        }
+                        example=INVALID_DATA_EXCEPTION
                     )
                 }
             )
