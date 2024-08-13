@@ -10,9 +10,9 @@ from litestar.openapi.spec import (
     Example,
 )
 
-from app.presentation.openapi.base import BaseParameters
+from app.presentation.openapi.schema.base import BaseParameters
 from app.presentation.openapi.exceptions.base import INVALID_DATA_EXCEPTION
-from app.presentation.openapi.user.schema import UserParameterSchema
+from app.presentation.openapi.schema.user import UserParameterSchema
 
 DESCRIPTION = """
 Аутентификация
@@ -32,7 +32,7 @@ REQUEST_BODY_USERNAME_EXAMPLE = {
 }
 
 REQUEST_BODY_EMAIL_EXAMPLE = {
-    "email": "user@gmail.com",
+    "email": "operation@gmail.com",
     "password": "UserPassword"
 }
 

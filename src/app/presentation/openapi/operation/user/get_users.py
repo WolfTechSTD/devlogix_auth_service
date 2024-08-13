@@ -10,10 +10,10 @@ from litestar.openapi.spec import (
 )
 
 from app.presentation.constants import OFFSET, LIMIT, TOTAL
-from app.presentation.openapi.base import BaseParameters
+from app.presentation.openapi.schema.base import BaseParameters
 from app.presentation.openapi.exceptions.base import FORBIDDEN_EXCEPTION
 from app.presentation.openapi.security.base import BEARER_TOKEN
-from app.presentation.openapi.user.schema import UserParameterSchema
+from app.presentation.openapi.schema.user import UserParameterSchema
 
 DESCRIPTION = """
 Получение пользователей

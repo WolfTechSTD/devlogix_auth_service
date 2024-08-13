@@ -7,47 +7,55 @@ from litestar.openapi.spec import (
     Schema,
     OpenAPIResponse,
     OpenAPIType,
+    Example,
+    Parameter,
 )
 
-from app.presentation.openapi.base import BaseParameters
-from app.presentation.openapi.exceptions.base import (
-    FORBIDDEN_EXCEPTION,
+from app.presentation.openapi.schema.base import BaseParameters
+from app.presentation.openapi.exceptions.base import FORBIDDEN_EXCEPTION
+from app.presentation.openapi.exceptions.user import (
+    USER_EMAIL_EXISTS,
+    USER_USERNAME_EXISTS, USER_NOT_FOUND_EXCEPTION,
 )
-from app.presentation.openapi.exceptions.user import USER_EXISTS_EXCEPTION
-from app.presentation.openapi.user.schema import UserParameterSchema
+from app.presentation.openapi.security.base import BEARER_TOKEN
+from app.presentation.openapi.schema.user import UserParameterSchema
 
 DESCRIPTION = """
-Создание пользователя.
+Обновление пользователя.
 
-* **username** - юзернейм
+* **username** - Юзернейм
 
-* **email** - e-mail
+* **email** - E-mail
 
-* **password** - пароль
+* **password** - Пароль
+
+* **isActive** - Статус пользователя
 """
 
-SUMMARY = "Создание пользователя"
+SUMMARY = "Обновление пользователя"
 
 REQUEST_BODY_EXAMPLE = {
     "username": "User",
-    "email": "user@gmail.com",
-    "password": "UserPassword"
+    "email": "operation@gmail.com",
+    "password": "UserPassword",
+    "isActive": True
 }
 
 RESPONSE_EXAMPLE = {
     "id": "01J4HC5WQB3FK3FA1FMXYVYJ6Y",
     "username": "User",
-    "email": "user@gmail.com",
+    "email": "operation@gmail.com",
     "isActive": True
 }
 
 
 @dataclass
-class CreateUserOperation(Operation):
-    def __post_init__(self) -> None:
+class UpdateUserOperation(Operation):
+    def __post_init__(self):
         self.tags = ["users"]
         self.summary = SUMMARY
         self.description = DESCRIPTION
+        self.security = [BEARER_TOKEN]
         self.request_body = RequestBody(
             content={
                 "json": OpenAPIMediaType(
@@ -56,17 +64,23 @@ class CreateUserOperation(Operation):
                         properties={
                             "username": UserParameterSchema.username,
                             "email": UserParameterSchema.email,
-                            "password": UserParameterSchema.password
-                        },
-                        required=("username", "email", "password")
+                            "password": UserParameterSchema.password,
+                            "isActive": UserParameterSchema.is_active
+                        }
                     ),
-                    example=REQUEST_BODY_EXAMPLE,
+                    example=REQUEST_BODY_EXAMPLE
                 )
             }
         )
+        self.parameters = [Parameter(
+            name="user_id",
+            param_in="path",
+            required=True,
+            schema=UserParameterSchema.user_id
+        )]
         self.responses = {
-            "201": OpenAPIResponse(
-                description="Created",
+            "200": OpenAPIResponse(
+                description="Ok",
                 content={
                     "json": OpenAPIMediaType(
                         schema=Schema(
@@ -93,12 +107,22 @@ class CreateUserOperation(Operation):
                                 "detail": BaseParameters.detail
                             }
                         ),
-                        example=USER_EXISTS_EXCEPTION
+                        examples={
+                            "Пользователь не найден": Example(
+                                value=USER_NOT_FOUND_EXCEPTION
+                            ),
+                            "Пользователь с юзернейм уже существует": Example(
+                                value=USER_USERNAME_EXISTS
+                            ),
+                            "Пользователь с почтой уже существует": Example(
+                                value=USER_EMAIL_EXISTS
+                            )
+                        }
                     )
                 }
             ),
             "403": OpenAPIResponse(
-                description="Forbidden",
+                description="Not Found",
                 content={
                     "json": OpenAPIMediaType(
                         schema=Schema(

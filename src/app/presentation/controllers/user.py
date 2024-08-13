@@ -35,11 +35,11 @@ from app.presentation.model.user import (
     JsonUpdateUser,
     JsonUserLogin,
 )
-from app.presentation.openapi.user.create_user import CreateUserOperation
-from app.presentation.openapi.user.get_user import GetUserOperation
-from app.presentation.openapi.user.get_users import GetUsersOperation
-from app.presentation.openapi.user.login import UserLoginOperation
-from app.presentation.openapi.user.update_user import UpdateUserOperation
+from app.presentation.openapi.operation.user.create_user import CreateUserOperation
+from app.presentation.openapi.operation.user.get_user import GetUserOperation
+from app.presentation.openapi.operation.user.get_users import GetUsersOperation
+from app.presentation.openapi.operation.user.login import UserLoginOperation
+from app.presentation.openapi.operation.user.update_user import UpdateUserOperation
 
 LENGTH_ID = 26
 

@@ -35,7 +35,7 @@ class JsonUser(Base):
         json_schema_extra={
             "title": "email",
             "description": "E-mail",
-            "example": "user@gmail.com"
+            "example": "operation@gmail.com"
         }
     )
     is_active: bool = Field(
@@ -118,7 +118,7 @@ class JsonCreateUser(Base):
         json_schema_extra={
             "title": "email",
             "description": "E-mail",
-            "example": "user@gmail.com"
+            "example": "operation@gmail.com"
         }
     )
     password: str = Field(

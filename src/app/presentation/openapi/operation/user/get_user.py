@@ -9,11 +9,11 @@ from litestar.openapi.spec import (
     OpenAPIResponse,
 )
 
-from app.presentation.openapi.base import BaseParameters
+from app.presentation.openapi.schema.base import BaseParameters
 from app.presentation.openapi.exceptions.base import FORBIDDEN_EXCEPTION
 from app.presentation.openapi.exceptions.user import USER_NOT_FOUND_EXCEPTION
 from app.presentation.openapi.security.base import BEARER_TOKEN
-from app.presentation.openapi.user.schema import UserParameterSchema
+from app.presentation.openapi.schema.user import UserParameterSchema
 
 DESCRIPTION = """
 Получение пользователя
@@ -26,7 +26,7 @@ SUMMARY = "Получение пользователя"
 RESPONSE_EXAMPLE = {
     "id": "01J4HC5WQB3FK3FA1FMXYVYJ6Y",
     "username": "User",
-    "email": "user@gmail.com",
+    "email": "operation@gmail.com",
     "isActive": True
 }
 
