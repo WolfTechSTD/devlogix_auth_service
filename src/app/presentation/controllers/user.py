@@ -7,6 +7,7 @@ from litestar import (
     get,
     patch,
     Request,
+    delete,
 )
 from litestar.params import Dependency, Parameter
 
@@ -40,6 +41,8 @@ from app.presentation.model.user import (
 from app.presentation.openapi.operation.user.create_user import (
     CreateUserOperation
 )
+from app.presentation.openapi.operation.user.delete_user_me import \
+    DeleteUserMeOperation
 from app.presentation.openapi.operation.user.get_user import GetUserOperation
 from app.presentation.openapi.operation.user.get_user_me import (
     GetUserMeOperation
@@ -202,3 +205,20 @@ class UserController(Controller):
         async with ioc.add_user_usecase(user_permissions) as user_use_case:
             user = await user_use_case.update_user_me(data.into(token))
             return JsonUser.from_into(user)
+
+    @delete(
+        "/me",
+        operation_class=DeleteUserMeOperation,
+        status_code=status_codes.HTTP_204_NO_CONTENT
+    )
+    async def delete_user_me(
+            self,
+            request: Request,
+            user_permissions: Annotated[UserPermissions, Dependency(
+                skip_validation=True
+            )],
+            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+    ) -> None:
+        token = request.cookies.get("session")
+        async with ioc.add_user_usecase(user_permissions) as user_use_case:
+            await user_use_case.delete_user_me(token)

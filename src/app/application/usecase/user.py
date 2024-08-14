@@ -165,6 +165,15 @@ class UserUseCase:
             is_active=user.is_active
         )
 
+    async def delete_user_me(self, token: str) -> None:
+        user_id = await self.user_permissions.get_user_id(token)
+
+        if user_id is None:
+            raise InvalidTokenException()
+
+        await self.repository.delete(cast(id, user_id))
+        await self.repository.save()
+
     async def _check_username_and_email(
             self,
             source: UpdateUserView | UpdateUserMeView,
