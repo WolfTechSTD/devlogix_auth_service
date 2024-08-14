@@ -17,6 +17,7 @@ from app.presentation.openapi.exceptions.user import (
 )
 from app.presentation.openapi.schema.base import BaseParameters
 from app.presentation.openapi.schema.user import UserParameterSchema
+from app.presentation.openapi.security.base import BEARER_TOKEN
 
 DESCRIPTION = """
 Обновление данных о себе.
@@ -50,6 +51,7 @@ class UpdateUserMeOperation(Operation):
         self.tags = ["users"]
         self.summary = SUMMARY
         self.description = DESCRIPTION
+        self.security = [BEARER_TOKEN]
         self.request_body = RequestBody(
             content={
                 "json": OpenAPIMediaType(
