@@ -32,7 +32,7 @@ REQUEST_BODY_USERNAME_EXAMPLE = {
 }
 
 REQUEST_BODY_EMAIL_EXAMPLE = {
-    "email": "operation@gmail.com",
+    "email": "user@gmail.com",
     "password": "UserPassword"
 }
 

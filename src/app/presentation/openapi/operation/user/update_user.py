@@ -38,7 +38,7 @@ SUMMARY = "Обновление пользователя"
 
 REQUEST_BODY_EXAMPLE = {
     "username": "User",
-    "email": "operation@gmail.com",
+    "email": "user@gmail.com",
     "password": "UserPassword",
     "isActive": True
 }
@@ -46,7 +46,7 @@ REQUEST_BODY_EXAMPLE = {
 RESPONSE_EXAMPLE = {
     "id": "01J4HC5WQB3FK3FA1FMXYVYJ6Y",
     "username": "User",
-    "email": "operation@gmail.com",
+    "email": "user@gmail.com",
     "isActive": True
 }
 

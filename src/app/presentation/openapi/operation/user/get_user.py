@@ -26,7 +26,7 @@ SUMMARY = "Получение пользователя"
 RESPONSE_EXAMPLE = {
     "id": "01J4HC5WQB3FK3FA1FMXYVYJ6Y",
     "username": "User",
-    "email": "operation@gmail.com",
+    "email": "user@gmail.com",
     "isActive": True
 }
 

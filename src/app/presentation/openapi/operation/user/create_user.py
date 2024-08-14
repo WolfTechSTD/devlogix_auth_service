@@ -30,14 +30,14 @@ SUMMARY = "Создание пользователя"
 
 REQUEST_BODY_EXAMPLE = {
     "username": "User",
-    "email": "operation@gmail.com",
+    "email": "user@gmail.com",
     "password": "UserPassword"
 }
 
 RESPONSE_EXAMPLE = {
     "id": "01J4HC5WQB3FK3FA1FMXYVYJ6Y",
     "username": "User",
-    "email": "operation@gmail.com",
+    "email": "user@gmail.com",
     "isActive": True
 }
 
