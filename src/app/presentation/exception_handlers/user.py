@@ -9,7 +9,7 @@ from app.application.exceptions import (
     UserNotFoundException,
     UserWithUsernameExistsException,
     UserWithEmailExistsException,
-    UserWithEmailAndUsernameExistsException,
+    UserWithEmailAndUsernameExistsException, InvalidTokenException,
 )
 
 
@@ -33,7 +33,11 @@ def user_bad_request_exception_handler(
 
 def user_forbidden_exception_handler(
         _: Request,
-        exc: UserLoginException | InvalidCookieTokenException
+        exc: Union[
+            UserLoginException,
+            InvalidCookieTokenException,
+            InvalidTokenException
+        ]
 ) -> Response:
     return Response(
         content={
