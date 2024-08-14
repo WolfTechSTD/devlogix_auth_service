@@ -49,13 +49,29 @@ class CreateUserView:
 
 
 @dataclass(slots=True)
+class UpdateUserMeView:
+    username: str | None
+    email: str | None
+    password: str | None
+    token: str
+
+    def into(self, id: Id) -> UpdateUser:
+        return UpdateUser(
+            id=id,
+            username=self.username,
+            email=self.email,
+            password=self.password,
+        )
+
+
+@dataclass(slots=True)
 class UpdateUserView:
     id: str
     username: str | None
     email: str | None
     password: str | None
-    is_active: bool | None
     token: str
+    is_active: bool | None
 
     def into(self) -> UpdateUser:
         return UpdateUser(
