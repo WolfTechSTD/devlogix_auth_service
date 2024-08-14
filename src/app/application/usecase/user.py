@@ -16,7 +16,9 @@ from app.application.model.user import (
     CreateUserView,
     UserView,
     UserListView,
-    UpdateUserView, UserLoginView,
+    UpdateUserView,
+    UserLoginView,
+    UpdateUserMeView,
 )
 from app.kernel.model.id import Id
 from app.kernel.permissions.user import UserPermissions
@@ -79,12 +81,9 @@ class UserUseCase:
 
         if not await self.repository.check_user_exists(cast(Id, source.id)):
             raise UserNotFoundException()
-        await self._check_username_and_email(source)
 
-        if source.password is not None:
-            source.password = self.password_provider.get_password_hash(
-                source.password
-            )
+        await self._check_username_and_email(source)
+        await self._set_password_hash(source)
 
         user = await self.repository.update(source.into())
         await self.repository.save()
@@ -95,10 +94,27 @@ class UserUseCase:
             is_active=user.is_active
         )
 
+    async def update_user_me(self, source: UpdateUserMeView) -> UserView:
+        user_id = await self.user_permissions.get_user_id(source.token)
+
+        if user_id is None:
+            raise InvalidTokenException()
+        await self._check_username_and_email(source, cast(Id, user_id))
+        await self._set_password_hash(source)
+
+        user = await self.repository.update(source.into(cast(Id, user_id)))
+        await self.repository.save()
+        return UserView(
+            id=str(user.id),
+            username=user.username,
+            email=user.email,
+            is_active=user.is_active
+        )
+
     async def get_user(self, user_id: str, token: str) -> UserView:
         await self.user_permissions.check_cookie_token(token)
-
         user = await self.repository.get(cast(Id, user_id))
+
         if user is None:
             raise UserNotFoundException()
 
@@ -116,7 +132,6 @@ class UserUseCase:
             token: str
     ) -> UserListView:
         await self.user_permissions.check_cookie_token(token)
-
         users = await self.repository.get_list(
             limit=limit,
             offset=limit * offset
@@ -132,12 +147,14 @@ class UserUseCase:
             ) for user in users)
         )
 
-    async def get_user_me(self, token: str):
+    async def get_user_me(self, token: str) -> UserView:
         user_id = await self.user_permissions.get_user_id(token)
+
         if user_id is None:
             raise InvalidTokenException()
 
         user = await self.repository.get(cast(Id, user_id))
+
         if user is None:
             raise InvalidTokenException()
 
@@ -148,16 +165,19 @@ class UserUseCase:
             is_active=user.is_active
         )
 
-
-    async def _check_username_and_email(self, source: UpdateUserView) -> None:
+    async def _check_username_and_email(
+            self,
+            source: UpdateUserView | UpdateUserMeView,
+            user_id: Id | None = None
+    ) -> None:
         err = {
             "username": await self.repository.check_username_exists(
-                user_id=cast(Id, source.id),
+                user_id=user_id or cast(Id, source.id),
                 username=source.username or ""
             ),
             "email": await self.repository.check_email_exists(
-                cast(Id, source.id),
-                source.email or ""
+                user_id=user_id or cast(Id, source.id),
+                email=source.email or ""
             )
         }
 
@@ -167,3 +187,12 @@ class UserUseCase:
             raise UserWithEmailExistsException()
         elif err["username"]:
             raise UserWithUsernameExistsException()
+
+    async def _set_password_hash(
+            self,
+            source: UpdateUserView | UpdateUserMeView
+    ) -> None:
+        if source.password is not None:
+            source.password = self.password_provider.get_password_hash(
+                source.password
+            )
