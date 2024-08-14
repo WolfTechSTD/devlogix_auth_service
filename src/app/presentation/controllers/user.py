@@ -18,9 +18,11 @@ from app.application.exceptions import (
     UserWithEmailExistsException,
     UserLoginException,
     UserWithEmailAndUsernameExistsException,
+    InvalidTokenException,
 )
 from app.kernel.permissions.user import UserPermissions
 from app.presentation.after_request.cookie_token import (set_cookie)
+from app.presentation.constants import LIMIT, OFFSET
 from app.presentation.exception_handlers.user import (
     user_bad_request_exception_handler,
     user_forbidden_exception_handler,
@@ -35,11 +37,17 @@ from app.presentation.model.user import (
     JsonUpdateUser,
     JsonUserLogin,
 )
-from app.presentation.openapi.operation.user.create_user import CreateUserOperation
+from app.presentation.openapi.operation.user.create_user import (
+    CreateUserOperation
+)
 from app.presentation.openapi.operation.user.get_user import GetUserOperation
+from app.presentation.openapi.operation.user.get_user_me import \
+    GetUserMeOperation
 from app.presentation.openapi.operation.user.get_users import GetUsersOperation
 from app.presentation.openapi.operation.user.login import UserLoginOperation
-from app.presentation.openapi.operation.user.update_user import UpdateUserOperation
+from app.presentation.openapi.operation.user.update_user import (
+    UpdateUserOperation
+)
 
 LENGTH_ID = 26
 
@@ -55,7 +63,8 @@ class UserController(Controller):
         UserWithEmailAndUsernameExistsException: (
             user_bad_request_exception_handler
         ),
-        InvalidCookieTokenException: user_forbidden_exception_handler
+        InvalidCookieTokenException: user_forbidden_exception_handler,
+        InvalidTokenException: user_forbidden_exception_handler
     }
 
     @post(
@@ -123,8 +132,8 @@ class UserController(Controller):
             user_permissions: Annotated[UserPermissions, Dependency(
                 skip_validation=True
             )],
-            limit: int = 10,
-            offset: int = 0
+            limit: int = LIMIT,
+            offset: int = OFFSET
     ) -> JsonUserList:
         token = request.cookies.get("session")
         async with ioc.add_user_usecase(user_permissions) as user_use_case:
@@ -151,4 +160,21 @@ class UserController(Controller):
         token = request.cookies.get("session")
         async with ioc.add_user_usecase(user_permissions) as user_use_case:
             user = await user_use_case.update_user(data.into(user_id, token))
+            return JsonUser.from_into(user)
+
+    @get(
+        "/me",
+        operation_class=GetUserMeOperation
+    )
+    async def get_user_me(
+            self,
+            request: Request,
+            user_permissions: Annotated[UserPermissions, Dependency(
+                skip_validation=True
+            )],
+            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+    ) -> JsonUser:
+        token = request.cookies.get("session")
+        async with ioc.add_user_usecase(user_permissions) as user_use_case:
+            user = await user_use_case.get_user_me(token)
             return JsonUser.from_into(user)
