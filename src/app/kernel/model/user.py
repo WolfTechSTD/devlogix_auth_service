@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .id import Id
 
@@ -23,7 +23,7 @@ class NewUser:
 @dataclass(slots=True)
 class UpdateUser:
     id: Id
-    username: str
-    email: str
-    password: str
-    is_active: bool | None
+    username: str | None
+    email: str | None
+    password: str | None
+    is_active: bool | None = field(default=None)
