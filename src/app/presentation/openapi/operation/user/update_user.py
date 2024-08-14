@@ -124,7 +124,7 @@ class UpdateUserOperation(Operation):
                 }
             ),
             "403": OpenAPIResponse(
-                description="Not Found",
+                description="Forbidden",
                 content={
                     "json": OpenAPIMediaType(
                         schema=Schema(
