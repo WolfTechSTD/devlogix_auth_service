@@ -6,7 +6,9 @@ from app.application.model.user import (
     CreateUserView,
     UserView,
     UserListView,
-    UpdateUserView, UserLoginView,
+    UpdateUserView,
+    UserLoginView,
+    UpdateUserMeView,
 )
 from app.presentation.constants import TOTAL, LIMIT, OFFSET
 from .base import Base
@@ -135,6 +137,38 @@ class JsonCreateUser(Base):
             username=self.username,
             email=self.email,
             password=self.password
+        )
+
+
+class JsonUpdateUserMe(Base):
+    username: Optional[str] = Field(
+        None,
+        json_schema_extra={
+            "title": "username",
+            "description": "Юзернейм",
+        }
+    )
+    email: Optional[str] = Field(
+        None,
+        json_schema_extra={
+            "title": "email",
+            "description": "E-mail",
+        }
+    )
+    password: Optional[str] = Field(
+        None,
+        json_schema_extra={
+            "title": "password",
+            "description": "Пароль",
+        }
+    )
+
+    def into(self, token: str) -> UpdateUserMeView:
+        return UpdateUserMeView(
+            username=self.username,
+            email=self.email,
+            password=self.password,
+            token=token
         )
 
 
