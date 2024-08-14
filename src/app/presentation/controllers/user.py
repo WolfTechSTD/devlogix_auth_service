@@ -35,18 +35,22 @@ from app.presentation.model.user import (
     JsonUser,
     JsonUserList,
     JsonUpdateUser,
-    JsonUserLogin,
+    JsonUserLogin, JsonUpdateUserMe,
 )
 from app.presentation.openapi.operation.user.create_user import (
     CreateUserOperation
 )
 from app.presentation.openapi.operation.user.get_user import GetUserOperation
-from app.presentation.openapi.operation.user.get_user_me import \
+from app.presentation.openapi.operation.user.get_user_me import (
     GetUserMeOperation
+)
 from app.presentation.openapi.operation.user.get_users import GetUsersOperation
 from app.presentation.openapi.operation.user.login import UserLoginOperation
 from app.presentation.openapi.operation.user.update_user import (
     UpdateUserOperation
+)
+from app.presentation.openapi.operation.user.update_user_me import (
+    UpdateUserMeOperation
 )
 
 LENGTH_ID = 26
@@ -143,6 +147,7 @@ class UserController(Controller):
     @patch(
         "/{user_id:str}",
         operation_class=UpdateUserOperation,
+        status_code=status_codes.HTTP_200_OK
     )
     async def update_user(
             self,
@@ -177,4 +182,23 @@ class UserController(Controller):
         token = request.cookies.get("session")
         async with ioc.add_user_usecase(user_permissions) as user_use_case:
             user = await user_use_case.get_user_me(token)
+            return JsonUser.from_into(user)
+
+    @patch(
+        "/me",
+        operation_class=UpdateUserMeOperation,
+        status_code=status_codes.HTTP_200_OK
+    )
+    async def update_user_me(
+            self,
+            data: JsonUpdateUserMe,
+            request: Request,
+            user_permissions: Annotated[UserPermissions, Dependency(
+                skip_validation=True
+            )],
+            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+    ) -> JsonUser:
+        token = request.cookies.get("session")
+        async with ioc.add_user_usecase(user_permissions) as user_use_case:
+            user = await user_use_case.update_user_me(data.into(token))
             return JsonUser.from_into(user)
