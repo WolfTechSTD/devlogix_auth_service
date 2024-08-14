@@ -15,7 +15,7 @@ from app.presentation.openapi.exceptions.base import INVALID_DATA_EXCEPTION
 from app.presentation.openapi.schema.user import UserParameterSchema
 
 DESCRIPTION = """
-Аутентификация
+Аутентификация.
 
 * **username** - юзернейм
 

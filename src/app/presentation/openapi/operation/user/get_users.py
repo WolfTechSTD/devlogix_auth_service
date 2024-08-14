@@ -16,7 +16,7 @@ from app.presentation.openapi.security.base import BEARER_TOKEN
 from app.presentation.openapi.schema.user import UserParameterSchema
 
 DESCRIPTION = """
-Получение пользователей
+Получение пользователей.
 
 * **limit** - лимит записей
 
