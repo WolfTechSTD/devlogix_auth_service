@@ -18,9 +18,9 @@ from app.presentation.openapi.schema.user import UserParameterSchema
 DESCRIPTION = """
 Получение пользователей.
 
-* **limit** - лимит записей
+* **limit** - Лимит записей
 
-* **offset** - текущая запись
+* **offset** - Текущая запись
 """
 
 SUMMARY = "Получение пользователей"

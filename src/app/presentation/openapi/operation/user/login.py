@@ -17,11 +17,11 @@ from app.presentation.openapi.schema.user import UserParameterSchema
 DESCRIPTION = """
 Аутентификация.
 
-* **username** - юзернейм
+* **username** - Юзернейм
 
-* **email** - e-mail
+* **email** - E-mail
 
-* **password** - пароль
+* **password** - Пароль
 """
 
 SUMMARY = "Аутентификация"

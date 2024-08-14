@@ -19,11 +19,11 @@ from app.presentation.openapi.schema.user import UserParameterSchema
 DESCRIPTION = """
 Создание пользователя.
 
-* **username** - юзернейм
+* **username** - Юзернейм
 
-* **email** - e-mail
+* **email** - E-mail
 
-* **password** - пароль
+* **password** - Пароль
 """
 
 SUMMARY = "Создание пользователя"

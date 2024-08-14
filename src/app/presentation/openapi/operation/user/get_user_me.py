@@ -13,9 +13,7 @@ from app.presentation.openapi.schema.base import BaseParameters
 from app.presentation.openapi.schema.user import UserParameterSchema
 from app.presentation.openapi.security.base import BEARER_TOKEN
 
-DESCRIPTION = """
-Получение данных о себе
-"""
+DESCRIPTION = """Получение данных о себе."""
 
 SUMMARY = "Получения данных о себе"
 

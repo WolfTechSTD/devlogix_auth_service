@@ -18,7 +18,7 @@ from app.presentation.openapi.schema.user import UserParameterSchema
 DESCRIPTION = """
 Получение пользователя.
 
-* **user_id** - уникальный идентификатор
+* **user_id** - Уникальный идентификатор
 """
 
 SUMMARY = "Получение пользователя"

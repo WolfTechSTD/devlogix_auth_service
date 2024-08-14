@@ -23,6 +23,8 @@ from app.presentation.openapi.schema.user import UserParameterSchema
 DESCRIPTION = """
 Обновление пользователя.
 
+* **user_id** - Уникальный идентификатор
+
 * **username** - Юзернейм
 
 * **email** - E-mail
