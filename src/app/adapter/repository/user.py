@@ -135,9 +135,10 @@ class UserRepository(DatabaseRepository[User]):
         ).exists()
         return await self.session.scalar(select(stmt))
 
-    async def delete(self, source: Id) -> None:
-        stmt = delete(Users).where(Users.id == source)
-        await self.session.execute(stmt)
+    async def delete(self, source: Id) -> User:
+        stmt = delete(Users).where(Users.id == source).returning(Users)
+        result = await self.session.execute(stmt)
+        return result.scalar().into()
 
     async def save(self) -> None:
         await self.session.commit()
