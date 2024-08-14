@@ -53,7 +53,7 @@ RESPONSE_EXAMPLE = {
 
 @dataclass
 class UpdateUserOperation(Operation):
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.tags = ["users"]
         self.summary = SUMMARY
         self.description = DESCRIPTION
