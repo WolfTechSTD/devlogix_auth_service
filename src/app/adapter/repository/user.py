@@ -1,6 +1,16 @@
 from collections.abc import Iterator
 
-from sqlalchemy import insert, select, or_, func, update, true, and_, case
+from sqlalchemy import (
+    insert,
+    select,
+    or_,
+    func,
+    update,
+    true,
+    and_,
+    case,
+    delete,
+)
 
 from app.adapter.model import Users
 from app.kernel.model.id import Id
@@ -126,7 +136,7 @@ class UserRepository(DatabaseRepository[User]):
         return await self.session.scalar(select(stmt))
 
     async def delete(self, source: Id) -> None:
-        stmt = update(Users).where(Users.id == source).values(is_active=False)
+        stmt = delete(Users).where(Users.id == source)
         await self.session.execute(stmt)
 
     async def save(self) -> None:
