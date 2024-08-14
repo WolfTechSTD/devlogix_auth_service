@@ -26,6 +26,12 @@ class UserWithEmailExistsException(UserExistsException):
     def __str__(self) -> str:
         return "Пользователь с такой почтой уже существует"
 
+
 class UserWithEmailAndUsernameExistsException(UserExistsException):
     def __str__(self) -> str:
         return "Пользователь с такими данными уже существует"
+
+
+class InvalidTokenException(UserExistsException):
+    def __str__(self) -> str:
+        return "Доступ запрещен"
