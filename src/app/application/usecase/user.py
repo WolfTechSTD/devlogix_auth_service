@@ -7,6 +7,7 @@ from app.application.exceptions import (
     UserWithEmailAndUsernameExistsException,
     UserWithEmailExistsException,
     UserWithUsernameExistsException,
+    InvalidTokenException,
 )
 from app.application.model.cookie_token import (
     CookieTokenView,
@@ -130,6 +131,23 @@ class UserUseCase:
                 is_active=user.is_active
             ) for user in users)
         )
+
+    async def get_user_me(self, token: str):
+        user_id = await self.user_permissions.get_user_id(token)
+        if user_id is None:
+            raise InvalidTokenException()
+
+        user = await self.repository.get(cast(Id, user_id))
+        if user is None:
+            raise InvalidTokenException()
+
+        return UserView(
+            id=str(user.id),
+            username=user.username,
+            email=user.email,
+            is_active=user.is_active
+        )
+
 
     async def _check_username_and_email(self, source: UpdateUserView) -> None:
         err = {
