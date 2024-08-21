@@ -7,7 +7,7 @@ from app.kernel.permissions.user import UserPermissions
 
 class InteractorFactory(ABC):
     @abstractmethod
-    def add_user_usecase(
+    def user_usecase(
             self,
             user_permissions: UserPermissions | None = None
     ) -> AbstractAsyncContextManager[UserUseCase]:

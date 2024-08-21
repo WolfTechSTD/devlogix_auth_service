@@ -83,7 +83,7 @@ class UserController(Controller):
             data: JsonCreateUser,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
-        async with ioc.add_user_usecase() as user_use_case:
+        async with ioc.user_usecase() as user_use_case:
             user = await user_use_case.create_user(data.into())
             return JsonUser.from_into(user)
 
@@ -100,7 +100,7 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonCookieToken:
         token = request.cookies.get("session")
-        async with ioc.add_user_usecase() as user_use_case:
+        async with ioc.user_usecase() as user_use_case:
             cookie = await user_use_case.login(data.into(token))
             return JsonCookieToken.from_into(cookie)
 
@@ -123,7 +123,7 @@ class UserController(Controller):
             )],
     ) -> JsonUser:
         token = request.cookies.get("session")
-        async with ioc.add_user_usecase(user_permissions) as user_use_case:
+        async with ioc.user_usecase(user_permissions) as user_use_case:
             user = await user_use_case.get_user(user_id, token)
             return JsonUser.from_into(user)
 
@@ -143,7 +143,7 @@ class UserController(Controller):
             offset: int = OFFSET
     ) -> JsonUserList:
         token = request.cookies.get("session")
-        async with ioc.add_user_usecase(user_permissions) as user_use_case:
+        async with ioc.user_usecase(user_permissions) as user_use_case:
             users = await user_use_case.get_users(limit, offset, token)
             return JsonUserList.from_into(limit, offset, users)
 
@@ -166,7 +166,7 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
-        async with ioc.add_user_usecase(user_permissions) as user_use_case:
+        async with ioc.user_usecase(user_permissions) as user_use_case:
             user = await user_use_case.update_user(data.into(user_id, token))
             return JsonUser.from_into(user)
 
@@ -183,7 +183,7 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
-        async with ioc.add_user_usecase(user_permissions) as user_use_case:
+        async with ioc.user_usecase(user_permissions) as user_use_case:
             user = await user_use_case.get_user_me(token)
             return JsonUser.from_into(user)
 
@@ -202,7 +202,7 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
-        async with ioc.add_user_usecase(user_permissions) as user_use_case:
+        async with ioc.user_usecase(user_permissions) as user_use_case:
             user = await user_use_case.update_user_me(data.into(token))
             return JsonUser.from_into(user)
 
@@ -220,5 +220,5 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> None:
         token = request.cookies.get("session")
-        async with ioc.add_user_usecase(user_permissions) as user_use_case:
+        async with ioc.user_usecase(user_permissions) as user_use_case:
             await user_use_case.delete_user_me(token)

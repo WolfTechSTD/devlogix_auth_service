@@ -21,7 +21,7 @@ class IoC(InteractorFactory):
         self.cookie_token_repository = cookie_token_repository
 
     @asynccontextmanager
-    async def add_user_usecase(
+    async def user_usecase(
             self,
             user_permissions: UserPermissions | None = None
     ) -> AsyncIterator[UserUseCase]:
