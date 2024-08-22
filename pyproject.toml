@@ -22,7 +22,8 @@ dependencies = [
     "pyjwt<=2.9.0",
     "passlib<=1.7.4",
     "argon2_cffi<=23.1.0",
-    "redis<=5.0.8"
+    "redis<=5.0.8",
+    "celery<=5.4.0"
 ]
 
 [project.optional-dependencies]
