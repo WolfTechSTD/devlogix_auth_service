@@ -30,8 +30,3 @@ class UserWithEmailExistsException(UserExistsException):
 class UserWithEmailAndUsernameExistsException(UserExistsException):
     def __str__(self) -> str:
         return "Пользователь с такими данными уже существует"
-
-
-class InvalidTokenException(UserExistsException):
-    def __str__(self) -> str:
-        return "Доступ запрещен"
