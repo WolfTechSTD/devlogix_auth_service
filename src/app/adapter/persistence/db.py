@@ -1,6 +1,5 @@
 from collections.abc import Callable, AsyncIterator
 
-import redis.asyncio
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -19,7 +18,3 @@ def create_async_session_maker(
             yield session
 
     return create_async_session
-
-
-def redis_connect(url: str) -> redis.asyncio.Redis:
-    return redis.asyncio.from_url(url, decode_responses=True)
