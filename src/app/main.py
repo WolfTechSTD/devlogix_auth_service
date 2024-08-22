@@ -1,4 +1,4 @@
-from litestar import Litestar, get
+from litestar import Litestar
 from litestar.di import Provide
 from litestar.openapi import OpenAPIConfig
 from litestar.openapi.plugins import SwaggerRenderPlugin, RedocRenderPlugin
@@ -10,14 +10,9 @@ from app.adapter.db.gateway import UserGateway
 from app.adapter.permission import UserPermissionCookie
 from app.adapter.persistence import create_async_session_maker, redis_connect
 from app.adapter.security import PasswordProvider
-from app.presentation.controllers.user import UserController
 from app.config import load_config, ApplicationConfig
 from app.ioc import IoC
-
-
-@get("/")
-async def ro(ioc: IoC) -> None:
-    print(ioc.uow)
+from app.presentation.controllers.user import UserController
 
 
 def create_app() -> Litestar:
