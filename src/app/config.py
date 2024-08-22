@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 
-from .exceptions import ConfigParseError
+from app.exceptions import ConfigParseError
 
 
 @dataclass
@@ -17,7 +17,7 @@ class JWTConfig:
 
 @dataclass
 class RedisConfig:
-    url_cookie_token: str
+    url: str
 
 
 @dataclass
@@ -36,7 +36,7 @@ def get_str_env(key: str) -> str:
 
 
 def _load_redis_config() -> RedisConfig:
-    return RedisConfig(url_cookie_token=os.getenv('REDIS_URL_COOKIE_TOKEN'))
+    return RedisConfig(url=os.getenv('REDIS_URL'))
 
 
 def _load_database_config() -> DatabaseConfig:

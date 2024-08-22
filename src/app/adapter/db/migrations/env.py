@@ -7,7 +7,7 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from app.adapter.model import BaseModel
+from app.adapter.db.model import BaseModel
 
 config = context.config
 # TODO: вынести в конфиг DATABASE_URL

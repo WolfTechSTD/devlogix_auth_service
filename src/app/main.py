@@ -1,23 +1,23 @@
-from litestar import Litestar
+from litestar import Litestar, get
 from litestar.di import Provide
-from litestar.openapi.config import OpenAPIConfig
-from litestar.openapi.plugins import (
-    SwaggerRenderPlugin,
-    RedocRenderPlugin,
-)
+from litestar.openapi import OpenAPIConfig
+from litestar.openapi.plugins import SwaggerRenderPlugin, RedocRenderPlugin
 from litestar.openapi.spec import Components, SecurityScheme
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.adapter.permissions.user import UserPermissions
-from app.adapter.persistence.connect import (
-    create_async_session_maker, redis_connect,
-)
-from app.adapter.repository.cookie_token import CookieTokenRepository
-from app.adapter.repository.user import UserRepository
-from app.adapter.security.jwt import JWTProvider
-from app.adapter.security.password import PasswordProvider
+from app.adapter.authentication.strategy import RedisStrategy
+from app.adapter.db.gateway import UserGateway
+from app.adapter.permission import UserPermissionCookie
+from app.adapter.persistence import create_async_session_maker, redis_connect
+from app.adapter.security import PasswordProvider
 from app.presentation.controllers.user import UserController
-from .config import load_config, ApplicationConfig
-from .ioc import IoC
+from app.config import load_config, ApplicationConfig
+from app.ioc import IoC
+
+
+@get("/")
+async def ro(ioc: IoC) -> None:
+    print(ioc.uow)
 
 
 def create_app() -> Litestar:
@@ -51,35 +51,30 @@ def _init_openapi_config() -> OpenAPIConfig:
     return config
 
 
+def get_uow(session: AsyncSession) -> AsyncSession:
+    return session
+
+
 def _init_dependencies(config: ApplicationConfig) -> dict[str, Provide]:
     db_config = config.db
-    jwt_config = config.jwt
     redis_config = config.redis
 
     dependencies = {
         "session": Provide(create_async_session_maker(db_config.db_url)),
-        "user_repository": Provide(UserRepository, sync_to_thread=True),
+        "user_gateway": Provide(UserGateway, sync_to_thread=True),
         "ioc": Provide(IoC, sync_to_thread=True),
-        "redis_cookie": Provide(
+        "uow": Provide(get_uow, sync_to_thread=True),
+        "redis": Provide(
             lambda: redis_connect(
-                redis_config.url_cookie_token
+                redis_config.url
             ),
             sync_to_thread=True
         ),
-        "cookie_token_repository": Provide(
-            CookieTokenRepository,
-            sync_to_thread=True
-        ),
-        "jwt": Provide(
-            lambda: JWTProvider(
-                jwt_config.secret_key,
-                jwt_config.algorithm
-            ), sync_to_thread=True
-        ),
+        "strategy": Provide(RedisStrategy, sync_to_thread=True),
         "password_provider": Provide(
             lambda: PasswordProvider(),
             sync_to_thread=True
         ),
-        "user_permissions": Provide(UserPermissions, sync_to_thread=True)
+        "user_permissions": Provide(UserPermissionCookie, sync_to_thread=True)
     }
     return dependencies

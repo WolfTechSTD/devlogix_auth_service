@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .base import BaseModel
-from app.kernel.model.user import User
+from app.adapter.db.model.base import BaseModel
+from app.domain.model.user import User
 
 
 class Users(BaseModel):
