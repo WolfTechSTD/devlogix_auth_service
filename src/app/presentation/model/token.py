@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Self
 
-from app.application.model.cookie_token import CookieTokenView
+from app.application.model.token import RedisTokenView
 
 
 @dataclass
@@ -11,7 +11,7 @@ class JsonCookieToken:
     lifetime_seconds: int
 
     @classmethod
-    def from_into(cls, source: CookieTokenView) -> Self:
+    def from_into(cls, source: RedisTokenView) -> Self:
         return cls(
             key=source.key,
             token=source.token,
