@@ -5,13 +5,12 @@ from litestar import (
     post,
     status_codes,
     get,
-    patch,
-    Request,
-    delete,
+    Request, patch, delete,
 )
 from litestar.params import Dependency, Parameter
 
-from app.adapter.exceptions.permissions import InvalidCookieTokenException
+from app.adapter.exceptions import InvalidAuthenticationTokenError
+
 from app.application.exceptions import (
     UserExistsException,
     UserNotFoundException,
@@ -21,39 +20,34 @@ from app.application.exceptions import (
     UserWithEmailAndUsernameExistsException,
     InvalidTokenException,
 )
-from app.kernel.permissions.user import UserPermissions
-from app.presentation.after_request.cookie_token import (set_cookie)
+from app.application.interfaces import UserPermissionCookie
+from app.presentation.after_request.token import set_login_cookie
 from app.presentation.constants import LIMIT, OFFSET
+
 from app.presentation.exception_handlers.user import (
     user_bad_request_exception_handler,
     user_forbidden_exception_handler,
     user_not_found_exception_handler,
 )
+
 from app.presentation.interactor import InteractorFactory
-from app.presentation.model.cookie_token import JsonCookieToken
+from app.presentation.middleware.token import (
+    LoginCookieTokenMiddleware,
+    CookieTokenPermissionMiddleware,
+)
+from app.presentation.model.token import JsonCookieToken
 from app.presentation.model.user import (
     JsonCreateUser,
     JsonUser,
-    JsonUserList,
-    JsonUpdateUser,
-    JsonUserLogin, JsonUpdateUserMe,
+    JsonUserLogin, JsonUserList, JsonUpdateUser, JsonUpdateUserMe,
 )
-from app.presentation.openapi.operation.user.create_user import (
-    CreateUserOperation
-)
-from app.presentation.openapi.operation.user.delete_user_me import \
-    DeleteUserMeOperation
-from app.presentation.openapi.operation.user.get_user import GetUserOperation
-from app.presentation.openapi.operation.user.get_user_me import (
-    GetUserMeOperation
-)
-from app.presentation.openapi.operation.user.get_users import GetUsersOperation
-from app.presentation.openapi.operation.user.login import UserLoginOperation
-from app.presentation.openapi.operation.user.update_user import (
-    UpdateUserOperation
-)
-from app.presentation.openapi.operation.user.update_user_me import (
-    UpdateUserMeOperation
+from app.presentation.openapi import (
+    CreateUserOperation,
+    UserLoginOperation,
+    GetUserOperation,
+    GetUsersOperation,
+    UpdateUserOperation,
+    GetUserMeOperation, UpdateUserMeOperation, DeleteUserMeOperation,
 )
 
 LENGTH_ID = 26
@@ -70,8 +64,8 @@ class UserController(Controller):
         UserWithEmailAndUsernameExistsException: (
             user_bad_request_exception_handler
         ),
-        InvalidCookieTokenException: user_forbidden_exception_handler,
-        InvalidTokenException: user_forbidden_exception_handler
+        InvalidAuthenticationTokenError: user_forbidden_exception_handler,
+        InvalidTokenException: user_forbidden_exception_handler,
     }
 
     @post(
@@ -83,30 +77,30 @@ class UserController(Controller):
             data: JsonCreateUser,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
-        async with ioc.user_usecase() as user_use_case:
-            user = await user_use_case.create_user(data.into())
+        async with ioc.user_usecase() as use_case:
+            user = await use_case.create_user(data.into())
             return JsonUser.from_into(user)
 
     @post(
         "/login",
         operation_class=UserLoginOperation,
         status_code=status_codes.HTTP_200_OK,
-        after_request=set_cookie
+        after_request=set_login_cookie,
+        middleware=[LoginCookieTokenMiddleware]
     )
     async def login(
             self,
-            request: Request,
             data: JsonUserLogin,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonCookieToken:
-        token = request.cookies.get("session")
         async with ioc.user_usecase() as user_use_case:
-            cookie = await user_use_case.login(data.into(token))
+            cookie = await user_use_case.login(data.into())
             return JsonCookieToken.from_into(cookie)
 
     @get(
         "/{user_id:str}",
         operation_class=GetUserOperation,
+        middleware=[CookieTokenPermissionMiddleware]
     )
     async def get_user(
             self,
@@ -118,7 +112,7 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(
                 skip_validation=True
             )],
-            user_permissions: Annotated[UserPermissions, Dependency(
+            user_permissions: Annotated[UserPermissionCookie, Dependency(
                 skip_validation=True
             )],
     ) -> JsonUser:
@@ -129,6 +123,7 @@ class UserController(Controller):
 
     @get(
         operation_class=GetUsersOperation,
+        middleware=[CookieTokenPermissionMiddleware]
     )
     async def get_users(
             self,
@@ -136,7 +131,7 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(
                 skip_validation=True
             )],
-            user_permissions: Annotated[UserPermissions, Dependency(
+            user_permissions: Annotated[UserPermissionCookie, Dependency(
                 skip_validation=True
             )],
             limit: int = LIMIT,
@@ -150,7 +145,8 @@ class UserController(Controller):
     @patch(
         "/{user_id:str}",
         operation_class=UpdateUserOperation,
-        status_code=status_codes.HTTP_200_OK
+        status_code=status_codes.HTTP_200_OK,
+        middleware=[CookieTokenPermissionMiddleware]
     )
     async def update_user(
             self,
@@ -160,24 +156,25 @@ class UserController(Controller):
                 min_length=LENGTH_ID
             )],
             data: JsonUpdateUser,
-            user_permissions: Annotated[UserPermissions, Dependency(
+            user_permissions: Annotated[UserPermissionCookie, Dependency(
                 skip_validation=True
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
         async with ioc.user_usecase(user_permissions) as user_use_case:
-            user = await user_use_case.update_user(data.into(user_id, token))
+            user = await user_use_case.update_user(data.into(user_id), token)
             return JsonUser.from_into(user)
 
     @get(
         "/me",
-        operation_class=GetUserMeOperation
+        operation_class=GetUserMeOperation,
+        middleware=[CookieTokenPermissionMiddleware]
     )
     async def get_user_me(
             self,
             request: Request,
-            user_permissions: Annotated[UserPermissions, Dependency(
+            user_permissions: Annotated[UserPermissionCookie, Dependency(
                 skip_validation=True
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
@@ -190,31 +187,33 @@ class UserController(Controller):
     @patch(
         "/me",
         operation_class=UpdateUserMeOperation,
-        status_code=status_codes.HTTP_200_OK
+        status_code=status_codes.HTTP_200_OK,
+        middleware=[CookieTokenPermissionMiddleware]
     )
     async def update_user_me(
             self,
             data: JsonUpdateUserMe,
             request: Request,
-            user_permissions: Annotated[UserPermissions, Dependency(
+            user_permissions: Annotated[UserPermissionCookie, Dependency(
                 skip_validation=True
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
         async with ioc.user_usecase(user_permissions) as user_use_case:
-            user = await user_use_case.update_user_me(data.into(token))
+            user = await user_use_case.update_user_me(data.into(), token)
             return JsonUser.from_into(user)
 
     @delete(
         "/me",
         operation_class=DeleteUserMeOperation,
-        status_code=status_codes.HTTP_204_NO_CONTENT
+        status_code=status_codes.HTTP_204_NO_CONTENT,
+        middleware=[CookieTokenPermissionMiddleware]
     )
     async def delete_user_me(
             self,
             request: Request,
-            user_permissions: Annotated[UserPermissions, Dependency(
+            user_permissions: Annotated[UserPermissionCookie, Dependency(
                 skip_validation=True
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]

@@ -11,7 +11,7 @@ from app.application.model.user import (
     UpdateUserMeView,
 )
 from app.presentation.constants import TOTAL, LIMIT, OFFSET
-from .base import Base
+from app.presentation.model.base import Base
 
 
 class JsonUser(Base):
@@ -163,12 +163,11 @@ class JsonUpdateUserMe(Base):
         }
     )
 
-    def into(self, token: str) -> UpdateUserMeView:
+    def into(self) -> UpdateUserMeView:
         return UpdateUserMeView(
             username=self.username,
             email=self.email,
             password=self.password,
-            token=token
         )
 
 
@@ -202,14 +201,13 @@ class JsonUpdateUser(Base):
         }
     )
 
-    def into(self, user_id: str, token: str) -> UpdateUserView:
+    def into(self, user_id: str) -> UpdateUserView:
         return UpdateUserView(
             id=user_id,
             username=self.username,
             email=self.email,
             password=self.password,
             is_active=self.is_active,
-            token=token
         )
 
 
@@ -250,10 +248,9 @@ class JsonUserLogin(Base):
             )
         return self
 
-    def into(self, value: str | None) -> UserLoginView:
+    def into(self) -> UserLoginView:
         return UserLoginView(
             username=self.username,
             email=self.email,
             password=self.password,
-            token=value
         )

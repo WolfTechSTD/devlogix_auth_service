@@ -1,13 +1,13 @@
 import secrets
 from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import cast, Self
+from typing import Self, cast
 
 from ulid import ULID
 
-from app.application.model.cookie_token import CreateCookieTokenView
-from app.kernel.model.id import Id
-from app.kernel.model.user import NewUser, User, UpdateUser
+from app.application.model.token import CreateRedisTokenView
+from app.domain.model.id import Id
+from app.domain.model.user import User
 
 
 @dataclass(slots=True)
@@ -39,12 +39,13 @@ class CreateUserView:
     email: str
     password: str
 
-    def into(self) -> NewUser:
-        return NewUser(
-            id=cast(Id, ULID()),
+    def into(self) -> User:
+        return User(
+            id=cast(Id, str(ULID())),
             username=self.username,
             email=self.email,
-            password=self.password
+            password=self.password,
+            is_active=True
         )
 
 
@@ -53,14 +54,14 @@ class UpdateUserMeView:
     username: str | None
     email: str | None
     password: str | None
-    token: str
 
-    def into(self, id: Id) -> UpdateUser:
-        return UpdateUser(
+    def into(self, id: Id) -> User:
+        return User(
             id=id,
             username=self.username,
             email=self.email,
             password=self.password,
+            is_active=True
         )
 
 
@@ -70,11 +71,10 @@ class UpdateUserView:
     username: str | None
     email: str | None
     password: str | None
-    token: str
     is_active: bool | None
 
-    def into(self) -> UpdateUser:
-        return UpdateUser(
+    def into(self) -> User:
+        return User(
             id=cast(Id, self.id),
             username=self.username,
             email=self.email,
@@ -88,10 +88,9 @@ class UserLoginView:
     username: str | None
     email: str | None
     password: str | None
-    token: str | None
 
-    def create_token(self, value: User) -> CreateCookieTokenView:
-        return CreateCookieTokenView(
+    def create_token(self, value: User) -> CreateRedisTokenView:
+        return CreateRedisTokenView(
             user_id=value.id,
             token=secrets.token_urlsafe()
         )

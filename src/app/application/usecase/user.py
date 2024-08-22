@@ -2,60 +2,61 @@ from typing import cast
 
 from app.application.exceptions import (
     UserExistsException,
-    UserNotFoundException,
     UserLoginException,
     UserWithEmailAndUsernameExistsException,
     UserWithEmailExistsException,
     UserWithUsernameExistsException,
     InvalidTokenException,
+    UserNotFoundException,
 )
-from app.application.model.cookie_token import (
-    CookieTokenView,
+from app.application.interfaces import (
+    UoW,
+    UserGateway,
+    BaseStrategy,
+    UserPermissionCookie,
+    APasswordProvider,
 )
+from app.application.model.token import RedisTokenView
 from app.application.model.user import (
     CreateUserView,
     UserView,
-    UserListView,
-    UpdateUserView,
     UserLoginView,
+    UpdateUserView,
     UpdateUserMeView,
+    UserListView,
 )
-from app.kernel.model.id import Id
-from app.kernel.permissions.user import UserPermissions
-from app.kernel.repository.cookie_token import CookieTokenRepository
-from app.kernel.repository.user import UserRepository
-from app.kernel.security.password import PasswordProvider
+from app.domain.model.id import Id
+from app.domain.model.token import RedisToken
 
 
 class UserUseCase:
     def __init__(
             self,
-            repository: UserRepository,
-            password_provider: PasswordProvider,
-            cookie_token_repository: CookieTokenRepository,
-            user_permissions: UserPermissions | None
+            uow: UoW,
+            user_gateway: UserGateway,
+            password_provider: APasswordProvider,
+            strategy_redis: BaseStrategy,
+            user_permission: UserPermissionCookie | None
     ) -> None:
-        self.repository = repository
+        self.user_gateway = user_gateway
+        self.uow = uow
         self.password_provider = password_provider
-        self.cookie_token_repository = cookie_token_repository
-        self.user_permissions = user_permissions
+        self.strategy_redis = strategy_redis
+        self.user_permission = user_permission
 
     async def create_user(self, source: CreateUserView) -> UserView:
-        if await self.repository.check_user(
+        if await self.user_gateway.check_user(
                 username=source.username,
                 email=source.email
         ):
             raise UserExistsException()
-
-        source.password = self.password_provider.get_password_hash(
-            source.password
-        )
-        user = await self.repository.insert(source.into())
-        await self.repository.save()
+        source.password = self.password_provider.get_hash(source.password)
+        user = await self.user_gateway.insert(source.into())
+        await self.uow.commit()
         return UserView.from_into(user)
 
-    async def login(self, source: UserLoginView) -> CookieTokenView:
-        user = await self.repository.get_user(source.username, source.email)
+    async def login(self, source: UserLoginView) -> RedisTokenView:
+        user = await self.user_gateway.get_user(source.username, source.email)
 
         if user is None:
             raise UserLoginException()
@@ -66,27 +67,26 @@ class UserUseCase:
         ):
             raise UserLoginException()
 
-        if source.token is not None:
-            await self.cookie_token_repository.destroy(
-                source.token
-            )
+        source = source.create_token(user)
+        token = await self.strategy_redis.write(source.into("cookie"))
+        token.value = source.token
+        return RedisTokenView.from_into(token)
 
-        cookie_token = await self.cookie_token_repository.write(
-            source.create_token(user).into()
-        )
-        return CookieTokenView.from_into(cookie_token)
+    async def update_user(
+            self,
+            source: UpdateUserView,
+            token: str
+    ) -> UserView:
+        await self._check_cookie_token(token)
 
-    async def update_user(self, source: UpdateUserView) -> UserView:
-        await self.user_permissions.check_cookie_token(source.token)
-
-        if not await self.repository.check_user_exists(cast(Id, source.id)):
+        if not await self.user_gateway.check_user_exists(cast(Id, source.id)):
             raise UserNotFoundException()
 
         await self._check_username_and_email(source)
         await self._set_password_hash(source)
 
-        user = await self.repository.update(source.into())
-        await self.repository.save()
+        user = await self.user_gateway.update(source.into())
+        await self.uow.commit()
         return UserView(
             id=str(user.id),
             username=user.username,
@@ -94,16 +94,20 @@ class UserUseCase:
             is_active=user.is_active
         )
 
-    async def update_user_me(self, source: UpdateUserMeView) -> UserView:
-        user_id = await self.user_permissions.get_user_id(source.token)
+    async def update_user_me(
+            self,
+            source: UpdateUserMeView,
+            token: str
+    ) -> UserView:
+        user_id = await self._get_user_id(token)
 
         if user_id is None:
             raise InvalidTokenException()
         await self._check_username_and_email(source, cast(Id, user_id))
         await self._set_password_hash(source)
 
-        user = await self.repository.update(source.into(cast(Id, user_id)))
-        await self.repository.save()
+        user = await self.user_gateway.update(source.into(cast(Id, user_id)))
+        await self.uow.commit()
         return UserView(
             id=str(user.id),
             username=user.username,
@@ -112,8 +116,8 @@ class UserUseCase:
         )
 
     async def get_user(self, user_id: str, token: str) -> UserView:
-        await self.user_permissions.check_cookie_token(token)
-        user = await self.repository.get(cast(Id, user_id))
+        await self._check_cookie_token(token)
+        user = await self.user_gateway.get(cast(Id, user_id))
 
         if user is None:
             raise UserNotFoundException()
@@ -131,12 +135,12 @@ class UserUseCase:
             offset: int,
             token: str
     ) -> UserListView:
-        await self.user_permissions.check_cookie_token(token)
-        users = await self.repository.get_list(
+        await self._check_cookie_token(token)
+        users = await self.user_gateway.get_list(
             limit=limit,
             offset=limit * offset
         )
-        total = await self.repository.get_total()
+        total = await self.user_gateway.get_total()
         return UserListView(
             total=total,
             values=(UserView(
@@ -148,12 +152,12 @@ class UserUseCase:
         )
 
     async def get_user_me(self, token: str) -> UserView:
-        user_id = await self.user_permissions.get_user_id(token)
+        user_id = await self._get_user_id(token)
 
         if user_id is None:
             raise InvalidTokenException()
 
-        user = await self.repository.get(cast(Id, user_id))
+        user = await self.user_gateway.get(cast(Id, user_id))
 
         if user is None:
             raise InvalidTokenException()
@@ -166,13 +170,13 @@ class UserUseCase:
         )
 
     async def delete_user_me(self, token: str) -> None:
-        user_id = await self.user_permissions.get_user_id(token)
+        user_id = await self._get_user_id(token)
 
         if user_id is None:
             raise InvalidTokenException()
 
-        await self.repository.delete(cast(id, user_id))
-        await self.repository.save()
+        await self.user_gateway.delete(cast(id, user_id))
+        await self.uow.commit()
 
     async def _check_username_and_email(
             self,
@@ -180,12 +184,12 @@ class UserUseCase:
             user_id: Id | None = None
     ) -> None:
         err = {
-            "username": await self.repository.check_username_exists(
-                user_id=user_id or cast(Id, source.id),
+            "username": await self.user_gateway.check_username_exists(
+                id=user_id or cast(Id, source.id),
                 username=source.username or ""
             ),
-            "email": await self.repository.check_email_exists(
-                user_id=user_id or cast(Id, source.id),
+            "email": await self.user_gateway.check_email_exists(
+                id=user_id or cast(Id, source.id),
                 email=source.email or ""
             )
         }
@@ -202,6 +206,14 @@ class UserUseCase:
             source: UpdateUserView | UpdateUserMeView
     ) -> None:
         if source.password is not None:
-            source.password = self.password_provider.get_password_hash(
-                source.password
-            )
+            source.password = self.password_provider.get_hash(source.password)
+
+    async def _check_cookie_token(self, token: str) -> None:
+        await self.user_permission.check_token(
+            RedisToken(key=f"cookie::{token}")
+        )
+
+    async def _get_user_id(self, token: str) -> str:
+        return await self.user_permission.get_user_id(
+            RedisToken(key=f"cookie::{token}")
+        )

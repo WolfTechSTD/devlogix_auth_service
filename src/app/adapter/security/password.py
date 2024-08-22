@@ -1,16 +1,18 @@
 from passlib.context import CryptContext
 
+from app.application.interfaces import APasswordProvider
 
-class PasswordProvider:
+
+class PasswordProvider(APasswordProvider):
     def __init__(self) -> None:
-        self.pwd_context = CryptContext(schemes=["argon2"])
+        self.context = CryptContext(schemes=["argon2"])
 
     def verify_password(
             self,
             secret: str | bytes,
             hash: str | bytes | None = None
     ) -> bool:
-        return self.pwd_context.verify(secret, hash)
+        return self.context.verify(secret, hash)
 
-    def get_password_hash(self, secret: str | bytes) -> str:
-        return self.pwd_context.hash(secret)
+    def get_hash(self, secret: str | bytes) -> str:
+        return self.context.hash(secret)

@@ -2,14 +2,15 @@ from typing import Union
 
 from litestar import Request, Response, status_codes
 
-from app.adapter.exceptions.permissions import InvalidCookieTokenException
+from app.adapter.exceptions import InvalidAuthenticationTokenError
 from app.application.exceptions import (
     UserExistsException,
     UserLoginException,
     UserNotFoundException,
     UserWithUsernameExistsException,
     UserWithEmailExistsException,
-    UserWithEmailAndUsernameExistsException, InvalidTokenException,
+    UserWithEmailAndUsernameExistsException,
+    InvalidTokenException,
 )
 
 
@@ -35,7 +36,7 @@ def user_forbidden_exception_handler(
         _: Request,
         exc: Union[
             UserLoginException,
-            InvalidCookieTokenException,
+            InvalidAuthenticationTokenError,
             InvalidTokenException
         ]
 ) -> Response:
