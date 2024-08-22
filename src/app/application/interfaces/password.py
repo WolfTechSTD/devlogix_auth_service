@@ -1,8 +1,7 @@
-from abc import abstractmethod
-from typing import Protocol
+from abc import abstractmethod, ABC
 
 
-class PasswordProvider(Protocol):
+class APasswordProvider(ABC):
     @abstractmethod
     def verify_password(
             self,
@@ -11,4 +10,4 @@ class PasswordProvider(Protocol):
     ) -> bool: ...
 
     @abstractmethod
-    def get_password_hash(self, secret: str | bytes) -> str: ...
+    def get_hash(self, secret: str | bytes) -> str: ...
