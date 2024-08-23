@@ -17,7 +17,6 @@ from app.presentation.model.base import Base
 class JsonUser(Base):
     id: str = Field(
         ...,
-        description="Уникальный идентификатор",
         json_schema_extra={
             "title": "id",
             "description": "Уникальный идентификатор",
