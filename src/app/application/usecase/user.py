@@ -87,12 +87,7 @@ class UserUseCase:
 
         user = await self.user_gateway.update(source.into())
         await self.uow.commit()
-        return UserView(
-            id=str(user.id),
-            username=user.username,
-            email=user.email,
-            is_active=user.is_active
-        )
+        return UserView.from_into(user)
 
     async def update_user_me(
             self,
@@ -108,12 +103,7 @@ class UserUseCase:
 
         user = await self.user_gateway.update(source.into(cast(Id, user_id)))
         await self.uow.commit()
-        return UserView(
-            id=str(user.id),
-            username=user.username,
-            email=user.email,
-            is_active=user.is_active
-        )
+        return UserView.from_into(user)
 
     async def get_user(self, user_id: str, token: str) -> UserView:
         await self._check_token(token)
@@ -122,12 +112,7 @@ class UserUseCase:
         if user is None:
             raise UserNotFoundException()
 
-        return UserView(
-            id=str(user.id),
-            username=user.username,
-            email=user.email,
-            is_active=user.is_active
-        )
+        return UserView.from_into(user)
 
     async def get_users(
             self,
@@ -143,12 +128,7 @@ class UserUseCase:
         total = await self.user_gateway.get_total()
         return UserListView(
             total=total,
-            values=(UserView(
-                id=str(user.id),
-                username=user.username,
-                email=user.email,
-                is_active=user.is_active
-            ) for user in users)
+            values=(UserView.from_into(user) for user in users)
         )
 
     async def get_user_me(self, token: str) -> UserView:
@@ -162,12 +142,7 @@ class UserUseCase:
         if user is None:
             raise InvalidTokenException()
 
-        return UserView(
-            id=str(user.id),
-            username=user.username,
-            email=user.email,
-            is_active=user.is_active
-        )
+        return UserView.from_into(user)
 
     async def delete_user_me(self, token: str) -> None:
         user_id = await self._get_user_id(token)
