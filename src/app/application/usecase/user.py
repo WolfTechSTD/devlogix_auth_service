@@ -13,7 +13,7 @@ from app.application.interfaces import (
     UoW,
     UserGateway,
     BaseStrategy,
-    UserPermissionCookie,
+    UserPermission,
     APasswordProvider,
 )
 from app.application.model.token import RedisTokenView
@@ -36,7 +36,7 @@ class UserUseCase:
             user_gateway: UserGateway,
             password_provider: APasswordProvider,
             strategy_redis: BaseStrategy,
-            user_permission: UserPermissionCookie | None
+            user_permission: UserPermission | None
     ) -> None:
         self.user_gateway = user_gateway
         self.uow = uow
@@ -77,7 +77,7 @@ class UserUseCase:
             source: UpdateUserView,
             token: str
     ) -> UserView:
-        await self._check_cookie_token(token)
+        await self._check_token(token)
 
         if not await self.user_gateway.check_user_exists(cast(Id, source.id)):
             raise UserNotFoundException()
@@ -116,7 +116,7 @@ class UserUseCase:
         )
 
     async def get_user(self, user_id: str, token: str) -> UserView:
-        await self._check_cookie_token(token)
+        await self._check_token(token)
         user = await self.user_gateway.get(cast(Id, user_id))
 
         if user is None:
@@ -135,7 +135,7 @@ class UserUseCase:
             offset: int,
             token: str
     ) -> UserListView:
-        await self._check_cookie_token(token)
+        await self._check_token(token)
         users = await self.user_gateway.get_list(
             limit=limit,
             offset=limit * offset
@@ -178,6 +178,10 @@ class UserUseCase:
         await self.user_gateway.delete(cast(id, user_id))
         await self.uow.commit()
 
+    async def logout(self, token: str) -> None:
+        await self._check_token(token)
+        await self._destroy_token(token)
+
     async def _check_username_and_email(
             self,
             source: UpdateUserView | UpdateUserMeView,
@@ -208,12 +212,17 @@ class UserUseCase:
         if source.password is not None:
             source.password = self.password_provider.get_hash(source.password)
 
-    async def _check_cookie_token(self, token: str) -> None:
+    async def _check_token(self, token: str) -> None:
         await self.user_permission.check_token(
             RedisToken(key=f"cookie::{token}")
         )
 
     async def _get_user_id(self, token: str) -> str:
         return await self.user_permission.get_user_id(
+            RedisToken(key=f"cookie::{token}")
+        )
+
+    async def _destroy_token(self, token: str) -> None:
+        await self.user_permission.logout(
             RedisToken(key=f"cookie::{token}")
         )

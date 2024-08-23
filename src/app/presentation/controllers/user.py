@@ -10,7 +10,6 @@ from litestar import (
 from litestar.params import Dependency, Parameter
 
 from app.adapter.exceptions import InvalidAuthenticationTokenError
-
 from app.application.exceptions import (
     UserExistsException,
     UserNotFoundException,
@@ -20,16 +19,14 @@ from app.application.exceptions import (
     UserWithEmailAndUsernameExistsException,
     InvalidTokenException,
 )
-from app.application.interfaces import UserPermissionCookie
+from app.application.interfaces import UserPermission
 from app.presentation.after_request.token import set_login_cookie
 from app.presentation.constants import LIMIT, OFFSET
-
 from app.presentation.exception_handlers import (
     user_bad_request_exception_handler,
     user_forbidden_exception_handler,
     user_not_found_exception_handler,
 )
-
 from app.presentation.interactor import InteractorFactory
 from app.presentation.middleware.token import (
     LoginCookieTokenMiddleware,
@@ -39,7 +36,10 @@ from app.presentation.model.token import JsonCookieToken
 from app.presentation.model.user import (
     JsonCreateUser,
     JsonUser,
-    JsonUserLogin, JsonUserList, JsonUpdateUser, JsonUpdateUserMe,
+    JsonUserLogin,
+    JsonUserList,
+    JsonUpdateUser,
+    JsonUpdateUserMe,
 )
 from app.presentation.openapi import (
     CreateUserOperation,
@@ -47,7 +47,10 @@ from app.presentation.openapi import (
     GetUserOperation,
     GetUsersOperation,
     UpdateUserOperation,
-    GetUserMeOperation, UpdateUserMeOperation, DeleteUserMeOperation,
+    GetUserMeOperation,
+    UpdateUserMeOperation,
+    DeleteUserMeOperation,
+    LogoutUserOperation,
 )
 
 LENGTH_ID = 26
@@ -77,8 +80,8 @@ class UserController(Controller):
             data: JsonCreateUser,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
-        async with ioc.user_usecase() as use_case:
-            user = await use_case.create_user(data.into())
+        async with ioc.user_usecase() as usecase:
+            user = await usecase.create_user(data.into())
             return JsonUser.from_into(user)
 
     @post(
@@ -93,8 +96,8 @@ class UserController(Controller):
             data: JsonUserLogin,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonCookieToken:
-        async with ioc.user_usecase() as user_use_case:
-            cookie = await user_use_case.login(data.into())
+        async with ioc.user_usecase() as usecase:
+            cookie = await usecase.login(data.into())
             return JsonCookieToken.from_into(cookie)
 
     @get(
@@ -112,13 +115,13 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(
                 skip_validation=True
             )],
-            user_permissions: Annotated[UserPermissionCookie, Dependency(
+            user_permissions: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
     ) -> JsonUser:
         token = request.cookies.get("session")
-        async with ioc.user_usecase(user_permissions) as user_use_case:
-            user = await user_use_case.get_user(user_id, token)
+        async with ioc.user_usecase(user_permissions) as usecase:
+            user = await usecase.get_user(user_id, token)
             return JsonUser.from_into(user)
 
     @get(
@@ -131,15 +134,15 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(
                 skip_validation=True
             )],
-            user_permissions: Annotated[UserPermissionCookie, Dependency(
+            user_permissions: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
             limit: int = LIMIT,
             offset: int = OFFSET
     ) -> JsonUserList:
         token = request.cookies.get("session")
-        async with ioc.user_usecase(user_permissions) as user_use_case:
-            users = await user_use_case.get_users(limit, offset, token)
+        async with ioc.user_usecase(user_permissions) as usecase:
+            users = await usecase.get_users(limit, offset, token)
             return JsonUserList.from_into(limit, offset, users)
 
     @patch(
@@ -156,14 +159,14 @@ class UserController(Controller):
                 min_length=LENGTH_ID
             )],
             data: JsonUpdateUser,
-            user_permissions: Annotated[UserPermissionCookie, Dependency(
+            user_permissions: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
-        async with ioc.user_usecase(user_permissions) as user_use_case:
-            user = await user_use_case.update_user(data.into(user_id), token)
+        async with ioc.user_usecase(user_permissions) as usecase:
+            user = await usecase.update_user(data.into(user_id), token)
             return JsonUser.from_into(user)
 
     @get(
@@ -174,14 +177,14 @@ class UserController(Controller):
     async def get_user_me(
             self,
             request: Request,
-            user_permissions: Annotated[UserPermissionCookie, Dependency(
+            user_permissions: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
-        async with ioc.user_usecase(user_permissions) as user_use_case:
-            user = await user_use_case.get_user_me(token)
+        async with ioc.user_usecase(user_permissions) as usecase:
+            user = await usecase.get_user_me(token)
             return JsonUser.from_into(user)
 
     @patch(
@@ -194,14 +197,14 @@ class UserController(Controller):
             self,
             data: JsonUpdateUserMe,
             request: Request,
-            user_permissions: Annotated[UserPermissionCookie, Dependency(
+            user_permissions: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
-        async with ioc.user_usecase(user_permissions) as user_use_case:
-            user = await user_use_case.update_user_me(data.into(), token)
+        async with ioc.user_usecase(user_permissions) as usecase:
+            user = await usecase.update_user_me(data.into(), token)
             return JsonUser.from_into(user)
 
     @delete(
@@ -213,11 +216,29 @@ class UserController(Controller):
     async def delete_user_me(
             self,
             request: Request,
-            user_permissions: Annotated[UserPermissionCookie, Dependency(
+            user_permissions: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> None:
         token = request.cookies.get("session")
-        async with ioc.user_usecase(user_permissions) as user_use_case:
-            await user_use_case.delete_user_me(token)
+        async with ioc.user_usecase(user_permissions) as usecase:
+            await usecase.delete_user_me(token)
+
+    @post(
+        "/logout",
+        status_code=status_codes.HTTP_204_NO_CONTENT,
+        operation_class=LogoutUserOperation,
+        middleware=[CookieTokenPermissionMiddleware],
+    )
+    async def logout(
+            self,
+            request: Request,
+            user_permissions: Annotated[UserPermission, Dependency(
+                skip_validation=True
+            )],
+            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+    ) -> None:
+        token = request.cookies.get("session")
+        async with ioc.user_usecase(user_permissions) as usecase:
+            await usecase.logout(token)

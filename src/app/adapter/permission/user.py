@@ -6,7 +6,7 @@ Strategy = TypeVar("Strategy")
 ModelToken = TypeVar("ModelToken")
 
 
-class UserPermissionCookie:
+class UserPermission:
     def __init__(
             self,
             strategy: Strategy
@@ -23,3 +23,6 @@ class UserPermissionCookie:
         if token is None:
             raise InvalidAuthenticationTokenError()
         return token.value
+
+    async def logout(self, source: ModelToken) -> None:
+        await self.strategy.destroy(source)
