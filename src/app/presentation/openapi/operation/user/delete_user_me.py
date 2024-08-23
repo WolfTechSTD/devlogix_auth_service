@@ -26,7 +26,7 @@ class DeleteUserMeOperation(Operation):
         self.security = [BEARER_TOKEN]
         self.responses = {
             "204": OpenAPIResponse(
-                description="Not Content",
+                description="No Content",
                 content=None
             ),
             "403": OpenAPIResponse(
