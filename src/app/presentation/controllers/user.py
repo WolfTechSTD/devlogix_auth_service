@@ -24,7 +24,7 @@ from app.application.interfaces import UserPermissionCookie
 from app.presentation.after_request.token import set_login_cookie
 from app.presentation.constants import LIMIT, OFFSET
 
-from app.presentation.exception_handlers.user import (
+from app.presentation.exception_handlers import (
     user_bad_request_exception_handler,
     user_forbidden_exception_handler,
     user_not_found_exception_handler,
