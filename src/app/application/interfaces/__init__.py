@@ -1,6 +1,6 @@
 from .authentication.strategy import BaseStrategy
 from .authentication.transport import ACookieTransport
-from .permissions.user import UserPermissionCookie
+from .permissions.user import UserPermission
 from .uow import UoW
 from .user import UserGateway
 from .jwt import AJWTProvider
@@ -11,7 +11,7 @@ __all__ = (
     "BaseStrategy",
     "UserGateway",
     "ACookieTransport",
-    "UserPermissionCookie",
+    "UserPermission",
     "AJWTProvider",
     "APasswordProvider",
 )

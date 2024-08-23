@@ -6,7 +6,7 @@ from litestar.params import Dependency
 
 from app.adapter.authentication.strategy import RedisStrategy
 from app.adapter.db.gateway import UserGateway
-from app.adapter.permission import UserPermissionCookie
+from app.adapter.permission import UserPermission
 from app.adapter.security import PasswordProvider
 from app.application.interfaces import UoW
 from app.application.usecase.user import UserUseCase
@@ -29,7 +29,7 @@ class IoC(InteractorFactory):
     @asynccontextmanager
     async def user_usecase(
             self,
-            user_permissions: UserPermissionCookie | None = None
+            user_permissions: UserPermission | None = None
     ) -> AsyncIterator[UserUseCase]:
         yield UserUseCase(
             uow=self.uow,

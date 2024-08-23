@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapter.authentication.strategy import RedisStrategy
 from app.adapter.db.gateway import UserGateway
-from app.adapter.permission import UserPermissionCookie
+from app.adapter.permission import UserPermission
 from app.adapter.persistence import create_async_session_maker, redis_connect
 from app.adapter.security import PasswordProvider
 from app.config import load_config, ApplicationConfig
@@ -70,6 +70,6 @@ def _init_dependencies(config: ApplicationConfig) -> dict[str, Provide]:
             lambda: PasswordProvider(),
             sync_to_thread=True
         ),
-        "user_permissions": Provide(UserPermissionCookie, sync_to_thread=True)
+        "user_permissions": Provide(UserPermission, sync_to_thread=True)
     }
     return dependencies

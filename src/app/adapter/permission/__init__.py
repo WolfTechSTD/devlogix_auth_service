@@ -1,5 +1,5 @@
-from .user import UserPermissionCookie
+from .user import UserPermission
 
 __all__ = (
-    "UserPermissionCookie",
+    "UserPermission",
 )
