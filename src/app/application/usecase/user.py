@@ -128,7 +128,7 @@ class UserUseCase:
         total = await self.user_gateway.get_total()
         return UserListView(
             total=total,
-            values=(UserView.from_into(user) for user in users)
+            users=(UserView.from_into(user) for user in users)
         )
 
     async def get_user_me(self, token: str) -> UserView:

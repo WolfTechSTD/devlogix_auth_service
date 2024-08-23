@@ -30,7 +30,7 @@ class UserView:
 @dataclass(slots=True)
 class UserListView:
     total: int
-    values: Iterator[UserView]
+    users: Iterator[UserView]
 
 
 @dataclass(slots=True)

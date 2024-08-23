@@ -96,12 +96,7 @@ class JsonUserList(Base):
             total=value.total,
             limit=limit,
             offset=offset,
-            values=[JsonUser(
-                id=user.id,
-                username=user.username,
-                email=user.email,
-                is_active=user.is_active
-            ) for user in value.values]
+            values=[JsonUser.from_into(user) for user in value.users]
         )
 
 
