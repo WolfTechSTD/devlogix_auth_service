@@ -23,9 +23,9 @@ from app.application.interfaces import UserPermission
 from app.presentation.after_request.token import set_login_cookie
 from app.presentation.constants import LIMIT, OFFSET
 from app.presentation.exception_handlers import (
-    user_bad_request_exception_handler,
-    user_forbidden_exception_handler,
-    user_not_found_exception_handler,
+    bad_request_exception_handler,
+    forbidden_exception_handler,
+    not_found_exception_handler,
 )
 from app.presentation.interactor import InteractorFactory
 from app.presentation.middleware.token import (
@@ -59,16 +59,16 @@ LENGTH_ID = 26
 class UserController(Controller):
     path = "/users"
     exception_handlers = {
-        UserExistsException: user_bad_request_exception_handler,
-        UserLoginException: user_forbidden_exception_handler,
-        UserNotFoundException: user_not_found_exception_handler,
-        UserWithUsernameExistsException: user_bad_request_exception_handler,
-        UserWithEmailExistsException: user_bad_request_exception_handler,
+        UserExistsException: bad_request_exception_handler,
+        UserLoginException: forbidden_exception_handler,
+        UserNotFoundException: not_found_exception_handler,
+        UserWithUsernameExistsException: bad_request_exception_handler,
+        UserWithEmailExistsException: bad_request_exception_handler,
         UserWithEmailAndUsernameExistsException: (
-            user_bad_request_exception_handler
+            bad_request_exception_handler
         ),
-        InvalidAuthenticationTokenError: user_forbidden_exception_handler,
-        InvalidTokenException: user_forbidden_exception_handler,
+        InvalidAuthenticationTokenError: forbidden_exception_handler,
+        InvalidTokenException: forbidden_exception_handler,
     }
 
     @post(
