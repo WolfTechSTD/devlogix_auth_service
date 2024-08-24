@@ -6,8 +6,7 @@ from litestar.openapi.spec import Components, SecurityScheme
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapter.authentication.strategy import RedisStrategy
-from app.adapter.db.gateway import UserGateway
-from app.adapter.db.gateway.refresh_token import RefreshTokenGateway
+from app.adapter.db.gateway import UserGateway, RefreshTokenGateway
 from app.adapter.permission import UserPermission
 from app.adapter.persistence import create_async_session_maker, redis_connect
 from app.adapter.security import PasswordProvider, JWTProvider

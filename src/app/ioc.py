@@ -5,8 +5,7 @@ from typing import Annotated
 from litestar.params import Dependency
 
 from app.adapter.authentication.strategy import RedisStrategy
-from app.adapter.db.gateway import UserGateway
-from app.adapter.db.gateway.refresh_token import RefreshTokenGateway
+from app.adapter.db.gateway import UserGateway, RefreshTokenGateway
 from app.adapter.permission import UserPermission
 from app.adapter.security import PasswordProvider, JWTProvider
 from app.application.interfaces import Transaction

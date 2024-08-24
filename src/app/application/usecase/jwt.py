@@ -7,8 +7,8 @@ from app.application.interfaces import (
     AJWTProvider,
     UserGateway,
     APasswordProvider,
+    RefreshTokenGateway,
 )
-from app.application.interfaces.refresh_token import RefreshTokenGateway
 from app.application.model.jwt import (
     TokensView,
     AccessTokenView,

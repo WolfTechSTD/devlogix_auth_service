@@ -5,6 +5,7 @@ from .transaction import Transaction
 from .user import UserGateway
 from .jwt import AJWTProvider
 from .password import APasswordProvider
+from .refresh_token import RefreshTokenGateway
 
 __all__ = (
     "Transaction",
@@ -14,4 +15,5 @@ __all__ = (
     "UserPermission",
     "AJWTProvider",
     "APasswordProvider",
+    "RefreshTokenGateway"
 )
