@@ -1,27 +1,9 @@
-from typing import Union
-
 from litestar import Request, Response, status_codes
 
-from app.adapter.exceptions import InvalidAuthenticationTokenError
-from app.application.exceptions import (
-    UserExistsException,
-    UserLoginException,
-    UserNotFoundException,
-    UserWithUsernameExistsException,
-    UserWithEmailExistsException,
-    UserWithEmailAndUsernameExistsException,
-    InvalidTokenException,
-)
 
-
-def user_bad_request_exception_handler(
+def bad_request_exception_handler(
         _: Request,
-        exc: Union[
-            UserExistsException,
-            UserWithUsernameExistsException,
-            UserWithEmailExistsException,
-            UserWithEmailAndUsernameExistsException
-        ]
+        exc: Exception
 ) -> Response:
     return Response(
         content={
@@ -32,13 +14,9 @@ def user_bad_request_exception_handler(
     )
 
 
-def user_forbidden_exception_handler(
+def forbidden_exception_handler(
         _: Request,
-        exc: Union[
-            UserLoginException,
-            InvalidAuthenticationTokenError,
-            InvalidTokenException
-        ]
+        exc: Exception
 ) -> Response:
     return Response(
         content={
@@ -49,9 +27,9 @@ def user_forbidden_exception_handler(
     )
 
 
-def user_not_found_exception_handler(
+def not_found_exception_handler(
         _: Request,
-        exc: UserNotFoundException
+        exc: Exception
 ) -> Response:
     return Response(
         content={
