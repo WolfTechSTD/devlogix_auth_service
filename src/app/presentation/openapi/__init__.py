@@ -1,3 +1,7 @@
+from .operation.jwt.delete_refresh_token import DeleteRefreshTokenOperation
+from .operation.jwt.get_tokens import GetTokensOperation
+from .operation.jwt.update_access_token import UpdateAccessTokenOperation
+from .operation.jwt.update_refresh_token import UpdateRefreshTokenOperation
 from .operation.user.create_user import CreateUserOperation
 from .operation.user.delete_user_me import DeleteUserMeOperation
 from .operation.user.get_user import GetUserOperation
@@ -18,4 +22,8 @@ __all__ = (
     "UpdateUserMeOperation",
     "DeleteUserMeOperation",
     "LogoutUserOperation",
+    "DeleteRefreshTokenOperation",
+    "UpdateRefreshTokenOperation",
+    "UpdateAccessTokenOperation",
+    "GetTokensOperation"
 )
