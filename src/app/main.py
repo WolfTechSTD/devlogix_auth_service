@@ -7,11 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapter.authentication.strategy import RedisStrategy
 from app.adapter.db.gateway import UserGateway
+from app.adapter.db.gateway.refresh_token import RefreshTokenGateway
 from app.adapter.permission import UserPermission
 from app.adapter.persistence import create_async_session_maker, redis_connect
-from app.adapter.security import PasswordProvider
+from app.adapter.security import PasswordProvider, JWTProvider
 from app.config import load_config, ApplicationConfig
 from app.ioc import IoC
+from app.presentation.controllers.jwt import JWTController
 from app.presentation.controllers.user import UserController
 
 
@@ -20,7 +22,7 @@ def create_app() -> Litestar:
 
     app = Litestar(
         debug=config.debug,
-        route_handlers=[UserController],
+        route_handlers=[UserController, JWTController],
         dependencies=_init_dependencies(config),
         openapi_config=_init_openapi_config()
     )
@@ -53,10 +55,15 @@ def get_uow(session: AsyncSession) -> AsyncSession:
 def _init_dependencies(config: ApplicationConfig) -> dict[str, Provide]:
     db_config = config.db
     redis_config = config.redis
+    jwt_config = config.jwt
 
     dependencies = {
         "session": Provide(create_async_session_maker(db_config.db_url)),
         "user_gateway": Provide(UserGateway, sync_to_thread=True),
+        "refresh_token_gateway": Provide(
+            RefreshTokenGateway,
+            sync_to_thread=True
+        ),
         "ioc": Provide(IoC, sync_to_thread=True),
         "transaction": Provide(get_uow, sync_to_thread=True),
         "redis": Provide(
@@ -70,6 +77,18 @@ def _init_dependencies(config: ApplicationConfig) -> dict[str, Provide]:
             lambda: PasswordProvider(),
             sync_to_thread=True
         ),
-        "user_permissions": Provide(UserPermission, sync_to_thread=True)
+        "user_permissions": Provide(UserPermission, sync_to_thread=True),
+        "jwt_provider": Provide(
+            lambda: JWTProvider(
+                key=jwt_config.secret_key,
+                algorithm=jwt_config.algorithm,
+                time_access_token=jwt_config.assess_token_time
+            ),
+            sync_to_thread=True
+        ),
+        "refresh_token_time": Provide(
+            lambda: jwt_config.refresh_token_time,
+            sync_to_thread=True
+        )
     }
     return dependencies
