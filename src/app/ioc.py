@@ -8,7 +8,7 @@ from app.adapter.authentication.strategy import RedisStrategy
 from app.adapter.db.gateway import UserGateway
 from app.adapter.permission import UserPermission
 from app.adapter.security import PasswordProvider
-from app.application.interfaces import UoW
+from app.application.interfaces import Transaction
 from app.application.usecase.user import UserUseCase
 from app.presentation.interactor import InteractorFactory
 
@@ -16,12 +16,15 @@ from app.presentation.interactor import InteractorFactory
 class IoC(InteractorFactory):
     def __init__(
             self,
-            uow: Annotated[UoW, Dependency(skip_validation=True)],
+            transaction: Annotated[
+                Transaction,
+                Dependency(skip_validation=True)
+            ],
             user_gateway: UserGateway,
             password_provider: PasswordProvider,
             strategy: RedisStrategy,
     ) -> None:
-        self.uow = uow
+        self.transaction = transaction
         self.user_gateway = user_gateway
         self.password_provider = password_provider
         self.strategy = strategy
@@ -32,7 +35,7 @@ class IoC(InteractorFactory):
             user_permissions: UserPermission | None = None
     ) -> AsyncIterator[UserUseCase]:
         yield UserUseCase(
-            uow=self.uow,
+            transaction=self.transaction,
             user_gateway=self.user_gateway,
             password_provider=self.password_provider,
             strategy_redis=self.strategy,

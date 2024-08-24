@@ -10,7 +10,7 @@ from app.application.exceptions import (
     UserNotFoundException,
 )
 from app.application.interfaces import (
-    UoW,
+    Transaction,
     UserGateway,
     BaseStrategy,
     UserPermission,
@@ -32,14 +32,14 @@ from app.domain.model.token import RedisToken
 class UserUseCase:
     def __init__(
             self,
-            uow: UoW,
+            transaction: Transaction,
             user_gateway: UserGateway,
             password_provider: APasswordProvider,
             strategy_redis: BaseStrategy,
             user_permission: UserPermission | None
     ) -> None:
         self.user_gateway = user_gateway
-        self.uow = uow
+        self.transaction = transaction
         self.password_provider = password_provider
         self.strategy_redis = strategy_redis
         self.user_permission = user_permission
@@ -52,7 +52,7 @@ class UserUseCase:
             raise UserExistsException()
         source.password = self.password_provider.get_hash(source.password)
         user = await self.user_gateway.insert(source.into())
-        await self.uow.commit()
+        await self.transaction.commit()
         return UserView.from_into(user)
 
     async def login(self, source: UserLoginView) -> RedisTokenView:
@@ -86,7 +86,7 @@ class UserUseCase:
         await self._set_password_hash(source)
 
         user = await self.user_gateway.update(source.into())
-        await self.uow.commit()
+        await self.transaction.commit()
         return UserView.from_into(user)
 
     async def update_user_me(
@@ -102,7 +102,7 @@ class UserUseCase:
         await self._set_password_hash(source)
 
         user = await self.user_gateway.update(source.into(cast(Id, user_id)))
-        await self.uow.commit()
+        await self.transaction.commit()
         return UserView.from_into(user)
 
     async def get_user(self, user_id: str, token: str) -> UserView:
@@ -151,7 +151,7 @@ class UserUseCase:
             raise InvalidTokenException()
 
         await self.user_gateway.delete(cast(id, user_id))
-        await self.uow.commit()
+        await self.transaction.commit()
 
     async def logout(self, token: str) -> None:
         await self._check_token(token)

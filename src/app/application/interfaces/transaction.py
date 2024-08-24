@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import Protocol
 
 
-class UoW(Protocol):
+class Transaction(Protocol):
     @abstractmethod
     async def refresh(self): ...
 
