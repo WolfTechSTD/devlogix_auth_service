@@ -47,7 +47,7 @@ def _init_openapi_config() -> OpenAPIConfig:
     return config
 
 
-def get_uow(session: AsyncSession) -> AsyncSession:
+def get_transaction(session: AsyncSession) -> AsyncSession:
     return session
 
 
@@ -64,7 +64,7 @@ def _init_dependencies(config: ApplicationConfig) -> dict[str, Provide]:
             sync_to_thread=True
         ),
         "ioc": Provide(IoC, sync_to_thread=True),
-        "transaction": Provide(get_uow, sync_to_thread=True),
+        "transaction": Provide(get_transaction, sync_to_thread=True),
         "redis": Provide(
             lambda: redis_connect(
                 redis_config.url
