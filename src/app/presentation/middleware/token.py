@@ -33,6 +33,18 @@ class CookieTokenPermissionMiddleware(MiddlewareProtocol):
             receive: Receive,
             send: Send
     ) -> None:
-        if Request(scope).cookies.get("session") is None:
+        request = Request(scope)
+        cookies = request.cookies
+        headers = request.headers
+
+        is_session = False
+        is_jwt = False
+
+        if cookies.get("session"):
+            is_session = True
+        elif headers.get("authorization"):
+            is_jwt = True
+
+        if not is_session and not is_jwt:
             raise InvalidAuthenticationTokenError()
         await self.app(scope, receive, send)
