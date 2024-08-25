@@ -8,7 +8,10 @@ from litestar.openapi.spec import (
     OpenAPIType,
 )
 
-from app.presentation.openapi.exceptions.base import FORBIDDEN_EXCEPTION
+from app.presentation.openapi.exceptions.base import (
+    FORBIDDEN_EXCEPTION,
+    UNAUTHORIZED_EXCEPTION,
+)
 from app.presentation.openapi.schema.base import BaseParameters
 from app.presentation.openapi.security.base import BEARER_TOKEN
 
@@ -41,6 +44,21 @@ class DeleteUserMeOperation(Operation):
                             }
                         ),
                         example=FORBIDDEN_EXCEPTION
+                    )
+                }
+            ),
+            "401": OpenAPIResponse(
+                description="Unauthorized",
+                content={
+                    "json": OpenAPIMediaType(
+                        schema=Schema(
+                            type=OpenAPIType.OBJECT,
+                            properties={
+                                "status_code": BaseParameters.status_code,
+                                "detail": BaseParameters.detail
+                            }
+                        ),
+                        example=UNAUTHORIZED_EXCEPTION
                     )
                 }
             )
