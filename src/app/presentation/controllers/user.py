@@ -19,13 +19,14 @@ from app.application.exceptions import (
     UserWithEmailAndUsernameExistsException,
     InvalidTokenException,
 )
+from app.application.exceptions.token import TokenTimeException
 from app.application.interfaces import UserPermission
 from app.presentation.after_request.token import set_login_cookie
 from app.presentation.constants import LIMIT, OFFSET
 from app.presentation.exception_handlers import (
     bad_request_exception_handler,
     forbidden_exception_handler,
-    not_found_exception_handler,
+    not_found_exception_handler, unauthorized_exception_handler,
 )
 from app.presentation.interactor import InteractorFactory
 from app.presentation.middleware.token import (
@@ -69,6 +70,7 @@ class UserController(Controller):
         ),
         InvalidAuthenticationTokenError: forbidden_exception_handler,
         InvalidTokenException: forbidden_exception_handler,
+        TokenTimeException: unauthorized_exception_handler
     }
 
     @post(
@@ -120,8 +122,9 @@ class UserController(Controller):
             )],
     ) -> JsonUser:
         token = request.cookies.get("session")
+        access_token = request.headers.get("authorization")
         async with ioc.user_usecase(user_permissions) as usecase:
-            user = await usecase.get_user(user_id, token)
+            user = await usecase.get_user(user_id, token, access_token)
             return JsonUser.from_into(user)
 
     @get(
@@ -141,8 +144,9 @@ class UserController(Controller):
             offset: int = OFFSET
     ) -> JsonUserList:
         token = request.cookies.get("session")
+        access_token = request.headers.get("authorization")
         async with ioc.user_usecase(user_permissions) as usecase:
-            users = await usecase.get_users(limit, offset, token)
+            users = await usecase.get_users(limit, offset, token, access_token)
             return JsonUserList.from_into(limit, offset, users)
 
     @patch(
@@ -165,8 +169,13 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
+        access_token = request.headers.get("authorization")
         async with ioc.user_usecase(user_permissions) as usecase:
-            user = await usecase.update_user(data.into(user_id), token)
+            user = await usecase.update_user(
+                data.into(user_id),
+                token,
+                access_token
+            )
             return JsonUser.from_into(user)
 
     @get(
@@ -183,8 +192,9 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
+        access_token = request.headers.get("authorization")
         async with ioc.user_usecase(user_permissions) as usecase:
-            user = await usecase.get_user_me(token)
+            user = await usecase.get_user_me(token, access_token)
             return JsonUser.from_into(user)
 
     @patch(
@@ -203,8 +213,13 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
+        access_token = request.headers.get("authorization")
         async with ioc.user_usecase(user_permissions) as usecase:
-            user = await usecase.update_user_me(data.into(), token)
+            user = await usecase.update_user_me(
+                data.into(),
+                token,
+                access_token
+            )
             return JsonUser.from_into(user)
 
     @delete(
@@ -222,8 +237,9 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> None:
         token = request.cookies.get("session")
+        access_token = request.headers.get("authorization")
         async with ioc.user_usecase(user_permissions) as usecase:
-            await usecase.delete_user_me(token)
+            await usecase.delete_user_me(token, access_token)
 
     @post(
         "/logout",
