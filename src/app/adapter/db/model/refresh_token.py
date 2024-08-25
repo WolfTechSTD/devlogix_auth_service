@@ -1,5 +1,6 @@
-from typing import cast, TypeVar
 import datetime as dt
+from typing import cast, TypeVar
+
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
@@ -20,7 +21,10 @@ class RefreshTokens(BaseModel):
         autoincrement=False
     )
     user_id: Mapped[str] = mapped_column(
-        ForeignKey("users.id"),
+        ForeignKey(
+            "users.id",
+            ondelete="CASCADE"
+        ),
         nullable=True
     )
     name: Mapped[str] = mapped_column(
