@@ -26,7 +26,7 @@ from app.application.model.user import (
     UserListView,
 )
 from app.domain.model.id import Id
-from app.domain.model.token import RedisToken
+from app.domain.model.token import RedisToken, AccessToken
 
 
 class UserUseCase:
@@ -75,9 +75,10 @@ class UserUseCase:
     async def update_user(
             self,
             source: UpdateUserView,
-            token: str
+            token: str | None,
+            access_token: str | None
     ) -> UserView:
-        await self._check_token(token)
+        await self._check_token(token, access_token)
 
         if not await self.user_gateway.check_user_exists(cast(Id, source.id)):
             raise UserNotFoundException()
@@ -92,9 +93,10 @@ class UserUseCase:
     async def update_user_me(
             self,
             source: UpdateUserMeView,
-            token: str
+            token: str | None,
+            access_token: str | None
     ) -> UserView:
-        user_id = await self._get_user_id(token)
+        user_id = await self._get_user_id(token, access_token)
 
         if user_id is None:
             raise InvalidTokenException()
@@ -105,8 +107,13 @@ class UserUseCase:
         await self.transaction.commit()
         return UserView.from_into(user)
 
-    async def get_user(self, user_id: str, token: str) -> UserView:
-        await self._check_token(token)
+    async def get_user(
+            self,
+            user_id: str,
+            token: str | None,
+            access_token: str | None
+    ) -> UserView:
+        await self._check_token(token, access_token)
         user = await self.user_gateway.get(cast(Id, user_id))
 
         if user is None:
@@ -118,9 +125,10 @@ class UserUseCase:
             self,
             limit: int,
             offset: int,
-            token: str
+            token: str | None,
+            access_token: str | None
     ) -> UserListView:
-        await self._check_token(token)
+        await self._check_token(token, access_token)
         users = await self.user_gateway.get_list(
             limit=limit,
             offset=limit * offset
@@ -131,9 +139,12 @@ class UserUseCase:
             users=(UserView.from_into(user) for user in users)
         )
 
-    async def get_user_me(self, token: str) -> UserView:
-        user_id = await self._get_user_id(token)
-
+    async def get_user_me(
+            self,
+            token: str | None,
+            access_token: str | None
+    ) -> UserView:
+        user_id = await self._get_user_id(token, access_token)
         if user_id is None:
             raise InvalidTokenException()
 
@@ -144,8 +155,12 @@ class UserUseCase:
 
         return UserView.from_into(user)
 
-    async def delete_user_me(self, token: str) -> None:
-        user_id = await self._get_user_id(token)
+    async def delete_user_me(
+            self,
+            token: str | None,
+            access_token: str | None
+    ) -> None:
+        user_id = await self._get_user_id(token, access_token)
 
         if user_id is None:
             raise InvalidTokenException()
@@ -187,12 +202,31 @@ class UserUseCase:
         if source.password is not None:
             source.password = self.password_provider.get_hash(source.password)
 
-    async def _check_token(self, token: str) -> None:
-        await self.user_permission.check_token(
-            RedisToken(key=f"cookie::{token}")
-        )
+    async def _check_token(
+            self,
+            token: str | None,
+            access_token: str | None = None
+    ) -> None:
+        if token is None and access_token is not None:
+            token = access_token.split()[-1]
+            await self.user_permission.check_token(
+                AccessToken(value=token)
+            )
+        else:
+            await self.user_permission.check_token(
+                RedisToken(key=f"cookie::{token}")
+            )
 
-    async def _get_user_id(self, token: str) -> str:
+    async def _get_user_id(
+            self,
+            token: str | None,
+            access_token: str | None
+    ) -> str:
+        if token is None and access_token is not None:
+            token = access_token.split()[-1]
+            return await self.user_permission.get_user_id(
+                AccessToken(value=token)
+            )
         return await self.user_permission.get_user_id(
             RedisToken(key=f"cookie::{token}")
         )
