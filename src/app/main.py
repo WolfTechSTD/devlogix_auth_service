@@ -58,13 +58,7 @@ def _init_dependencies(config: ApplicationConfig) -> dict[str, Provide]:
 
     dependencies = {
         "session": Provide(create_async_session_maker(db_config.db_url)),
-        "user_gateway": Provide(UserGateway, sync_to_thread=True),
-        "refresh_token_gateway": Provide(
-            RefreshTokenGateway,
-            sync_to_thread=True
-        ),
         "ioc": Provide(IoC, sync_to_thread=True),
-        "transaction": Provide(get_transaction, sync_to_thread=True),
         "redis": Provide(
             lambda: redis_connect(
                 redis_config.url
