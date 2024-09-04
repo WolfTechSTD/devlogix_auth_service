@@ -1,14 +1,19 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Annotated
 
-from litestar.params import Dependency
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapter.authentication.strategy import RedisStrategy
-from app.adapter.db.gateway import UserGateway, RefreshTokenGateway
+from app.adapter.db.connect import get_transaction
+from app.adapter.db.gateway import (
+    UserGateway,
+    RefreshTokenGateway,
+)
 from app.adapter.permission import UserPermission
-from app.adapter.security import PasswordProvider, JWTProvider
-from app.application.interfaces import Transaction
+from app.adapter.security import (
+    PasswordProvider,
+    JWTProvider,
+)
 from app.application.usecase.jwt import JWTUseCase
 from app.application.usecase.user import UserUseCase
 from app.presentation.interactor import InteractorFactory
@@ -17,21 +22,17 @@ from app.presentation.interactor import InteractorFactory
 class IoC(InteractorFactory):
     def __init__(
             self,
-            transaction: Annotated[
-                Transaction,
-                Dependency(skip_validation=True)
-            ],
-            user_gateway: UserGateway,
+            session: AsyncSession,
             password_provider: PasswordProvider,
             strategy: RedisStrategy,
-            refresh_token_gateway: RefreshTokenGateway,
-            jwt_provider: JWTProvider
+            jwt_provider: JWTProvider,
+            refresh_token_time: int
     ) -> None:
-        self.transaction = transaction
-        self.user_gateway = user_gateway
+        self.transaction = get_transaction(session)
+        self.user_gateway = UserGateway(session)
         self.password_provider = password_provider
         self.strategy = strategy
-        self.refresh_token_gateway = refresh_token_gateway
+        self.refresh_token_gateway = RefreshTokenGateway(session, refresh_token_time)
         self.jwt_provider = jwt_provider
 
     @asynccontextmanager
