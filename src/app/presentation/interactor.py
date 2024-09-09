@@ -10,9 +10,8 @@ class InteractorFactory(ABC):
     @abstractmethod
     def user_usecase(
             self,
-            user_permissions: UserPermission | None = None
-    ) -> AbstractAsyncContextManager[UserUseCase]:
-        ...
+            user_permission: UserPermission | None = None
+    ) -> AbstractAsyncContextManager[UserUseCase]: ...
 
     @abstractmethod
     def jwt_usecase(self) -> AbstractAsyncContextManager[JWTUseCase]: ...

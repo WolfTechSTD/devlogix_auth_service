@@ -38,14 +38,14 @@ class IoC(InteractorFactory):
     @asynccontextmanager
     async def user_usecase(
             self,
-            user_permissions: UserPermission | None = None
+            user_permission: UserPermission | None = None
     ) -> AsyncIterator[UserUseCase]:
         yield UserUseCase(
             transaction=self.transaction,
             user_gateway=self.user_gateway,
             password_provider=self.password_provider,
             strategy_redis=self.strategy,
-            user_permission=user_permissions
+            user_permission=user_permission
         )
 
     @asynccontextmanager

@@ -117,13 +117,13 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(
                 skip_validation=True
             )],
-            user_permissions: Annotated[UserPermission, Dependency(
+            user_permission: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
     ) -> JsonUser:
         token = request.cookies.get("session")
         access_token = request.headers.get("authorization")
-        async with ioc.user_usecase(user_permissions) as usecase:
+        async with ioc.user_usecase(user_permission) as usecase:
             user = await usecase.get_user(user_id, token, access_token)
             return JsonUser.from_into(user)
 
@@ -137,7 +137,7 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(
                 skip_validation=True
             )],
-            user_permissions: Annotated[UserPermission, Dependency(
+            user_permission: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
             limit: int = LIMIT,
@@ -145,7 +145,7 @@ class UserController(Controller):
     ) -> JsonUserList:
         token = request.cookies.get("session")
         access_token = request.headers.get("authorization")
-        async with ioc.user_usecase(user_permissions) as usecase:
+        async with ioc.user_usecase(user_permission) as usecase:
             users = await usecase.get_users(limit, offset, token, access_token)
             return JsonUserList.from_into(limit, offset, users)
 
@@ -163,14 +163,14 @@ class UserController(Controller):
                 min_length=LENGTH_ID
             )],
             data: JsonUpdateUser,
-            user_permissions: Annotated[UserPermission, Dependency(
+            user_permission: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
         access_token = request.headers.get("authorization")
-        async with ioc.user_usecase(user_permissions) as usecase:
+        async with ioc.user_usecase(user_permission) as usecase:
             user = await usecase.update_user(
                 data.into(user_id),
                 token,
@@ -186,14 +186,14 @@ class UserController(Controller):
     async def get_user_me(
             self,
             request: Request,
-            user_permissions: Annotated[UserPermission, Dependency(
+            user_permission: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
         access_token = request.headers.get("authorization")
-        async with ioc.user_usecase(user_permissions) as usecase:
+        async with ioc.user_usecase(user_permission) as usecase:
             user = await usecase.get_user_me(token, access_token)
             return JsonUser.from_into(user)
 
@@ -207,14 +207,14 @@ class UserController(Controller):
             self,
             data: JsonUpdateUserMe,
             request: Request,
-            user_permissions: Annotated[UserPermission, Dependency(
+            user_permission: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
         token = request.cookies.get("session")
         access_token = request.headers.get("authorization")
-        async with ioc.user_usecase(user_permissions) as usecase:
+        async with ioc.user_usecase(user_permission) as usecase:
             user = await usecase.update_user_me(
                 data.into(),
                 token,
@@ -231,14 +231,14 @@ class UserController(Controller):
     async def delete_user_me(
             self,
             request: Request,
-            user_permissions: Annotated[UserPermission, Dependency(
+            user_permission: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> None:
         token = request.cookies.get("session")
         access_token = request.headers.get("authorization")
-        async with ioc.user_usecase(user_permissions) as usecase:
+        async with ioc.user_usecase(user_permission) as usecase:
             await usecase.delete_user_me(token, access_token)
 
     @post(
@@ -250,11 +250,11 @@ class UserController(Controller):
     async def logout(
             self,
             request: Request,
-            user_permissions: Annotated[UserPermission, Dependency(
+            user_permission: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> None:
         token = request.cookies.get("session")
-        async with ioc.user_usecase(user_permissions) as usecase:
+        async with ioc.user_usecase(user_permission) as usecase:
             await usecase.logout(token)
