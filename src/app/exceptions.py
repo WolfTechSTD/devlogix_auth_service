@@ -1,2 +1,0 @@
-class ConfigParseError(Exception):
-    pass

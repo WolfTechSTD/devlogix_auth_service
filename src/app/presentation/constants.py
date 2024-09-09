@@ -1,5 +1,0 @@
-LIMIT = 10
-
-OFFSET = 0
-
-TOTAL = 2

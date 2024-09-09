@@ -1,3 +1,0 @@
-BEARER_TOKEN = {
-    "BearerToken": [],
-}
