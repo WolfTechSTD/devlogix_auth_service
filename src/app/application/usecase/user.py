@@ -36,7 +36,7 @@ class UserUseCase:
             user_gateway: UserGateway,
             password_provider: APasswordProvider,
             strategy_redis: BaseStrategy,
-            user_permission: UserPermission | None
+            user_permission: UserPermission
     ) -> None:
         self.user_gateway = user_gateway
         self.transaction = transaction

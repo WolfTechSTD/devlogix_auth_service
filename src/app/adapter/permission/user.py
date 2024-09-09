@@ -1,18 +1,18 @@
 from typing import TypeVar
 
+from app.adapter.authentication.strategy import RedisStrategy
 from app.adapter.exceptions import InvalidAuthenticationTokenError
-from app.application.interfaces import AJWTProvider
+from app.adapter.security import JWTProvider
 from app.domain.model.token import AccessToken, RedisToken
 
-Strategy = TypeVar("Strategy")
 ModelToken = TypeVar("ModelToken")
 
 
 class UserPermission:
     def __init__(
             self,
-            strategy: Strategy,
-            jwt_provider: AJWTProvider,
+            strategy: RedisStrategy,
+            jwt_provider: JWTProvider,
     ) -> None:
         self.strategy = strategy
         self.jwt_provider = jwt_provider

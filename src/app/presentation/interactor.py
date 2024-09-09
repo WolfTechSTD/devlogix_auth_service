@@ -10,7 +10,7 @@ class InteractorFactory(ABC):
     @abstractmethod
     def user_usecase(
             self,
-            user_permission: UserPermission | None = None
+            user_permission: UserPermission
     ) -> AbstractAsyncContextManager[UserUseCase]: ...
 
     @abstractmethod

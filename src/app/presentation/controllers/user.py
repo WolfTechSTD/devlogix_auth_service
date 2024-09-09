@@ -80,9 +80,14 @@ class UserController(Controller):
     async def create_user(
             self,
             data: JsonCreateUser,
-            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+            ioc: Annotated[InteractorFactory, Dependency(
+                skip_validation=True
+            )],
+            user_permission: Annotated[UserPermission, Dependency(
+                skip_validation=True
+            )],
     ) -> JsonUser:
-        async with ioc.user_usecase() as usecase:
+        async with ioc.user_usecase(user_permission) as usecase:
             user = await usecase.create_user(data.into())
             return JsonUser.from_into(user)
 
@@ -96,9 +101,14 @@ class UserController(Controller):
     async def login(
             self,
             data: JsonUserLogin,
-            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+            ioc: Annotated[InteractorFactory, Dependency(
+                skip_validation=True
+            )],
+            user_permission: Annotated[UserPermission, Dependency(
+                skip_validation=True
+            )],
     ) -> JsonCookieToken:
-        async with ioc.user_usecase() as usecase:
+        async with ioc.user_usecase(user_permission) as usecase:
             cookie = await usecase.login(data.into())
             return JsonCookieToken.from_into(cookie)
 
