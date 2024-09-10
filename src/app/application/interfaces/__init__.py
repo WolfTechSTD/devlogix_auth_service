@@ -1,19 +1,21 @@
 from .authentication.strategy import BaseStrategy
 from .authentication.transport import ACookieTransport
-from .permissions.user import UserPermission
-from .transaction import Transaction
-from .user import UserGateway
+from .interactor import Interactor
+from .permissions.user import AbstractUserPermission
+from .abstracttransaction import AbstractTransaction
+from .user import AbstractUserGateway
 from .jwt import AJWTProvider
 from .password import APasswordProvider
-from .refresh_token import RefreshTokenGateway
+from .refresh_token import AbstractRefreshTokenGateway
 
 __all__ = (
-    "Transaction",
+    "AbstractTransaction",
     "BaseStrategy",
-    "UserGateway",
+    "AbstractUserGateway",
     "ACookieTransport",
-    "UserPermission",
+    "AbstractUserPermission",
     "AJWTProvider",
     "APasswordProvider",
-    "RefreshTokenGateway"
+    "AbstractRefreshTokenGateway",
+    "Interactor"
 )
