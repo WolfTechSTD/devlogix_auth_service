@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 
-from app.exceptions import ConfigParseError
+from app.exceptions.base import ConfigParseError
 
 
 @dataclass
