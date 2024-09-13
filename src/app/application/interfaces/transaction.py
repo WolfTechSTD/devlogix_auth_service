@@ -2,9 +2,7 @@ from abc import abstractmethod
 from typing import Protocol
 
 
-class AbstractTransaction(
-    Protocol
-):
+class ITransaction(Protocol):
     @abstractmethod
     async def rollback(self) -> None: ...
 
