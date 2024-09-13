@@ -1,5 +1,5 @@
-from .base import BaseStrategy
+from .base import IStrategy
 
 __all__ = (
-    "BaseStrategy",
+    "IStrategy",
 )

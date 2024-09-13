@@ -1,5 +1,5 @@
-from .cookie import ACookieTransport
+from .cookie import ICookieTransport
 
 __all__ = (
-    "ACookieTransport",
+    "ICookieTransport",
 )

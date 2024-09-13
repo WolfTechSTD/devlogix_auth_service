@@ -1,21 +1,21 @@
-from .authentication.strategy import BaseStrategy
-from .authentication.transport import ACookieTransport
+from .authentication.strategy import IStrategy
+from .authentication.transport import ICookieTransport
 from .interactor import Interactor
-from .permissions.user import AbstractUserPermission
-from .abstracttransaction import AbstractTransaction
-from .user import AbstractUserGateway
-from .jwt import AJWTProvider
-from .password import APasswordProvider
-from .refresh_token import AbstractRefreshTokenGateway
+from .permissions.user import IUserPermission
+from .transaction import ITransaction
+from .user import IUserGateway
+from .jwt import ITokenProvider
+from .password import IPasswordProvider
+from .refresh_token import IRefreshTokenGateway
 
 __all__ = (
-    "AbstractTransaction",
-    "BaseStrategy",
-    "AbstractUserGateway",
-    "ACookieTransport",
-    "AbstractUserPermission",
-    "AJWTProvider",
-    "APasswordProvider",
-    "AbstractRefreshTokenGateway",
+    "ITransaction",
+    "IStrategy",
+    "IUserGateway",
+    "ICookieTransport",
+    "IUserPermission",
+    "ITokenProvider",
+    "IPasswordProvider",
+    "IRefreshTokenGateway",
     "Interactor"
 )
