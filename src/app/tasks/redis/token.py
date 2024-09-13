@@ -13,4 +13,3 @@ async def clear_cookie_token(key: str) -> None:
 @app_redis.task(name="clear_cookie_token", queue="cookie_token")
 def create_task_clear_cookie_token(key: str) -> None:
     asyncio.create_task(clear_cookie_token(key))
-
