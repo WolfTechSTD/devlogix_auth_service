@@ -54,10 +54,10 @@ class UpdateRefreshTokenView:
 class DeleteRefreshTokenView:
     refresh_token: str
 
-    def into(self, token: str) -> RefreshToken:
+    def into(self) -> RefreshToken:
         return RefreshToken(
             user_id=None,
-            name=token,
+            name=self.refresh_token,
             is_valid=False
         )
 
