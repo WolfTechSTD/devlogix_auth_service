@@ -157,8 +157,9 @@ class JsonUpdateUserMe(Base):
         }
     )
 
-    def into(self) -> UpdateUserMeView:
+    def into(self, user_id: str) -> UpdateUserMeView:
         return UpdateUserMeView(
+            id=user_id,
             username=self.username,
             email=self.email,
             password=self.password,
@@ -248,3 +249,17 @@ class JsonUserLogin(Base):
             email=self.email,
             password=self.password,
         )
+
+
+class JsonUserMe(Base):
+    id: str = Field(
+        ...,
+        json_schema_extra={
+            "title": "id",
+            "description": "Уникальный идентификатор",
+            "example": "01J4HC5WQB3FK3FA1FMXYVYJ6Y"
+        }
+    )
+
+    def into(self) -> str:
+        return self.id
