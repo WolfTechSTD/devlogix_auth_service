@@ -52,13 +52,14 @@ class CreateUserView:
 
 @dataclass(slots=True)
 class UpdateUserMeView:
+    id: str
     username: str | None
     email: str | None
     password: str | None
 
-    def into(self, id: Id) -> User:
+    def into(self) -> User:
         return User(
-            id=id,
+            id=cast(Id, self.id),
             username=self.username,
             email=self.email,
             password=self.password,
