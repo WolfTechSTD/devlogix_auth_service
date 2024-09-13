@@ -5,3 +5,8 @@ class AuthenticationException(Exception):
 class InvalidAuthenticationTokenError(AuthenticationException):
     def __str__(self) -> str:
         return "Доступ запрещен"
+
+
+class UserAuthException(AuthenticationException):
+    def __str__(self) -> str:
+        return "Пользователь авторизован"

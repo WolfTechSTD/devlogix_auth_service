@@ -1,3 +1,4 @@
+from .authentication import UserAuthException, InvalidAuthenticationTokenError
 from .token import InvalidTokenException
 from .user import (
     UserLoginException,
@@ -15,5 +16,7 @@ __all__ = (
     "UserWithUsernameExistsException",
     "UserWithEmailExistsException",
     "UserWithEmailAndUsernameExistsException",
-    "InvalidTokenException"
+    "InvalidTokenException",
+    "UserAuthException",
+    "InvalidAuthenticationTokenError"
 )
