@@ -1,38 +1,45 @@
-from typing import TypeVar
-
 from app.adapter.authentication.strategy import RedisStrategy
-from app.adapter.exceptions import InvalidAuthenticationTokenError
-from app.adapter.security import JWTProvider
-from app.domain.model.token import AccessToken, RedisToken
-
-ModelToken = TypeVar("ModelToken")
+from app.adapter.security import PasswordProvider, TokenProvider
+from app.application.interfaces.permissions.user import BaseModel
+from app.domain.model.id import Id
+from app.exceptions import UserLoginException
 
 
 class UserPermission:
     def __init__(
             self,
+            password_provider: PasswordProvider,
+            jwt_provider: TokenProvider,
             strategy: RedisStrategy,
-            jwt_provider: JWTProvider,
+            access_token_time: int,
+            refresh_token_time: int,
     ) -> None:
+        self.refresh_token_time = refresh_token_time
+        self.access_token_time = access_token_time
         self.strategy = strategy
+        self.password_provider = password_provider
         self.jwt_provider = jwt_provider
 
-    async def check_token(self, source: AccessToken | RedisToken) -> None:
-        if isinstance(source, RedisToken):
-            token = await self.strategy.read(source)
-            if token is None:
-                raise InvalidAuthenticationTokenError()
-        else:
-            self.jwt_provider.decode(source)
+    async def change_password(
+            self,
+            source: BaseModel,
+    ) -> None:
+        if source.password is not None:
+            source.password = self.password_provider.get_hash(source.password)
 
-    async def get_user_id(self, source: AccessToken | RedisToken) -> str:
-        if isinstance(source, RedisToken):
-            token = await self.strategy.read(source)
-            if token is None:
-                raise InvalidAuthenticationTokenError()
-            return token.value
-        data = self.jwt_provider.decode(source)
-        return data.get("id")
+    async def check_password(
+            self,
+            password: str,
+            hashed_password: str
+    ) -> None:
+        if not self.password_provider.verify_password(
+                password,
+                hashed_password
+        ):
+            raise UserLoginException()
 
-    async def logout(self, source: ModelToken) -> None:
-        await self.strategy.destroy(source)
+    async def get_access_token(self, user_id: Id) -> str:
+        return self.jwt_provider.get_access_token(user_id)
+
+    async def get_refresh_token(self) -> str:
+        return self.jwt_provider.get_refresh_token()
