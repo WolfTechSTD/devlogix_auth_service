@@ -24,6 +24,7 @@ class LogoutUserOperation(Operation):
         self.summary = SUMMARY
         self.description = DESCRIPTION
         self.security = [SESSION]
+        self.request_body = None
         self.responses = {
             "204": OpenAPIResponse(
                 description="No Content",

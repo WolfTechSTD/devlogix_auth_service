@@ -17,7 +17,7 @@ from app.presentation.openapi.schema.base import BaseParameters
 from app.presentation.openapi.schema.user import UserParameterSchema
 
 DESCRIPTION = """
-Аутентификация.
+Авторизация.
 
 * **username** - Юзернейм
 
