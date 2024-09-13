@@ -10,7 +10,8 @@ from app.application.model.user import UpdateUserMeView, UserView
 from app.domain.model.id import Id
 from app.exceptions import (
     UserWithEmailAndUsernameExistsException,
-    UserWithEmailExistsException, UserWithUsernameExistsException,
+    UserWithEmailExistsException,
+    UserWithUsernameExistsException,
 )
 
 
