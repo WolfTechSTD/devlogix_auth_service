@@ -1,10 +1,11 @@
 from typing import Annotated
 
-from litestar import post, delete, status_codes
+from litestar import post, status_codes, delete
 from litestar.controller import Controller
 from litestar.params import Dependency
 
-from app.application.exceptions import (
+from app.application.interfaces import IUserPermission
+from app.exceptions import (
     UserLoginException,
     InvalidTokenException,
 )
@@ -20,10 +21,10 @@ from app.presentation.model.jwt import (
 )
 from app.presentation.model.user import JsonUserLogin
 from app.presentation.openapi import (
-    DeleteRefreshTokenOperation,
-    UpdateRefreshTokenOperation,
-    UpdateAccessTokenOperation,
     GetTokensOperation,
+    UpdateAccessTokenOperation,
+    UpdateRefreshTokenOperation,
+    DeleteRefreshTokenOperation,
 )
 
 
@@ -41,10 +42,15 @@ class JWTController(Controller):
     async def get_tokens(
             self,
             data: JsonUserLogin,
-            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+            ioc: Annotated[InteractorFactory, Dependency(
+                skip_validation=True
+            )],
+            user_permission: Annotated[IUserPermission, Dependency(
+                skip_validation=True
+            )],
     ) -> JsonToken:
-        async with ioc.jwt_usecase() as usecase:
-            token = await usecase.get_tokens(data.into())
+        async with ioc.get_tokens(user_permission) as command:
+            token = await command(data.into())
             return JsonToken.from_into(token)
 
     @post(
@@ -55,10 +61,15 @@ class JWTController(Controller):
     async def update_access_token(
             self,
             data: JsonUpdateAccessToken,
-            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+            ioc: Annotated[InteractorFactory, Dependency(
+                skip_validation=True
+            )],
+            user_permission: Annotated[IUserPermission, Dependency(
+                skip_validation=True
+            )],
     ) -> JsonAccessToken:
-        async with ioc.jwt_usecase() as usecase:
-            token = await usecase.update_access_token(data.into())
+        async with ioc.update_access_token(user_permission) as command:
+            token = await command(data.into())
             return JsonAccessToken.from_into(token)
 
     @post(
@@ -69,10 +80,15 @@ class JWTController(Controller):
     async def update_refresh_token(
             self,
             data: JsonUpdateRefreshToken,
-            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+            ioc: Annotated[InteractorFactory, Dependency(
+                skip_validation=True
+            )],
+            user_permission: Annotated[IUserPermission, Dependency(
+                skip_validation=True
+            )],
     ) -> JsonRefreshToken:
-        async with ioc.jwt_usecase() as usecase:
-            token = await usecase.update_refresh_token(data.into())
+        async with ioc.update_refresh_token(user_permission) as command:
+            token = await command(data.into())
             return JsonRefreshToken.from_into(token)
 
     @delete(
@@ -85,5 +101,5 @@ class JWTController(Controller):
             data: JsonDeleteRefreshToken,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> None:
-        async with ioc.jwt_usecase() as usecase:
-            await usecase.delete_refresh_token(data.into())
+        async with ioc.delete_refresh_token() as command:
+            await command(data.into())
