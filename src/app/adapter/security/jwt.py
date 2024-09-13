@@ -5,14 +5,14 @@ from typing import Any
 import jwt
 from jwt import ExpiredSignatureError, DecodeError
 
-from app.application.exceptions import InvalidTokenException
-from app.application.exceptions.token import TokenTimeException
-from app.application.interfaces import AJWTProvider
+from app.exceptions import InvalidTokenException
+from app.exceptions.token import TokenTimeException
+from app.application.interfaces import ITokenProvider
 from app.domain.model.id import Id
 from app.domain.model.token import AccessToken
 
 
-class JWTProvider(AJWTProvider):
+class TokenProvider(ITokenProvider):
     def __init__(
             self,
             key: str,
@@ -25,7 +25,7 @@ class JWTProvider(AJWTProvider):
 
     def get_access_token(self, user_id: Id) -> str:
         date_on = dt.datetime.now(dt.timezone.utc)
-        exp = date_on - dt.timedelta(minutes=self.time_access_token)
+        exp = date_on + dt.timedelta(minutes=self.time_access_token)
         return self.encode(
             {
                 "id": user_id,
