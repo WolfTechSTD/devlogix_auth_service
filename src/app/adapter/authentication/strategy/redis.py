@@ -1,10 +1,10 @@
 from redis.asyncio import Redis
 
-from app.application.interfaces import BaseStrategy
+from app.application.interfaces import IStrategy
 from app.domain.model.token import RedisToken
 
 
-class RedisStrategy(BaseStrategy[RedisToken]):
+class RedisStrategy(IStrategy[RedisToken]):
     def __init__(
             self,
             redis: Redis
