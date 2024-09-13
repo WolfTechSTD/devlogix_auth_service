@@ -1,9 +1,9 @@
 from passlib.context import CryptContext
 
-from app.application.interfaces import APasswordProvider
+from app.application.interfaces import IPasswordProvider
 
 
-class PasswordProvider(APasswordProvider):
+class PasswordProvider(IPasswordProvider):
     def __init__(self) -> None:
         self.context = CryptContext(schemes=["argon2"])
 
