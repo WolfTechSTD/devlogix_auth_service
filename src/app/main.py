@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.adapter.authentication.strategy import RedisStrategy
 from app.adapter.permission import UserPermission
 from app.adapter.persistence import create_async_session_maker, redis_connect
-from app.adapter.security import PasswordProvider, JWTProvider
+from app.adapter.security import PasswordProvider, TokenProvider
 from app.config import load_config, ApplicationConfig
 from app.ioc import IoC
 from app.presentation.controllers.jwt import JWTController
@@ -71,7 +71,7 @@ def _init_dependencies(config: ApplicationConfig) -> dict[str, Provide]:
         ),
         "user_permission": Provide(UserPermission, sync_to_thread=True),
         "jwt_provider": Provide(
-            lambda: JWTProvider(
+            lambda: TokenProvider(
                 key=jwt_config.secret_key,
                 algorithm=jwt_config.algorithm,
                 time_access_token=jwt_config.assess_token_time
@@ -80,6 +80,10 @@ def _init_dependencies(config: ApplicationConfig) -> dict[str, Provide]:
         ),
         "refresh_token_time": Provide(
             lambda: jwt_config.refresh_token_time,
+            sync_to_thread=True
+        ),
+        "access_token_time": Provide(
+            lambda: jwt_config.assess_token_time,
             sync_to_thread=True
         )
     }
