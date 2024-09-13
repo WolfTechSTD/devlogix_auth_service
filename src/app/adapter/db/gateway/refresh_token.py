@@ -1,6 +1,6 @@
 import datetime as dt
 
-from sqlalchemy import select, insert, and_, true, update
+from sqlalchemy import select, insert, and_, true, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -18,6 +18,13 @@ class RefreshTokenGateway(BaseGateway[RefreshToken]):
     ) -> None:
         super().__init__(session)
         self.refresh_token_time = refresh_token_time
+
+    async def delete(self, source: RefreshToken) -> None:
+        stmt = (
+            delete(RefreshTokens)
+            .where(RefreshTokens.name == source.name)
+        )
+        await self.session.execute(stmt)
 
     async def insert(self, source: RefreshToken) -> RefreshToken:
         if await self._check_user_id(source.user_id):
@@ -37,10 +44,10 @@ class RefreshTokenGateway(BaseGateway[RefreshToken]):
         result = await self.session.execute(stmt)
         return result.scalar().into()
 
-    async def update(self, source: RefreshToken) -> RefreshToken:
+    async def update(self, name: str,  source: RefreshToken) -> RefreshToken:
         stmt = (
             update(RefreshTokens)
-            .where(RefreshTokens.name == source.name)
+            .where(RefreshTokens.name == name)
             .values(
                 name=source.name,
                 is_valid=source.is_valid
