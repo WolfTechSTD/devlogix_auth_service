@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABC
 
 
-class APasswordProvider(ABC):
+class IPasswordProvider(ABC):
     @abstractmethod
     def verify_password(
             self,

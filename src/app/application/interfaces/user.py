@@ -6,7 +6,7 @@ from app.domain.model.id import Id
 from app.domain.model.user import User
 
 
-class UserGateway(Protocol):
+class IUserGateway(Protocol):
     @abstractmethod
     async def insert(self, source: User) -> User: ...
 

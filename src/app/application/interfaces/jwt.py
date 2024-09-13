@@ -5,7 +5,7 @@ from app.domain.model.id import Id
 from app.domain.model.token import AccessToken
 
 
-class AJWTProvider(ABC):
+class ITokenProvider(ABC):
     @abstractmethod
     def encode(self, data: dict[str, Any]) -> str: ...
 

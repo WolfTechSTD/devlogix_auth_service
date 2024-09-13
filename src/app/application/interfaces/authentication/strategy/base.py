@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABC
 
 
-class BaseStrategy[Model](ABC):
+class IStrategy[Model](ABC):
     @abstractmethod
     async def read(self, source: Model) -> Model | None: ...
 
