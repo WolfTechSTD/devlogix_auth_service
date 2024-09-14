@@ -1,4 +1,3 @@
-from app.adapter.authentication.strategy import RedisStrategy
 from app.adapter.security import PasswordProvider, TokenProvider
 from app.application.interfaces.permissions.user import BaseModel
 from app.domain.model.id import Id
@@ -10,13 +9,7 @@ class UserPermission:
             self,
             password_provider: PasswordProvider,
             jwt_provider: TokenProvider,
-            strategy: RedisStrategy,
-            access_token_time: int,
-            refresh_token_time: int,
     ) -> None:
-        self.refresh_token_time = refresh_token_time
-        self.access_token_time = access_token_time
-        self.strategy = strategy
         self.password_provider = password_provider
         self.jwt_provider = jwt_provider
 
