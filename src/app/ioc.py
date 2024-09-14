@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.adapter.authentication.strategy import RedisStrategy
 from app.adapter.db.connect import get_transaction
 from app.adapter.db.gateway import (
     UserGateway,
@@ -16,7 +15,10 @@ from app.application.usecase.jwt.update_accesss_token import UpdateAccessToken
 from app.application.usecase.jwt.update_refresh_token import UpdateRefreshToken
 from app.application.usecase.user.create_user import CreateUser
 from app.application.usecase.user.delete_user_me import DeleteUserMe
+from app.application.usecase.user.get_user import GetUser
 from app.application.usecase.user.get_user_me import GetUserMe
+from app.application.usecase.user.get_users import GetUsers
+from app.application.usecase.user.update_user import UpdateUser
 from app.application.usecase.user.update_user_me import UpdateUserMe
 from app.presentation.interactor import InteractorFactory
 
@@ -25,12 +27,10 @@ class IoC(InteractorFactory):
     def __init__(
             self,
             session: AsyncSession,
-            strategy: RedisStrategy,
             refresh_token_time: int
     ) -> None:
         self.transaction = get_transaction(session)
         self.user_gateway = UserGateway(session)
-        self.strategy = strategy
         self.refresh_token_gateway = RefreshTokenGateway(
             session,
             refresh_token_time
@@ -109,5 +109,28 @@ class IoC(InteractorFactory):
     async def delete_user_me(self) -> AsyncIterator[DeleteUserMe]:
         yield DeleteUserMe(
             transaction=self.transaction,
+            user_gateway=self.user_gateway,
+        )
+
+    @asynccontextmanager
+    async def update_user(
+            self,
+            user_permission: IUserPermission
+    ) -> AsyncIterator[UpdateUser]:
+        yield UpdateUser(
+            transaction=self.transaction,
+            user_permission=user_permission,
+            user_gateway=self.user_gateway,
+        )
+
+    @asynccontextmanager
+    async def get_user(self) -> AsyncIterator[GetUser]:
+        yield GetUser(
+            user_gateway=self.user_gateway
+        )
+
+    @asynccontextmanager
+    async def get_users(self) -> AsyncIterator[GetUsers]:
+        yield GetUsers(
             user_gateway=self.user_gateway,
         )
