@@ -8,7 +8,10 @@ from app.application.usecase.jwt.update_accesss_token import UpdateAccessToken
 from app.application.usecase.jwt.update_refresh_token import UpdateRefreshToken
 from app.application.usecase.user.create_user import CreateUser
 from app.application.usecase.user.delete_user_me import DeleteUserMe
+from app.application.usecase.user.get_user import GetUser
 from app.application.usecase.user.get_user_me import GetUserMe
+from app.application.usecase.user.get_users import GetUsers
+from app.application.usecase.user.update_user import UpdateUser
 from app.application.usecase.user.update_user_me import UpdateUserMe
 
 
@@ -53,3 +56,15 @@ class InteractorFactory(ABC):
 
     @abstractmethod
     def delete_user_me(self) -> AbstractAsyncContextManager[DeleteUserMe]: ...
+
+    @abstractmethod
+    def update_user(
+            self,
+            user_permission: IUserPermission
+    ) -> AbstractAsyncContextManager[UpdateUser]: ...
+
+    @abstractmethod
+    def get_user(self) -> AbstractAsyncContextManager[GetUser]: ...
+
+    @abstractmethod
+    def get_users(self) -> AbstractAsyncContextManager[GetUsers]: ...
