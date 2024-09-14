@@ -1,12 +1,18 @@
 from dataclasses import dataclass, field
-import datetime as dt
+from typing import TypeVar
+
+from app.domain.model.id import Id
+
+User = TypeVar("User")
 
 
 @dataclass(slots=True, kw_only=True)
-class RedisToken:
-    key: str
-    value: str | None = field(default=None)
-    lifetime_second: int | dt.timedelta | None = field(default=None)
+class RefreshToken:
+    id: Id | None = field(default=None)
+    user_id: Id | None = field(default=None)
+    name: str | None = field(default=None)
+    is_valid: bool = field(default=True)
+    user: User | None = field(default=None)
 
 
 @dataclass(slots=True)
