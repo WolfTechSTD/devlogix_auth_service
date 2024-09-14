@@ -13,6 +13,7 @@ from litestar.params import Dependency, Parameter
 
 from app.adapter.permission import UserPermission
 from app.application.interfaces import IUserPermission
+from app.application.model.pagination import Pagination
 from app.exceptions import (
     UserExistsException,
     UserNotFoundException,
@@ -125,11 +126,9 @@ class UserController(Controller):
     @get(
         "/{user_id:str}",
         operation_class=GetUserOperation,
-        # middleware=[CookieTokenPermissionMiddleware]
     )
     async def get_user(
             self,
-            request: Request,
             user_id: Annotated[str, Parameter(
                 max_length=LENGTH_ID,
                 min_length=LENGTH_ID
@@ -137,47 +136,38 @@ class UserController(Controller):
             ioc: Annotated[InteractorFactory, Dependency(
                 skip_validation=True
             )],
-            user_permission: Annotated[UserPermission, Dependency(
-                skip_validation=True
-            )],
     ) -> JsonUser:
-        token = request.cookies.get("session")
-        access_token = request.headers.get("authorization")
-        async with ioc.user_usecase(user_permission) as usecase:
-            user = await usecase.get_user(user_id, token, access_token)
+        async with ioc.get_user() as command:
+            user = await command(user_id)
             return JsonUser.from_into(user)
 
     @get(
         operation_class=GetUsersOperation,
-        # middleware=[CookieTokenPermissionMiddleware]
     )
     async def get_users(
             self,
-            request: Request,
             ioc: Annotated[InteractorFactory, Dependency(
-                skip_validation=True
-            )],
-            user_permission: Annotated[UserPermission, Dependency(
                 skip_validation=True
             )],
             limit: int = LIMIT,
             offset: int = OFFSET
     ) -> JsonUserList:
-        token = request.cookies.get("session")
-        access_token = request.headers.get("authorization")
-        async with ioc.user_usecase(user_permission) as usecase:
-            users = await usecase.get_users(limit, offset, token, access_token)
+        async with ioc.get_users() as command:
+            users = await command(
+                Pagination(
+                    limit=limit,
+                    offset=offset
+                )
+            )
             return JsonUserList.from_into(limit, offset, users)
 
     @patch(
         "/{user_id:str}",
         operation_class=UpdateUserOperation,
         status_code=status_codes.HTTP_200_OK,
-        # middleware=[CookieTokenPermissionMiddleware]
     )
     async def update_user(
             self,
-            request: Request,
             user_id: Annotated[str, Parameter(
                 max_length=LENGTH_ID,
                 min_length=LENGTH_ID
@@ -188,14 +178,8 @@ class UserController(Controller):
             )],
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> JsonUser:
-        token = request.cookies.get("session")
-        access_token = request.headers.get("authorization")
-        async with ioc.user_usecase(user_permission) as usecase:
-            user = await usecase.update_user(
-                data.into(user_id),
-                token,
-                access_token
-            )
+        async with ioc.update_user(user_permission) as command:
+            user = await command(data.into(user_id))
             return JsonUser.from_into(user)
 
     @get(
