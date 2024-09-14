@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 from app.adapter.db.gateway import BaseGateway
 from app.adapter.db.model import RefreshTokenStorage, UserStorage
 from app.domain.model.id import Id
-from app.domain.model.jwt import RefreshToken
+from app.domain.model.token import RefreshToken
 
 
 class RefreshTokenGateway(BaseGateway[RefreshToken]):

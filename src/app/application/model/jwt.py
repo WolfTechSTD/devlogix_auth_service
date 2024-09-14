@@ -2,7 +2,7 @@ import datetime as dt
 from dataclasses import dataclass
 from typing import Self
 
-from app.domain.model.jwt import RefreshToken
+from app.domain.model.token import RefreshToken
 
 
 @dataclass(slots=True)

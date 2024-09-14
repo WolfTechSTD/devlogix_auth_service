@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Protocol
 
-from app.domain.model.jwt import RefreshToken
+from app.domain.model.token import RefreshToken
 
 
 class IRefreshTokenGateway(Protocol):

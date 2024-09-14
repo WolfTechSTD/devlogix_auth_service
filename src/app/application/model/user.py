@@ -5,7 +5,7 @@ from typing import Self, cast
 from ulid import ULID
 
 from app.domain.model.id import Id
-from app.domain.model.jwt import RefreshToken
+from app.domain.model.token import RefreshToken
 from app.domain.model.user import User
 
 

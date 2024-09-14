@@ -6,7 +6,7 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 from app.adapter.db.model import BaseModel
 from app.domain.model.id import Id
-from app.domain.model.jwt import RefreshToken
+from app.domain.model.token import RefreshToken
 from app.domain.model.user import User
 
 UserStorage = TypeVar("UserStorage", bound=User)
