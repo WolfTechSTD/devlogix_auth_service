@@ -1,9 +1,9 @@
 from .base import BaseModel
-from .user import Users
-from .refresh_token import RefreshTokens
+from .user import UserStorage
+from .refresh_token import RefreshTokenStorage
 
 __all__ = (
     "BaseModel",
-    "Users",
-    "RefreshTokens"
+    "UserStorage",
+    "RefreshTokenStorage"
 )
