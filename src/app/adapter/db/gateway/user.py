@@ -13,7 +13,7 @@ from sqlalchemy import (
 )
 
 from app.adapter.db.gateway.base import BaseGateway
-from app.adapter.db.model import Users
+from app.adapter.db.model import UserStorage
 from app.domain.model.id import Id
 from app.domain.model.user import User
 
@@ -21,54 +21,54 @@ from app.domain.model.user import User
 class UserGateway(BaseGateway[User]):
     async def insert(self, source: User) -> User:
         stmt = (
-            insert(Users)
+            insert(UserStorage)
             .values(
                 id=source.id,
                 username=source.username,
                 email=source.email,
                 password=source.password
             )
-            .returning(Users)
+            .returning(UserStorage)
         )
         result = await self.session.execute(stmt)
         return result.scalar_one().into()
 
     async def update(self, source: User) -> User:
         stmt = (
-            update(Users)
+            update(UserStorage)
             .where(
-                Users.id == source.id
+                UserStorage.id == source.id
             )
             .values(
                 username=case(
                     (source.username is not None, source.username),
-                    else_=Users.username
+                    else_=UserStorage.username
                 ),
                 email=case(
                     (source.email is not None, source.email),
-                    else_=Users.email
+                    else_=UserStorage.email
                 ),
                 password=case(
                     (source.password is not None, source.password),
-                    else_=Users.password
+                    else_=UserStorage.password
                 ),
                 is_active=case(
                     (source.is_active is not None, source.is_active),
-                    else_=Users.is_active
+                    else_=UserStorage.is_active
                 )
             )
-            .returning(Users)
+            .returning(UserStorage)
         )
         result = await self.session.execute(stmt)
         return result.scalar().into()
 
     async def get(self, source: Id) -> User | None:
         stmt = (
-            select(Users)
+            select(UserStorage)
             .where(
                 and_(
-                    Users.id == source,
-                    Users.is_active == true()
+                    UserStorage.id == source,
+                    UserStorage.is_active == true()
                 )
             )
         )
@@ -85,11 +85,11 @@ class UserGateway(BaseGateway[User]):
             email: str | None
     ) -> User | None:
         stmt = (
-            select(Users)
+            select(UserStorage)
             .where(
                 or_(
-                    Users.username == username,
-                    Users.email == email
+                    UserStorage.username == username,
+                    UserStorage.email == email
                 )
             )
         )
@@ -106,11 +106,11 @@ class UserGateway(BaseGateway[User]):
             offset: int
     ) -> Iterator[User]:
         stmt = (
-            select(Users)
+            select(UserStorage)
             .limit(limit)
             .offset(offset)
             .where(
-                Users.is_active == true()
+                UserStorage.is_active == true()
             )
         )
         result = await self.session.execute(stmt)
@@ -120,11 +120,11 @@ class UserGateway(BaseGateway[User]):
         stmt = (
             select(
                 func.count(
-                    Users.id
+                    UserStorage.id
                 )
             )
             .where(
-                Users.is_active == true()
+                UserStorage.is_active == true()
             )
         )
         result = await self.session.scalar(stmt)
@@ -132,11 +132,11 @@ class UserGateway(BaseGateway[User]):
 
     async def check_user(self, username: str, email: str) -> bool:
         stmt = select(
-            select(Users)
+            select(UserStorage)
             .where(
                 or_(
-                    Users.username == username,
-                    Users.email == email
+                    UserStorage.username == username,
+                    UserStorage.email == email
                 )
             )
             .exists()
@@ -146,8 +146,8 @@ class UserGateway(BaseGateway[User]):
 
     async def check_user_exists(self, id: Id) -> bool:
         stmt = select(
-            select(Users)
-            .where(Users.id == id)
+            select(UserStorage)
+            .where(UserStorage.id == id)
             .exists()
         )
         result = await self.session.scalar(stmt)
@@ -155,15 +155,15 @@ class UserGateway(BaseGateway[User]):
 
     async def check_username_exists(self, id: Id, username: str) -> bool:
         stmt = select(
-            select(Users)
+            select(UserStorage)
             .where(
                 and_(
                     ~and_(
-                        Users.id == id,
-                        Users.username == username
+                        UserStorage.id == id,
+                        UserStorage.username == username
                     )
                 ),
-                Users.username == username
+                UserStorage.username == username
             )
             .exists()
         )
@@ -172,14 +172,14 @@ class UserGateway(BaseGateway[User]):
 
     async def check_email_exists(self, id: Id, email: str) -> bool:
         stmt = select(
-            select(Users)
+            select(UserStorage)
             .where(
                 and_(
                     ~and_(
-                        Users.id == str(id),
-                        Users.email == email
+                        UserStorage.id == str(id),
+                        UserStorage.email == email
                     ),
-                    Users.email == email
+                    UserStorage.email == email
                 )
             )
             .exists()
@@ -189,9 +189,9 @@ class UserGateway(BaseGateway[User]):
 
     async def delete(self, source: Id) -> User:
         stmt = (
-            delete(Users)
-            .where(Users.id == source)
-            .returning(Users)
+            delete(UserStorage)
+            .where(UserStorage.id == source)
+            .returning(UserStorage)
         )
         result = await self.session.execute(stmt)
         return result.scalar().into()

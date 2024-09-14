@@ -7,11 +7,12 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 from app.adapter.db.model import BaseModel
 from app.domain.model.id import Id
 from app.domain.model.jwt import RefreshToken
+from app.domain.model.user import User
 
-Users = TypeVar("Users")
+UserStorage = TypeVar("UserStorage", bound=User)
 
 
-class RefreshTokens(BaseModel):
+class RefreshTokenStorage(BaseModel):
     __tablename__ = "refresh_tokens"
 
     id: Mapped[str] = mapped_column(
@@ -39,7 +40,7 @@ class RefreshTokens(BaseModel):
         nullable=False,
         default=dt.datetime.now
     )
-    user: Mapped["Users"] = relationship()
+    user: Mapped["UserStorage"] = relationship()
 
     def into(self) -> RefreshToken:
         return RefreshToken(

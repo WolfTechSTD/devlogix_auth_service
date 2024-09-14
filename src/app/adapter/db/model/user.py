@@ -1,10 +1,15 @@
+from typing import cast
+
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.adapter.db.model.base import BaseModel
+from app.domain.model.id import Id
 from app.domain.model.user import User
 
 
-class Users(BaseModel):
+class UserStorage(BaseModel):
+    __tablename__ = "users"
+
     id: Mapped[str] = mapped_column(
         primary_key=True,
         nullable=False,
@@ -29,7 +34,7 @@ class Users(BaseModel):
 
     def into(self) -> User:
         return User(
-            id=self.id,
+            id=cast(Id, self.id),
             username=self.username,
             email=self.email,
             password=self.password,
