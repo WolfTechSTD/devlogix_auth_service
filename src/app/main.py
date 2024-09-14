@@ -5,9 +5,8 @@ from litestar.openapi.plugins import SwaggerRenderPlugin, RedocRenderPlugin
 from litestar.openapi.spec import Components, SecurityScheme
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.adapter.authentication.strategy import RedisStrategy
 from app.adapter.permission import UserPermission
-from app.adapter.persistence import create_async_session_maker, redis_connect
+from app.adapter.persistence import create_async_session_maker
 from app.adapter.security import PasswordProvider, TokenProvider
 from app.config import load_config, ApplicationConfig
 from app.ioc import IoC
@@ -52,19 +51,11 @@ def get_transaction(session: AsyncSession) -> AsyncSession:
 
 def _init_dependencies(config: ApplicationConfig) -> dict[str, Provide]:
     db_config = config.db
-    redis_config = config.redis
     jwt_config = config.jwt
 
     dependencies = {
         "session": Provide(create_async_session_maker(db_config.db_url)),
         "ioc": Provide(IoC, sync_to_thread=True),
-        "redis": Provide(
-            lambda: redis_connect(
-                redis_config.url
-            ),
-            sync_to_thread=True
-        ),
-        "strategy": Provide(RedisStrategy, sync_to_thread=True),
         "password_provider": Provide(
             lambda: PasswordProvider(),
             sync_to_thread=True
