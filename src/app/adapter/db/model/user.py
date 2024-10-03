@@ -38,5 +38,5 @@ class UserStorage(BaseModel):
             username=self.username,
             email=self.email,
             password=self.password,
-            is_active=self.is_active
+            is_active=self.is_active,
         )

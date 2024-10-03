@@ -39,12 +39,13 @@ class CreateUserView:
     password: str
 
     def into(self) -> User:
+        user_id = cast(Id, str(ULID()))
         return User(
-            id=cast(Id, str(ULID())),
+            id=user_id,
             username=self.username,
             email=self.email,
             password=self.password,
-            is_active=True
+            is_active=True,
         )
 
 

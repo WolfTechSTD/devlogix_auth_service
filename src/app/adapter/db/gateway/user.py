@@ -26,7 +26,7 @@ class UserGateway(BaseGateway[User]):
                 id=source.id,
                 username=source.username,
                 email=source.email,
-                password=source.password
+                password=source.password,
             )
             .returning(UserStorage)
         )

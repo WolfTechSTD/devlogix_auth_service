@@ -2,7 +2,8 @@ from app.application.interfaces import (
     Interactor,
     IUserGateway,
     ITransaction,
-    IRefreshTokenGateway, IUserPermission,
+    IRefreshTokenGateway,
+    IUserPermission,
 )
 from app.application.model.jwt import TokensView
 from app.application.model.user import UserLoginView
