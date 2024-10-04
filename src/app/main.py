@@ -10,8 +10,7 @@ from app.adapter.persistence import create_async_session_maker
 from app.adapter.security import PasswordProvider, TokenProvider
 from app.config import load_config, ApplicationConfig
 from app.ioc import IoC
-from app.presentation.controllers.jwt import JWTController
-from app.presentation.controllers.user import UserController
+from app.presentation.controllers.auth import AuthController
 
 
 def create_app() -> Litestar:
@@ -19,7 +18,7 @@ def create_app() -> Litestar:
 
     app = Litestar(
         debug=config.debug,
-        route_handlers=[UserController, JWTController],
+        route_handlers=[AuthController],
         dependencies=_init_dependencies(config),
         openapi_config=_init_openapi_config()
     )
