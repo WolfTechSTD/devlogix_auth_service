@@ -12,5 +12,12 @@ services:
       dockerfile: Dockerfile
     env_file: .env
 
+  nginx:
+    image: nginx:1.27.2
+    volumes:
+      - ./nginx.conf:/etc/nginx/templates/default.conf.template
+    ports:
+      - "8000:80"
+
 volumes:
   db_prod:

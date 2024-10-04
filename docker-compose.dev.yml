@@ -9,12 +9,5 @@ services:
     ports:
       - "5432:5432"
 
-  web:
-    build:
-      dockerfile: Dockerfile-dev
-    env_file: env.example
-    ports:
-      - "8000:8000"
-
 volumes:
   db:
