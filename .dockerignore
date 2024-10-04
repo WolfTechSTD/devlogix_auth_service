@@ -1,0 +1,51 @@
+# virtual environment
+.venv/
+
+# .env
+.env
+env.example
+
+# scripts
+script.sh
+
+# tests
+tests
+
+# git
+.git
+.gitignore
+.gitattributes
+
+# PyCharm
+.idea
+
+# Byte-compiled / optimized / DLL files
+**/__pycache__/
+**/*.py[cod]
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# license
+LICENSE
+
+# docker
+Dockerfile-dev
+docker-compose.dev.yml
+
+# VS Code
+.vscode/
