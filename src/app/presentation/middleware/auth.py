@@ -12,7 +12,10 @@ from app.application.interfaces import ITokenProvider
 from app.domain.model.token import AccessToken
 from app.exceptions import UserAuthException, InvalidAuthenticationTokenError
 from app.presentation.middleware.base import BaseMiddleware
-from app.presentation.model.jwt import JsonDeleteRefreshToken
+from app.presentation.model.jwt import (
+    JsonDeleteRefreshToken,
+    JsonUpdateAccessToken,
+)
 
 
 class LoginTokenMiddleware(BaseMiddleware):
@@ -46,6 +49,30 @@ class LogoutMiddleware(BaseMiddleware):
         if (token := request.cookies.get("refreshToken")) is None:
             raise InvalidAuthenticationTokenError()
         body = JsonDeleteRefreshToken(
+            refresh_token=token
+        )
+        message["body"] = body.model_dump_json().encode("latin-1")
+
+
+class CookieUpdatingMiddleware(BaseMiddleware):
+    async def __call__(
+            self,
+            scope: Scope,
+            receive: Receive,
+            send: Send
+    ) -> None:
+        async def receive_wrapper() -> ReceiveMessage:
+            message = await receive()
+            self._set_body(scope, message)
+            return message
+
+        await self.app(scope, receive_wrapper, send)
+
+    def _set_body(self, scope: Scope, message: ReceiveMessage) -> None:
+        request = Request(scope)
+        if (token := request.cookies.get("refreshToken")) is None:
+            raise InvalidAuthenticationTokenError()
+        body = JsonUpdateAccessToken(
             refresh_token=token
         )
         message["body"] = body.model_dump_json().encode("latin-1")
