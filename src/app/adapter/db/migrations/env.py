@@ -1,5 +1,4 @@
 import asyncio
-import os
 from logging.config import fileConfig
 
 from alembic import context
@@ -8,10 +7,10 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from app.adapter.db.model import BaseModel
+from app.config import load_database_config
 
 config = context.config
-# TODO: вынести в конфиг DATABASE_URL
-config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
+config.set_main_option("sqlalchemy.url", load_database_config().db_url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
