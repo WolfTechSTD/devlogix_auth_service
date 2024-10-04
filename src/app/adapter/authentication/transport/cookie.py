@@ -21,6 +21,20 @@ class CookieTransport(ICookieTransport):
         self.httponly = httponly
         self.samesite = samesite
 
+    def update_access_token(
+            self,
+            response: Response,
+            access_token: str,
+            access_token_time: int
+    ) -> Response:
+        self._set_token(
+            response,
+            "accessToken",
+            access_token,
+            max_age=access_token_time,
+        )
+        return response
+
     def set_login_cookie(
             self,
             response: Response,
