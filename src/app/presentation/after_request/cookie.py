@@ -2,6 +2,7 @@ from litestar import Response, status_codes
 
 from app.adapter.authentication.transport import CookieTransport
 from app.presentation.model.cookie import JsonCookieToken
+from app.presentation.model.jwt import JsonAccessToken
 
 
 async def set_login_cookie(response: Response) -> Response:
@@ -21,3 +22,15 @@ async def set_login_cookie(response: Response) -> Response:
 async def set_logout_cookie(response: Response) -> Response:
     cookie = CookieTransport()
     return cookie.set_logout_cookie(response)
+
+
+async def set_access_token(response: Response) -> Response:
+    content: JsonAccessToken = response.content
+    cookie = CookieTransport()
+    response.content = None
+    response.status_code = status_codes.HTTP_204_NO_CONTENT
+    return cookie.update_access_token(
+        response,
+        access_token=content.access_token,
+        access_token_time=content.expires_in
+    )
