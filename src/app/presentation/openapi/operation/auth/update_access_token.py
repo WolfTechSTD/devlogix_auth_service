@@ -1,40 +1,28 @@
 from dataclasses import dataclass
 
 from litestar.openapi.spec import (
-    OpenAPIMediaType,
     Operation,
     RequestBody,
+    OpenAPIMediaType,
     Schema,
-    OpenAPIResponse,
     OpenAPIType,
-    Example,
+    OpenAPIResponse,
 )
 
-from app.presentation.openapi.exceptions.base import INVALID_DATA_EXCEPTION
+from app.presentation.openapi.exceptions.base import FORBIDDEN_EXCEPTION
 from app.presentation.openapi.schema.base import BaseParameters
 from app.presentation.openapi.schema.jwt import JWTParameterSchema
-from app.presentation.openapi.schema.user import UserParameterSchema
 
 DESCRIPTION = """
-Получение токенов.
+Обновление токена доступа.
 
-* **username** - Юзернейм
-
-* **email** - E-mail
-
-* **password** - Пароль
+* **refreshToken** - Токен обновления
 """
 
-SUMMARY = "Получение токенов"
+SUMMARY = "Обновление токена доступа"
 
-REQUEST_BODY_USERNAME_EXAMPLE = {
-    "username": "User",
-    "password": "UserPassword"
-}
-
-REQUEST_BODY_EMAIL_EXAMPLE = {
-    "email": "user@gmail.com",
-    "password": "UserPassword"
+REQUEST_BODY_EXAMPLE = {
+    "refreshToken": "f4Xzh6M4syUf6jZPZizF0FFlC4vuO2HHLHj3GiZHDok"
 }
 
 RESPONSE_EXAMPLE = {
@@ -44,15 +32,14 @@ RESPONSE_EXAMPLE = {
                    "IiwiZGF0ZV9vbiI6IjIwMjQtMDgtMjQgMTc6Mjk6MzYuNTk"
                    "3MDM5KzAwOjAwIiwiZXhwIjoxNzI0NTIxNDc2fQ.qRUrXC"
                    "xuC99sljk7k4O-ElYsDGk7ck3DHkAfirdZC7E",
-    "expiresIn": 900,
-    "refreshToken": "f4Xzh6M4syUf6jZPZizF0FFlC4vuO2HHLHj3GiZHDok"
+    "expiresIn": 900
 }
 
 
 @dataclass
-class GetTokensOperation(Operation):
+class UpdateAccessTokenOperation(Operation):
     def __post_init__(self) -> None:
-        self.tags = ["jwt"]
+        self.tags = ["auth"]
         self.summary = SUMMARY
         self.description = DESCRIPTION
         self.request_body = RequestBody(
@@ -61,26 +48,17 @@ class GetTokensOperation(Operation):
                     schema=Schema(
                         type=OpenAPIType.OBJECT,
                         properties={
-                            "username": UserParameterSchema.username,
-                            "email": UserParameterSchema.email,
-                            "password": UserParameterSchema.password
+                            "refreshToken": JWTParameterSchema.refresh_token
                         },
-                        required=("password",)
+                        required=("refreshToken",)
                     ),
-                    examples={
-                        "Ввода с юзернеймом": Example(
-                            value=REQUEST_BODY_USERNAME_EXAMPLE
-                        ),
-                        "Ввод с e-mail": Example(
-                            value=REQUEST_BODY_EMAIL_EXAMPLE
-                        )
-                    }
-                )
+                    example=REQUEST_BODY_EXAMPLE
+                ),
             }
         )
         self.responses = {
-            "201": OpenAPIResponse(
-                description="Created",
+            "200": OpenAPIResponse(
+                description="Ok",
                 content={
                     "json": OpenAPIMediaType(
                         schema=Schema(
@@ -88,8 +66,7 @@ class GetTokensOperation(Operation):
                             properties={
                                 "tokenType": JWTParameterSchema.token_type,
                                 "accessToken": JWTParameterSchema.access_token,
-                                "expiresIn": JWTParameterSchema.expire_in,
-                                "refreshToken": JWTParameterSchema.refresh_token,
+                                "expiresIn": JWTParameterSchema.expire_in
                             }
                         ),
                         example=RESPONSE_EXAMPLE
@@ -107,7 +84,7 @@ class GetTokensOperation(Operation):
                                 "detail": BaseParameters.detail
                             }
                         ),
-                        example=INVALID_DATA_EXCEPTION
+                        example=FORBIDDEN_EXCEPTION
                     )
                 }
             )

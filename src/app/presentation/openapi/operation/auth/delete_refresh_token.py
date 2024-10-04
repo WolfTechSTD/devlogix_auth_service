@@ -14,32 +14,22 @@ from app.presentation.openapi.schema.base import BaseParameters
 from app.presentation.openapi.schema.jwt import JWTParameterSchema
 
 DESCRIPTION = """
-Обновление токена доступа.
+Удаление токена обновления.
 
 * **refreshToken** - Токен обновления
 """
 
-SUMMARY = "Обновление токена доступа"
+SUMMARY = "Удаление токена обновления"
 
 REQUEST_BODY_EXAMPLE = {
     "refreshToken": "f4Xzh6M4syUf6jZPZizF0FFlC4vuO2HHLHj3GiZHDok"
 }
 
-RESPONSE_EXAMPLE = {
-    "tokenType": "Bearer",
-    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9."
-                   "eyJpZCI6IjAxSjVXWDNXVkNGTVhFWVc1NEoxUFlDSFJL"
-                   "IiwiZGF0ZV9vbiI6IjIwMjQtMDgtMjQgMTc6Mjk6MzYuNTk"
-                   "3MDM5KzAwOjAwIiwiZXhwIjoxNzI0NTIxNDc2fQ.qRUrXC"
-                   "xuC99sljk7k4O-ElYsDGk7ck3DHkAfirdZC7E",
-    "expiresIn": 900
-}
-
 
 @dataclass
-class UpdateAccessTokenOperation(Operation):
+class DeleteRefreshTokenOperation(Operation):
     def __post_init__(self) -> None:
-        self.tags = ["jwt"]
+        self.tags = ["auth"]
         self.summary = SUMMARY
         self.description = DESCRIPTION
         self.request_body = RequestBody(
@@ -57,21 +47,9 @@ class UpdateAccessTokenOperation(Operation):
             }
         )
         self.responses = {
-            "200": OpenAPIResponse(
-                description="Ok",
-                content={
-                    "json": OpenAPIMediaType(
-                        schema=Schema(
-                            type=OpenAPIType.OBJECT,
-                            properties={
-                                "tokenType": JWTParameterSchema.token_type,
-                                "accessToken": JWTParameterSchema.access_token,
-                                "expiresIn": JWTParameterSchema.expire_in
-                            }
-                        ),
-                        example=RESPONSE_EXAMPLE
-                    )
-                }
+            "204": OpenAPIResponse(
+                description="No Content",
+                content=None
             ),
             "403": OpenAPIResponse(
                 description="Forbidden",

@@ -45,7 +45,7 @@ RESPONSE_EXAMPLE = {
 @dataclass
 class CreateUserOperation(Operation):
     def __post_init__(self) -> None:
-        self.tags = ["users"]
+        self.tags = ["auth"]
         self.summary = SUMMARY
         self.description = DESCRIPTION
         self.request_body = RequestBody(

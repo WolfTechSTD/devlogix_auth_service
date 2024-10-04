@@ -33,7 +33,7 @@ RESPONSE_EXAMPLE = {
 @dataclass
 class UpdateRefreshTokenOperation(Operation):
     def __post_init__(self) -> None:
-        self.tags = ["jwt"]
+        self.tags = ["auth"]
         self.summary = SUMMARY
         self.description = DESCRIPTION
         self.request_body = RequestBody(

@@ -20,7 +20,7 @@ SUMMARY = "Разлогирование"
 @dataclass
 class LogoutUserOperation(Operation):
     def __post_init__(self) -> None:
-        self.tags = ["users"]
+        self.tags = ["auth"]
         self.summary = SUMMARY
         self.description = DESCRIPTION
         self.security = [SESSION]
