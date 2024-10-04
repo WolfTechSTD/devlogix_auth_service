@@ -45,7 +45,7 @@ from app.presentation.openapi import (
 
 
 class AuthController(Controller):
-    path = "/auth"
+    path = "/api/auth"
     exception_handlers = {
         UserLoginException: forbidden_exception_handler,
         InvalidTokenException: forbidden_exception_handler,
