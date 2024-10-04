@@ -31,7 +31,7 @@ def get_str_env(key: str) -> str:
     return value
 
 
-def _load_database_config() -> DatabaseConfig:
+def load_database_config() -> DatabaseConfig:
     return DatabaseConfig(db_url=get_str_env("DATABASE_URL"))
 
 
@@ -47,6 +47,6 @@ def _load_jwt_config() -> JWTConfig:
 def load_config() -> ApplicationConfig:
     return ApplicationConfig(
         debug=True if get_str_env("DEBUG") in ("true", "True") else False,
-        db=_load_database_config(),
+        db=load_database_config(),
         jwt=_load_jwt_config(),
     )
