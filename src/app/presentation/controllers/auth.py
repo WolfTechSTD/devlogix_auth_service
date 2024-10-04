@@ -19,7 +19,7 @@ from app.presentation.exception_handlers import (
     bad_request_exception_handler,
 )
 from app.presentation.interactor import InteractorFactory
-from app.presentation.middleware.token import (
+from app.presentation.middleware.auth import (
     LoginTokenMiddleware,
     LogoutMiddleware, CookieUpdatingMiddleware,
 )
