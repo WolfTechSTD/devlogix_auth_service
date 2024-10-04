@@ -49,3 +49,6 @@ docker-compose.dev.yml
 
 # VS Code
 .vscode/
+
+# nginx
+nginx.conf
