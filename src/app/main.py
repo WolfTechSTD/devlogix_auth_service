@@ -1,4 +1,5 @@
 from litestar import Litestar
+from litestar.config.cors import CORSConfig
 from litestar.di import Provide
 from litestar.openapi import OpenAPIConfig
 from litestar.openapi.plugins import SwaggerRenderPlugin, RedocRenderPlugin
@@ -15,12 +16,15 @@ from app.presentation.controllers.auth import AuthController
 
 def create_app() -> Litestar:
     config = load_config()
-
+    cors_config = CORSConfig(
+        allow_origins=config.cors.allow_origins
+    )
     app = Litestar(
         debug=config.debug,
         route_handlers=[AuthController],
         dependencies=_init_dependencies(config),
-        openapi_config=_init_openapi_config()
+        openapi_config=_init_openapi_config(),
+        cors_config=cors_config,
     )
     return app
 

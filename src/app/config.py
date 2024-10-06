@@ -18,10 +18,16 @@ class JWTConfig:
 
 
 @dataclass
+class CORSConfig:
+    allow_origins: list[str]
+
+
+@dataclass
 class ApplicationConfig:
     debug: bool
     db: DatabaseConfig
     jwt: JWTConfig
+    cors: CORSConfig
 
 
 def get_str_env(key: str) -> str:
@@ -29,6 +35,12 @@ def get_str_env(key: str) -> str:
     if not value:
         raise ConfigParseError(f"{key} must be set")
     return value
+
+
+def _load_cors_config() -> CORSConfig:
+    return CORSConfig(
+        allow_origins=get_str_env("ALLOW_ORIGINS").split(","),
+    )
 
 
 def load_database_config() -> DatabaseConfig:
@@ -49,4 +61,5 @@ def load_config() -> ApplicationConfig:
         debug=True if get_str_env("DEBUG") in ("true", "True") else False,
         db=load_database_config(),
         jwt=_load_jwt_config(),
+        cors=_load_cors_config(),
     )
