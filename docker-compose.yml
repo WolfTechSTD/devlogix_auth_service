@@ -7,6 +7,12 @@ services:
     volumes:
       - db_prod:/var/lib/postgresql/data
 
+  migration:
+    build:
+      dockerfile: Dockerfile
+    env_file: .env
+    command: uv run alembic upgrade head
+
   web:
     build:
       dockerfile: Dockerfile
