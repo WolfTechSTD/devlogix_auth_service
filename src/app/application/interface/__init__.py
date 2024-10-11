@@ -2,8 +2,8 @@ from .authentication.strategy import IStrategy
 from .authentication.transport import ICookieTransport
 from .gateway.refresh_token import IRefreshTokenGateway
 from .gateway.user import IUserGateway
-from .jwt import ITokenProvider
-from .password import IPasswordProvider
+from .security.jwt import ITokenProvider
+from .security.password import IPasswordProvider
 from .permission.user import IUserPermission
 from .transaction import ITransaction
 
