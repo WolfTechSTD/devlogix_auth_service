@@ -7,7 +7,7 @@ from jwt import ExpiredSignatureError, DecodeError
 
 from app.exceptions import InvalidTokenException
 from app.exceptions.token import TokenTimeException
-from app.application.interfaces import ITokenProvider
+from app.application.interface import ITokenProvider
 from app.domain.model.id import Id
 from app.domain.model.token import AccessToken
 

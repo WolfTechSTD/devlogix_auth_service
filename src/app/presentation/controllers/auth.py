@@ -4,7 +4,7 @@ from litestar import post, status_codes, delete
 from litestar.controller import Controller
 from litestar.params import Dependency
 
-from app.application.interfaces import IUserPermission
+from app.application.interface import IUserPermission
 from app.exceptions import (
     UserLoginException,
     InvalidTokenException,

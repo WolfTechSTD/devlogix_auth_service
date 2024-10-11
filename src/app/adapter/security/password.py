@@ -1,6 +1,6 @@
 from passlib.context import CryptContext
 
-from app.application.interfaces import IPasswordProvider
+from app.application.interface import IPasswordProvider
 
 
 class PasswordProvider(IPasswordProvider):

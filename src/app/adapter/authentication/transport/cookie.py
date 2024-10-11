@@ -3,7 +3,7 @@ from typing import Literal
 
 from litestar import Response
 
-from app.application.interfaces import ICookieTransport
+from app.application.interface import ICookieTransport
 
 
 class CookieTransport(ICookieTransport):

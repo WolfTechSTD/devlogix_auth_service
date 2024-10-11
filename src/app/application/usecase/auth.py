@@ -1,7 +1,8 @@
-from app.application.interfaces import (
+from app.application.interface import (
     ITransaction,
     IUserGateway,
-    IUserPermission, IRefreshTokenGateway,
+    IUserPermission,
+    IRefreshTokenGateway,
 )
 from app.application.model.jwt import (
     DeleteRefreshTokenView,
