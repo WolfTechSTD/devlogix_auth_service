@@ -2,22 +2,14 @@ from abc import abstractmethod
 from typing import Protocol, TypeVar
 
 from app.domain.model.id import Id
-
-BaseModel = TypeVar("BaseModel")
+from app.domain.model.user import User
 
 
 class IUserPermission(Protocol):
     @abstractmethod
     async def change_password(
             self,
-            source: BaseModel,
-    ) -> None: ...
-
-    @abstractmethod
-    async def check_password(
-            self,
-            password: str,
-            hashed_password: str
+            source: User,
     ) -> None: ...
 
     @abstractmethod

@@ -67,20 +67,7 @@ class CreateUserOperation(Operation):
         self.responses = {
             "201": OpenAPIResponse(
                 description="Created",
-                content={
-                    "json": OpenAPIMediaType(
-                        schema=Schema(
-                            type=OpenAPIType.OBJECT,
-                            properties={
-                                "id": UserParameterSchema.id,
-                                "username": UserParameterSchema.username,
-                                "email": UserParameterSchema.email,
-                                "isActive": UserParameterSchema.is_active
-                            }
-                        ),
-                        example=RESPONSE_EXAMPLE
-                    )
-                }
+                content=None,
             ),
             "400": OpenAPIResponse(
                 description="Bad Request",
