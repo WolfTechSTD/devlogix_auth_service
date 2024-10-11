@@ -32,7 +32,7 @@ from app.presentation.model.jwt import (
     JsonRefreshToken,
     JsonDeleteRefreshToken,
 )
-from app.presentation.model.user import JsonUserLogin, JsonCreateUser, JsonUser
+from app.presentation.model.user import JsonUserLogin, JsonCreateUser
 from app.presentation.openapi import (
     GetTokensOperation,
     UpdateAccessTokenOperation,
@@ -40,7 +40,8 @@ from app.presentation.openapi import (
     DeleteRefreshTokenOperation,
     UserLoginOperation,
     LogoutUserOperation,
-    CreateUserOperation, UpdateAccessTokenInCookie,
+    CreateUserOperation,
+    UpdateAccessTokenInCookie,
 )
 
 
@@ -65,10 +66,9 @@ class AuthController(Controller):
             user_permission: Annotated[IUserPermission, Dependency(
                 skip_validation=True
             )],
-    ) -> JsonUser:
-        async with ioc.auth_usecase() as auth:
-            user = await auth.create_user(user_permission, data.into())
-            return JsonUser.from_into(user)
+    ) -> None:
+        async with ioc.auth_usecase() as usecase:
+            await usecase.create_user(user_permission, data.into())
 
     @post(
         path="/login",
@@ -89,8 +89,8 @@ class AuthController(Controller):
             access_token_time: int,
             refresh_token_time: int,
     ) -> JsonCookieToken:
-        async with ioc.auth_usecase() as auth:
-            token = await auth.get_tokens(user_permission, data.into())
+        async with ioc.auth_usecase() as usecase:
+            token = await usecase.get_tokens(user_permission, data.into())
             return JsonCookieToken.from_into(
                 access_token_time,
                 refresh_token_time,
@@ -112,8 +112,8 @@ class AuthController(Controller):
                 skip_validation=True
             )],
     ) -> JsonToken:
-        async with ioc.auth_usecase() as auth:
-            token = await auth.get_tokens(user_permission, data.into())
+        async with ioc.auth_usecase() as usecase:
+            token = await usecase.get_tokens(user_permission, data.into())
             return JsonToken.from_into(token)
 
     @post(
@@ -131,8 +131,8 @@ class AuthController(Controller):
                 skip_validation=True
             )],
     ) -> JsonAccessToken:
-        async with ioc.auth_usecase() as auth:
-            token = await auth.update_access_token(
+        async with ioc.auth_usecase() as usecase:
+            token = await usecase.update_access_token(
                 user_permission,
                 data.into()
             )
@@ -153,8 +153,8 @@ class AuthController(Controller):
                 skip_validation=True
             )],
     ) -> JsonRefreshToken:
-        async with ioc.auth_usecase() as auth:
-            token = await auth.update_refresh_token(
+        async with ioc.auth_usecase() as usecase:
+            token = await usecase.update_refresh_token(
                 user_permission,
                 data.into()
             )
@@ -170,8 +170,8 @@ class AuthController(Controller):
             data: JsonDeleteRefreshToken,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> None:
-        async with ioc.auth_usecase() as auth:
-            await auth.delete_refresh_token(data.into())
+        async with ioc.auth_usecase() as usecase:
+            await usecase.delete_refresh_token(data.into())
 
     @post(
         "/logout",
@@ -185,8 +185,8 @@ class AuthController(Controller):
             data: JsonDeleteRefreshToken,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> None:
-        async with ioc.auth_usecase() as auth:
-            await auth.delete_refresh_token(data.into())
+        async with ioc.auth_usecase() as usecase:
+            await usecase.delete_refresh_token(data.into())
 
     @post(
         "/update",
@@ -205,8 +205,8 @@ class AuthController(Controller):
                 skip_validation=True
             )],
     ) -> JsonAccessToken:
-        async with ioc.auth_usecase() as auth:
-            token = await auth.update_access_token(
+        async with ioc.auth_usecase() as usecase:
+            token = await usecase.update_access_token(
                 user_permission,
                 data.into()
             )

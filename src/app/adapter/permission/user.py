@@ -1,5 +1,5 @@
 from app.adapter.security import PasswordProvider, TokenProvider
-from app.application.interfaces.permissions.user import BaseModel
+from app.application.interfaces.permission.user import BaseModel
 from app.domain.model.id import Id
 from app.exceptions import UserLoginException
 

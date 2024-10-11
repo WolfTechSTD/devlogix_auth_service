@@ -1,4 +1,3 @@
-from collections.abc import Iterator
 from dataclasses import dataclass
 from typing import Self, cast
 
@@ -27,12 +26,6 @@ class UserView:
 
 
 @dataclass(slots=True)
-class UserListView:
-    total: int
-    users: Iterator[UserView]
-
-
-@dataclass(slots=True)
 class CreateUserView:
     username: str
     email: str
@@ -46,41 +39,6 @@ class CreateUserView:
             email=self.email,
             password=self.password,
             is_active=True,
-        )
-
-
-@dataclass(slots=True)
-class UpdateUserMeView:
-    id: str
-    username: str | None
-    email: str | None
-    password: str | None
-
-    def into(self) -> User:
-        return User(
-            id=cast(Id, self.id),
-            username=self.username,
-            email=self.email,
-            password=self.password,
-            is_active=True
-        )
-
-
-@dataclass(slots=True)
-class UpdateUserView:
-    id: str
-    username: str | None
-    email: str | None
-    password: str | None
-    is_active: bool | None
-
-    def into(self) -> User:
-        return User(
-            id=cast(Id, self.id),
-            username=self.username,
-            email=self.email,
-            password=self.password,
-            is_active=self.is_active
         )
 
 
