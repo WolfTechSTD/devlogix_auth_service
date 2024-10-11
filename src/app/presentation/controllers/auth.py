@@ -66,8 +66,8 @@ class AuthController(Controller):
                 skip_validation=True
             )],
     ) -> JsonUser:
-        async with ioc.create_user(user_permission) as command:
-            user = await command(data.into())
+        async with ioc.auth_usecase() as auth:
+            user = await auth.create_user(user_permission, data.into())
             return JsonUser.from_into(user)
 
     @post(
@@ -89,8 +89,8 @@ class AuthController(Controller):
             access_token_time: int,
             refresh_token_time: int,
     ) -> JsonCookieToken:
-        async with ioc.get_tokens(user_permission) as command:
-            token = await command(data.into())
+        async with ioc.auth_usecase() as auth:
+            token = await auth.get_tokens(user_permission, data.into())
             return JsonCookieToken.from_into(
                 access_token_time,
                 refresh_token_time,
@@ -112,8 +112,8 @@ class AuthController(Controller):
                 skip_validation=True
             )],
     ) -> JsonToken:
-        async with ioc.get_tokens(user_permission) as command:
-            token = await command(data.into())
+        async with ioc.auth_usecase() as auth:
+            token = await auth.get_tokens(user_permission, data.into())
             return JsonToken.from_into(token)
 
     @post(
@@ -131,8 +131,11 @@ class AuthController(Controller):
                 skip_validation=True
             )],
     ) -> JsonAccessToken:
-        async with ioc.update_access_token(user_permission) as command:
-            token = await command(data.into())
+        async with ioc.auth_usecase() as auth:
+            token = await auth.update_access_token(
+                user_permission,
+                data.into()
+            )
             return JsonAccessToken.from_into(token)
 
     @post(
@@ -150,8 +153,11 @@ class AuthController(Controller):
                 skip_validation=True
             )],
     ) -> JsonRefreshToken:
-        async with ioc.update_refresh_token(user_permission) as command:
-            token = await command(data.into())
+        async with ioc.auth_usecase() as auth:
+            token = await auth.update_refresh_token(
+                user_permission,
+                data.into()
+            )
             return JsonRefreshToken.from_into(token)
 
     @delete(
@@ -164,8 +170,8 @@ class AuthController(Controller):
             data: JsonDeleteRefreshToken,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> None:
-        async with ioc.delete_refresh_token() as command:
-            await command(data.into())
+        async with ioc.auth_usecase() as auth:
+            await auth.delete_refresh_token(data.into())
 
     @post(
         "/logout",
@@ -179,8 +185,8 @@ class AuthController(Controller):
             data: JsonDeleteRefreshToken,
             ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
     ) -> None:
-        async with ioc.delete_refresh_token() as command:
-            await command(data.into())
+        async with ioc.auth_usecase() as auth:
+            await auth.delete_refresh_token(data.into())
 
     @post(
         "/update",
@@ -199,6 +205,9 @@ class AuthController(Controller):
                 skip_validation=True
             )],
     ) -> JsonAccessToken:
-        async with ioc.update_access_token(user_permission) as command:
-            token = await command(data.into())
+        async with ioc.auth_usecase() as auth:
+            token = await auth.update_access_token(
+                user_permission,
+                data.into()
+            )
             return JsonAccessToken.from_into(token)
