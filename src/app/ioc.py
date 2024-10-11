@@ -8,14 +8,7 @@ from app.adapter.db.gateway import (
     UserGateway,
     RefreshTokenGateway,
 )
-from app.application.interfaces import IUserPermission
-from app.application.usecase.auth import (
-    GetTokens,
-    UpdateAccessToken,
-    UpdateRefreshToken,
-    DeleteRefreshToken,
-    CreateUser,
-)
+from app.application.usecase.auth import AuthUseCase
 from app.presentation.interactor import InteractorFactory
 
 
@@ -33,53 +26,9 @@ class IoC(InteractorFactory):
         )
 
     @asynccontextmanager
-    async def create_user(
-            self,
-            user_permission: IUserPermission
-    ) -> AsyncIterator[CreateUser]:
-        yield CreateUser(
+    async def auth_usecase(self) -> AsyncIterator[AuthUseCase]:
+        yield AuthUseCase(
             transaction=self.transaction,
             user_gateway=self.user_gateway,
-            user_permission=user_permission
-        )
-
-    @asynccontextmanager
-    async def get_tokens(
-            self,
-            user_permission: IUserPermission
-    ) -> AsyncIterator[GetTokens]:
-        yield GetTokens(
-            transaction=self.transaction,
-            user_permission=user_permission,
-            user_gateway=self.user_gateway,
-            refresh_token_gateway=self.refresh_token_gateway,
-        )
-
-    @asynccontextmanager
-    async def update_access_token(
-            self,
-            user_permission: IUserPermission
-    ) -> AsyncIterator[UpdateAccessToken]:
-        yield UpdateAccessToken(
-            transaction=self.transaction,
-            user_permission=user_permission,
-            refresh_token_gateway=self.refresh_token_gateway,
-        )
-
-    @asynccontextmanager
-    async def update_refresh_token(
-            self,
-            user_permission: IUserPermission
-    ) -> AsyncIterator[UpdateRefreshToken]:
-        yield UpdateRefreshToken(
-            transaction=self.transaction,
-            user_permission=user_permission,
-            refresh_token_gateway=self.refresh_token_gateway,
-        )
-
-    @asynccontextmanager
-    async def delete_refresh_token(self) -> AsyncIterator[DeleteRefreshToken]:
-        yield DeleteRefreshToken(
-            transaction=self.transaction,
-            refresh_token_gateway=self.refresh_token_gateway,
+            refresh_token_gateway=self.refresh_token_gateway
         )
