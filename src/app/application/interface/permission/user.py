@@ -7,6 +7,14 @@ BaseModel = TypeVar("BaseModel")
 
 
 class IUserPermission(Protocol):
+    @property
+    @abstractmethod
+    def time_refresh_token(self) -> int: ...
+
+    @property
+    @abstractmethod
+    def time_access_token(self) -> int: ...
+
     @abstractmethod
     async def check_password(
             self,
