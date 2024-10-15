@@ -1,5 +1,7 @@
-from .db import create_async_session_maker
+from .db import new_session_maker
+from .broker import new_broker
 
 __all__ = (
-    "create_async_session_maker",
+    "new_session_maker",
+    "new_broker",
 )
