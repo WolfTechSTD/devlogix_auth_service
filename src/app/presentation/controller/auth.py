@@ -1,8 +1,7 @@
-from typing import Annotated
-
+from dishka.integrations.base import FromDishka as Depends
+from dishka.integrations.litestar import inject
 from litestar import post, status_codes, delete
 from litestar.controller import Controller
-from litestar.params import Dependency
 
 from app.application.interface import IUserPermission
 from app.exceptions import (
@@ -60,23 +59,18 @@ class AuthController(Controller):
         after_request=set_login_cookie,
         middleware=[LoginTokenMiddleware, ]
     )
+    @inject
     async def login(
             self,
             data: JsonUserLogin,
-            ioc: Annotated[InteractorFactory, Dependency(
-                skip_validation=True
-            )],
-            user_permission: Annotated[IUserPermission, Dependency(
-                skip_validation=True
-            )],
-            access_token_time: int,
-            refresh_token_time: int,
+            ioc: Depends[InteractorFactory],
+            user_permission: Depends[IUserPermission],
     ) -> JsonCookieToken:
         async with ioc.auth_usecase() as usecase:
             token = await usecase.get_tokens(user_permission, data.into())
             return JsonCookieToken.from_into(
-                access_token_time,
-                refresh_token_time,
+                user_permission.time_access_token,
+                user_permission.time_refresh_token,
                 token,
             )
 
@@ -85,15 +79,12 @@ class AuthController(Controller):
         operation_class=GetTokensOperation,
         status_code=status_codes.HTTP_201_CREATED
     )
+    @inject
     async def get_tokens(
             self,
             data: JsonUserLogin,
-            ioc: Annotated[InteractorFactory, Dependency(
-                skip_validation=True
-            )],
-            user_permission: Annotated[IUserPermission, Dependency(
-                skip_validation=True
-            )],
+            ioc: Depends[InteractorFactory],
+            user_permission: Depends[IUserPermission],
     ) -> JsonToken:
         async with ioc.auth_usecase() as usecase:
             token = await usecase.get_tokens(user_permission, data.into())
@@ -104,15 +95,12 @@ class AuthController(Controller):
         operation_class=UpdateAccessTokenOperation,
         status_code=status_codes.HTTP_200_OK
     )
+    @inject
     async def update_access_token(
             self,
             data: JsonUpdateAccessToken,
-            ioc: Annotated[InteractorFactory, Dependency(
-                skip_validation=True
-            )],
-            user_permission: Annotated[IUserPermission, Dependency(
-                skip_validation=True
-            )],
+            ioc: Depends[InteractorFactory],
+            user_permission: Depends[IUserPermission],
     ) -> JsonAccessToken:
         async with ioc.auth_usecase() as usecase:
             token = await usecase.update_access_token(
@@ -126,15 +114,12 @@ class AuthController(Controller):
         operation_class=UpdateRefreshTokenOperation,
         status_code=status_codes.HTTP_200_OK
     )
+    @inject
     async def update_refresh_token(
             self,
             data: JsonUpdateRefreshToken,
-            ioc: Annotated[InteractorFactory, Dependency(
-                skip_validation=True
-            )],
-            user_permission: Annotated[IUserPermission, Dependency(
-                skip_validation=True
-            )],
+            ioc: Depends[InteractorFactory],
+            user_permission: Depends[IUserPermission],
     ) -> JsonRefreshToken:
         async with ioc.auth_usecase() as usecase:
             token = await usecase.update_refresh_token(
@@ -148,10 +133,11 @@ class AuthController(Controller):
         operation_class=DeleteRefreshTokenOperation,
         status_code=status_codes.HTTP_204_NO_CONTENT
     )
+    @inject
     async def delete_refresh_token(
             self,
             data: JsonDeleteRefreshToken,
-            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+            ioc: Depends[InteractorFactory],
     ) -> None:
         async with ioc.auth_usecase() as usecase:
             await usecase.delete_refresh_token(data.into())
@@ -163,10 +149,11 @@ class AuthController(Controller):
         after_request=set_logout_cookie,
         middleware=[LogoutMiddleware]
     )
+    @inject
     async def logout(
             self,
             data: JsonDeleteRefreshToken,
-            ioc: Annotated[InteractorFactory, Dependency(skip_validation=True)]
+            ioc: Depends[InteractorFactory],
     ) -> None:
         async with ioc.auth_usecase() as usecase:
             await usecase.delete_refresh_token(data.into())
@@ -178,15 +165,12 @@ class AuthController(Controller):
         after_request=set_access_token,
         middleware=[CookieUpdatingMiddleware]
     )
+    @inject
     async def update_access_token_in_cookie(
             self,
             data: JsonUpdateAccessToken,
-            ioc: Annotated[InteractorFactory, Dependency(
-                skip_validation=True
-            )],
-            user_permission: Annotated[IUserPermission, Dependency(
-                skip_validation=True
-            )],
+            ioc: Depends[InteractorFactory],
+            user_permission: Depends[IUserPermission],
     ) -> JsonAccessToken:
         async with ioc.auth_usecase() as usecase:
             token = await usecase.update_access_token(
