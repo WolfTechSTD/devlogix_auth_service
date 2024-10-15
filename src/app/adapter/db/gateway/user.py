@@ -1,6 +1,7 @@
 from sqlalchemy import (
     select,
     or_,
+    insert,
 )
 
 from app.adapter.db.gateway.base import BaseGateway
@@ -29,3 +30,17 @@ class UserGateway(BaseGateway[User]):
         if model is not None:
             return model.into()
         return model
+
+    async def insert(self, source: User) -> User:
+        stmt = (
+            insert(UserStorage)
+            .values(
+                id=source.id,
+                username=source.username,
+                email=source.email,
+                password=source.password,
+            )
+            .returning(UserStorage)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one().into()

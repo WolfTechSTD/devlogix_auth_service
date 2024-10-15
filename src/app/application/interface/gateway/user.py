@@ -11,3 +11,6 @@ class IUserGateway(Protocol):
             username: str | None,
             email: str | None
     ) -> User | None: ...
+
+    @abstractmethod
+    async def insert(self, source: User) -> User: ...
