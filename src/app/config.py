@@ -18,6 +18,11 @@ class JWTConfig:
 
 
 @dataclass
+class KafkaConfig:
+    url: str
+
+
+@dataclass
 class CORSConfig:
     allow_origins: list[str]
 
@@ -28,6 +33,7 @@ class ApplicationConfig:
     db: DatabaseConfig
     jwt: JWTConfig
     cors: CORSConfig
+    kafka: KafkaConfig
 
 
 def get_str_env(key: str) -> str:
@@ -36,6 +42,11 @@ def get_str_env(key: str) -> str:
         raise ConfigParseError(f"{key} must be set")
     return value
 
+
+def _load_kafka_config() -> KafkaConfig:
+    return KafkaConfig(
+        url=get_str_env("KAFKA_URL"),
+    )
 
 def load_database_config() -> DatabaseConfig:
     return DatabaseConfig(db_url=get_str_env("DATABASE_URL"))
@@ -47,6 +58,7 @@ def load_config() -> ApplicationConfig:
         db=load_database_config(),
         jwt=_load_jwt_config(),
         cors=_load_cors_config(),
+        kafka=_load_kafka_config()
     )
 
 
