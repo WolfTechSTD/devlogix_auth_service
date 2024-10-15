@@ -9,6 +9,8 @@ from app.adapter.db.gateway import (
     RefreshTokenGateway,
 )
 from app.application.usecase.auth import AuthUseCase
+from app.application.usecase.user import UserUseCase
+from app.config import JWTConfig
 from app.presentation.interactor import InteractorFactory
 
 
@@ -16,13 +18,13 @@ class IoC(InteractorFactory):
     def __init__(
             self,
             session: AsyncSession,
-            refresh_token_time: int
+            jwt_config: JWTConfig
     ) -> None:
         self.transaction = get_transaction(session)
         self.user_gateway = UserGateway(session)
         self.refresh_token_gateway = RefreshTokenGateway(
             session,
-            refresh_token_time
+            jwt_config.refresh_token_time
         )
 
     @asynccontextmanager
@@ -31,4 +33,11 @@ class IoC(InteractorFactory):
             transaction=self.transaction,
             user_gateway=self.user_gateway,
             refresh_token_gateway=self.refresh_token_gateway
+        )
+
+    @asynccontextmanager
+    async def user_usecase(self) -> AsyncIterator[UserUseCase]:
+        yield UserUseCase(
+            transaction=self.transaction,
+            user_gateway=self.user_gateway,
         )
