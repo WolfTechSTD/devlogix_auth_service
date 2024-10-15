@@ -6,6 +6,25 @@ resolution-markers = [
 ]
 
 [[package]]
+name = "aiokafka"
+version = "0.11.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "async-timeout" },
+    { name = "packaging" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/bc/1c/654b955dcca965003f04703caea15a826be0b60bb4c3d064cbd6565c31a1/aiokafka-0.11.0.tar.gz", hash = "sha256:f2def07fe1720c4fe37c0309e355afa9ff4a28e0aabfe847be0692461ac69352", size = 564682 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9e/6e/8960d924b66931344b85a6043c189094738d3a8b38f649c01af9fe2e5398/aiokafka-0.11.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:4e0cc080a7f4c659ee4e1baa1c32adedcccb105a52156d4909f357d76fac0dc1", size = 370484 },
+    { url = "https://files.pythonhosted.org/packages/17/b0/9498ac74ccd9286e9a750dcd6bf1601bf7d9d8f4b397dc830be0ba49c727/aiokafka-0.11.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:55a07a39d82c595223a17015ea738d152544cee979d3d6d822707a082465621c", size = 1192281 },
+    { url = "https://files.pythonhosted.org/packages/f4/a9/746f0c73f65f6d339d87873d6475ebff77ed52a50ecefa5b21917da1bd1c/aiokafka-0.11.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3711fa64ee8640dcd4cb640f1030f9439d02e85acd57010d09053017092d8cc2", size = 1213139 },
+    { url = "https://files.pythonhosted.org/packages/6f/e8/105a1ef62b091b1fa7d5f236668140c776736dc87da66d8bc1aa26d4f84d/aiokafka-0.11.0-cp312-cp312-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:818a6f8e44b02113b9e795bee6029c8a4e525ab38f29d7adb0201f3fec74c808", size = 1170166 },
+    { url = "https://files.pythonhosted.org/packages/55/00/81c805688d5aa286be1ab57ed30fe665ebec74ad2305fa9aa2b29018e140/aiokafka-0.11.0-cp312-cp312-win32.whl", hash = "sha256:8ba981956243767b37c929845c398fda2a2e35a4034d218badbe2b62e6f98f96", size = 347690 },
+    { url = "https://files.pythonhosted.org/packages/55/94/f532c5789cdef414bb185ac9a62c30a817fd6eae5364339a90d317166bca/aiokafka-0.11.0-cp312-cp312-win_amd64.whl", hash = "sha256:9a478a14fd23fd1ffe9c7a21238d818b5f5e0626f7f06146b687f3699298391b", size = 365916 },
+]
+
+[[package]]
 name = "alembic"
 version = "1.13.2"
 source = { registry = "https://pypi.org/simple" }
@@ -49,6 +68,8 @@ dependencies = [
     { name = "alembic" },
     { name = "argon2-cffi" },
     { name = "asyncpg" },
+    { name = "dishka" },
+    { name = "faststream", extra = ["kafka"] },
     { name = "litestar" },
     { name = "passlib" },
     { name = "pydantic" },
@@ -63,6 +84,8 @@ requires-dist = [
     { name = "alembic", specifier = "<=1.13.2" },
     { name = "argon2-cffi", specifier = "<=23.1.0" },
     { name = "asyncpg", specifier = "<=0.29.0" },
+    { name = "dishka", specifier = "==1.2.0" },
+    { name = "faststream", extras = ["kafka"], specifier = "<=0.5.25" },
     { name = "litestar", specifier = "<=2.10.0" },
     { name = "passlib", specifier = "<=1.7.4" },
     { name = "pydantic", specifier = "<=2.8.2" },
@@ -103,6 +126,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/8b/95/143cd64feb24a15fa4b189a3e1e7efbaeeb00f39a51e99b26fc62fbacabd/argon2_cffi_bindings-21.2.0-cp36-abi3-win32.whl", hash = "sha256:603ca0aba86b1349b147cab91ae970c63118a0f30444d4bc80355937c950c082", size = 27698 },
     { url = "https://files.pythonhosted.org/packages/37/2c/e34e47c7dee97ba6f01a6203e0383e15b60fb85d78ac9a15cd066f6fe28b/argon2_cffi_bindings-21.2.0-cp36-abi3-win_amd64.whl", hash = "sha256:b2ef1c30440dbbcba7a5dc3e319408b59676e2e039e2ae11a8775ecf482b192f", size = 30817 },
     { url = "https://files.pythonhosted.org/packages/5a/e4/bf8034d25edaa495da3c8a3405627d2e35758e44ff6eaa7948092646fdcc/argon2_cffi_bindings-21.2.0-cp38-abi3-macosx_10_9_universal2.whl", hash = "sha256:e415e3f62c8d124ee16018e491a009937f8cf7ebf5eb430ffc5de21b900dad93", size = 53104 },
+]
+
+[[package]]
+name = "async-timeout"
+version = "4.0.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/87/d6/21b30a550dafea84b1b8eee21b5e23fa16d010ae006011221f33dcd8d7f8/async-timeout-4.0.3.tar.gz", hash = "sha256:4640d96be84d82d02ed59ea2b7105a0f7b33abe8703703cd0ab0bf87c427522f", size = 8345 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a7/fa/e01228c2938de91d47b307831c62ab9e4001e747789d0b05baf779a6488c/async_timeout-4.0.3-py3-none-any.whl", hash = "sha256:7405140ff1230c310e51dc27b3145b9092d659ce68ff733fb0cefe3ee42be028", size = 5721 },
 ]
 
 [[package]]
@@ -185,6 +217,15 @@ wheels = [
 ]
 
 [[package]]
+name = "dishka"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/60/e0/920407b23696d11da327e26e3b55b01169df41db6ba106465f13d3d9a4c0/dishka-1.2.0.tar.gz", hash = "sha256:aae988a49f9f5e591cb103c45287a709378b2f3924a95192fceede168f8605dd", size = 45598 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ab/aa/c8cfec3e7e9f7530c7df6b8f6ee46aac3ee99445aabe837777769e72a324/dishka-1.2.0-py3-none-any.whl", hash = "sha256:d543497b611a448d14a4a138976435937b3b58e5657549f73e7df8c3fc04ccad", size = 59600 },
+]
+
+[[package]]
 name = "faker"
 version = "30.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -195,6 +236,38 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/78/f4/a6fe96b1bc0a8b864ddcd087e7909d8c6ccb74a1247baadbf5c7094a9067/faker-30.1.0.tar.gz", hash = "sha256:e0593931bd7be9a9ea984b5d8c302ef1cec19392585d1e90d444199271d0a94d", size = 1796615 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/61/49/34f3615d1f4770f70cda4df1ce09d1203cf66b62baabac307c28887c69af/Faker-30.1.0-py3-none-any.whl", hash = "sha256:dbf81295c948270a9e96cd48a9a3ebec73acac9a153d0c854fbbd0294557609f", size = 1836618 },
+]
+
+[[package]]
+name = "fast-depends"
+version = "2.4.11"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/46/34/4f26aacb74adcfe0197c0668b2e63a3245c5c499600dcdee822fd160d689/fast_depends-2.4.11.tar.gz", hash = "sha256:29c8022232d1f67408d41fc251d2756c74ba98298e0502454de9f42df99a2ab0", size = 16632 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cc/8f/54d1fa766d35e88b767d0f3adfa77cfb0d12199b2d0b03b02a983fb22d46/fast_depends-2.4.11-py3-none-any.whl", hash = "sha256:f361d6b6375184a800e93ecaf874a5ebc9905fe4f5fafecc50de2c81acf850d8", size = 17648 },
+]
+
+[[package]]
+name = "faststream"
+version = "0.5.25"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "fast-depends" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/06/93/842e6e1e3eb3b87cf1672ec705a52ba025a94cf0283bf12fdac696abbb07/faststream-0.5.25.tar.gz", hash = "sha256:926a4a8e013140a37b1c06ad16eb9a35529c9f626def3d846ec4ac171e050bc6", size = 276494 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/73/4e/4dee112ade7eb13672f76e9669eef099db1b1ca14e18094fb473b0de41ff/faststream-0.5.25-py3-none-any.whl", hash = "sha256:872d88a112d3d9c454dbc0fa4fe4211717e4422b3aa2f75f9d239bffc3c31075", size = 366560 },
+]
+
+[package.optional-dependencies]
+kafka = [
+    { name = "aiokafka" },
 ]
 
 [[package]]
@@ -401,6 +474,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/38/e0/4f5855037a72cd8a7a2f60a3952d9aa45feedb37ae7831642102604e8a37/multidict-6.1.0-cp313-cp313-win32.whl", hash = "sha256:3a37ffb35399029b45c6cc33640a92bef403c9fd388acce75cdc88f58bd19a81", size = 26426 },
     { url = "https://files.pythonhosted.org/packages/7e/a5/17ee3a4db1e310b7405f5d25834460073a8ccd86198ce044dfaf69eac073/multidict-6.1.0-cp313-cp313-win_amd64.whl", hash = "sha256:e9aa71e15d9d9beaad2c6b9319edcdc0a49a43ef5c0a4c8265ca9ee7d6c67774", size = 28531 },
     { url = "https://files.pythonhosted.org/packages/99/b7/b9e70fde2c0f0c9af4cc5277782a89b66d35948ea3369ec9f598358c3ac5/multidict-6.1.0-py3-none-any.whl", hash = "sha256:48e171e52d1c4d33888e529b999e5900356b9ae588c2f09a52dcefb158b27506", size = 10051 },
+]
+
+[[package]]
+name = "packaging"
+version = "24.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/51/65/50db4dda066951078f0a96cf12f4b9ada6e4b811516bf0262c0f4f7064d4/packaging-24.1.tar.gz", hash = "sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002", size = 148788 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/08/aa/cc0199a5f0ad350994d660967a8efb233fe0416e4639146c089643407ce6/packaging-24.1-py3-none-any.whl", hash = "sha256:5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124", size = 53985 },
 ]
 
 [[package]]
