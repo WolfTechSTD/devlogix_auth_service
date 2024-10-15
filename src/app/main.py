@@ -1,19 +1,36 @@
+from dishka import make_async_container
+from dishka.integrations import faststream as faststream_integration
+from dishka.integrations import litestar as litestar_integration
+from faststream import FastStream
 from litestar import Litestar
 from litestar.config.cors import CORSConfig
-from litestar.di import Provide
 from litestar.openapi import OpenAPIConfig
 from litestar.openapi.plugins import SwaggerRenderPlugin, RedocRenderPlugin
 from litestar.openapi.spec import Components, SecurityScheme
 
-from app.adapter.permission import UserPermission
-from app.adapter.persistence import create_async_session_maker
-from app.adapter.security import PasswordProvider, TokenProvider
+from app.adapter.persistence import new_broker
 from app.config import load_config, ApplicationConfig
-from app.ioc import IoC
-from app.presentation.controllers.auth import AuthController
+from app.presentation.broker.user import UserController
+from app.presentation.controller.auth import AuthController
+from app.provider import AppProvider
+
+config = load_config()
+container = make_async_container(
+    AppProvider(), context={
+        ApplicationConfig: config
+    }
+)
 
 
-def create_app() -> Litestar:
+def get_faststream_app() -> FastStream:
+    broker = new_broker(config.kafka)
+    app = FastStream(broker)
+    faststream_integration.setup_dishka(container, app, auto_inject=True)
+    broker.include_router(UserController)
+    return app
+
+
+def get_litestar_app() -> Litestar:
     config = load_config()
     cors_config = CORSConfig(
         allow_origins=config.cors.allow_origins
@@ -21,11 +38,20 @@ def create_app() -> Litestar:
     app = Litestar(
         debug=config.debug,
         route_handlers=[AuthController],
-        dependencies=_init_dependencies(config),
         openapi_config=_init_openapi_config(),
         cors_config=cors_config,
     )
+    litestar_integration.setup_dishka(container, app)
     return app
+
+
+def get_app() -> Litestar:
+    faststream_app = get_faststream_app()
+    litestar_app = get_litestar_app()
+
+    litestar_app.on_startup.append(faststream_app.broker.start)
+    litestar_app.on_shutdown.append(faststream_app.broker.close)
+    return litestar_app
 
 
 def _init_openapi_config() -> OpenAPIConfig:
@@ -44,34 +70,3 @@ def _init_openapi_config() -> OpenAPIConfig:
             },
         )
     )
-
-
-def _init_dependencies(config: ApplicationConfig) -> dict[str, Provide]:
-    db_config = config.db
-    jwt_config = config.jwt
-
-    return {
-        "session": Provide(create_async_session_maker(db_config.db_url)),
-        "ioc": Provide(IoC, sync_to_thread=True),
-            "password_provider": Provide(
-                lambda: PasswordProvider(),
-                sync_to_thread=True
-            ),
-        "user_permission": Provide(UserPermission, sync_to_thread=True),
-        "jwt_provider": Provide(
-            lambda: TokenProvider(
-                key=jwt_config.secret_key,
-                algorithm=jwt_config.algorithm,
-                time_access_token=jwt_config.assess_token_time
-            ),
-            sync_to_thread=True
-        ),
-        "refresh_token_time": Provide(
-            lambda: jwt_config.refresh_token_time,
-            sync_to_thread=True
-        ),
-        "access_token_time": Provide(
-            lambda: jwt_config.assess_token_time,
-            sync_to_thread=True
-        )
-    }
