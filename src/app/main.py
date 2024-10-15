@@ -4,7 +4,6 @@ from litestar.di import Provide
 from litestar.openapi import OpenAPIConfig
 from litestar.openapi.plugins import SwaggerRenderPlugin, RedocRenderPlugin
 from litestar.openapi.spec import Components, SecurityScheme
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.adapter.permission import UserPermission
 from app.adapter.persistence import create_async_session_maker
@@ -30,7 +29,7 @@ def create_app() -> Litestar:
 
 
 def _init_openapi_config() -> OpenAPIConfig:
-    config = OpenAPIConfig(
+    return OpenAPIConfig(
         title="Auth Service",
         description="Сервис аутентификации",
         version="0.0.1",
@@ -45,24 +44,19 @@ def _init_openapi_config() -> OpenAPIConfig:
             },
         )
     )
-    return config
-
-
-def get_transaction(session: AsyncSession) -> AsyncSession:
-    return session
 
 
 def _init_dependencies(config: ApplicationConfig) -> dict[str, Provide]:
     db_config = config.db
     jwt_config = config.jwt
 
-    dependencies = {
+    return {
         "session": Provide(create_async_session_maker(db_config.db_url)),
         "ioc": Provide(IoC, sync_to_thread=True),
-        "password_provider": Provide(
-            lambda: PasswordProvider(),
-            sync_to_thread=True
-        ),
+            "password_provider": Provide(
+                lambda: PasswordProvider(),
+                sync_to_thread=True
+            ),
         "user_permission": Provide(UserPermission, sync_to_thread=True),
         "jwt_provider": Provide(
             lambda: TokenProvider(
@@ -81,4 +75,3 @@ def _init_dependencies(config: ApplicationConfig) -> dict[str, Provide]:
             sync_to_thread=True
         )
     }
-    return dependencies

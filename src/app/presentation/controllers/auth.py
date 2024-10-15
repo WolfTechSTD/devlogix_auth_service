@@ -12,7 +12,8 @@ from app.exceptions import (
 )
 from app.presentation.after_request.cookie import (
     set_login_cookie,
-    set_logout_cookie, set_access_token,
+    set_logout_cookie,
+    set_access_token,
 )
 from app.presentation.exception_handlers import (
     forbidden_exception_handler,
@@ -32,7 +33,7 @@ from app.presentation.model.jwt import (
     JsonRefreshToken,
     JsonDeleteRefreshToken,
 )
-from app.presentation.model.user import JsonUserLogin, JsonCreateUser
+from app.presentation.model.user import JsonUserLogin
 from app.presentation.openapi import (
     GetTokensOperation,
     UpdateAccessTokenOperation,
@@ -40,7 +41,6 @@ from app.presentation.openapi import (
     DeleteRefreshTokenOperation,
     UserLoginOperation,
     LogoutUserOperation,
-    CreateUserOperation,
     UpdateAccessTokenInCookie,
 )
 
@@ -52,23 +52,6 @@ class AuthController(Controller):
         InvalidTokenException: forbidden_exception_handler,
         UserAuthException: bad_request_exception_handler
     }
-
-    @post(
-        operation_class=CreateUserOperation,
-        status_code=status_codes.HTTP_201_CREATED
-    )
-    async def create_user(
-            self,
-            data: JsonCreateUser,
-            ioc: Annotated[InteractorFactory, Dependency(
-                skip_validation=True
-            )],
-            user_permission: Annotated[IUserPermission, Dependency(
-                skip_validation=True
-            )],
-    ) -> None:
-        async with ioc.auth_usecase() as usecase:
-            await usecase.create_user(user_permission, data.into())
 
     @post(
         path="/login",

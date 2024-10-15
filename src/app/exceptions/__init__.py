@@ -1,13 +1,9 @@
 from .authentication import UserAuthException, InvalidAuthenticationTokenError
 from .config import ConfigParseError
 from .token import InvalidTokenException
-from .user import (
-    UserLoginException,
-    UserExistsException,
-)
+from .user import UserLoginException
 
 __all__ = (
-    "UserExistsException",
     "UserLoginException",
     "InvalidTokenException",
     "UserAuthException",

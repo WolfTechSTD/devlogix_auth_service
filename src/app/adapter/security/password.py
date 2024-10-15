@@ -13,6 +13,3 @@ class PasswordProvider(IPasswordProvider):
             hash: str | bytes | None = None
     ) -> bool:
         return self.context.verify(secret, hash)
-
-    def get_hash(self, secret: str | bytes) -> str:
-        return self.context.hash(secret)

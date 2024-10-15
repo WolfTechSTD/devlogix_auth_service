@@ -10,7 +10,7 @@ from litestar.openapi.spec import (
     Example,
 )
 
-from app.presentation.openapi.exceptions.base import (
+from app.presentation.openapi.exception import (
     INVALID_DATA_EXCEPTION,
 )
 from app.presentation.openapi.schema.base import BaseParameters

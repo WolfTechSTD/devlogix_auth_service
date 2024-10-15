@@ -8,12 +8,6 @@ BaseModel = TypeVar("BaseModel")
 
 class IUserPermission(Protocol):
     @abstractmethod
-    async def change_password(
-            self,
-            source: BaseModel,
-    ) -> None: ...
-
-    @abstractmethod
     async def check_password(
             self,
             password: str,

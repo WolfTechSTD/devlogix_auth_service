@@ -8,9 +8,9 @@ from litestar.openapi.spec import (
     OpenAPIResponse,
 )
 
-from app.presentation.openapi.exceptions.base import FORBIDDEN_EXCEPTION
+from app.presentation.openapi.exception import FORBIDDEN_EXCEPTION
 from app.presentation.openapi.schema.base import BaseParameters
-from app.presentation.openapi.security.base import SESSION
+from app.presentation.openapi.security import SESSION
 
 DESCRIPTION = """Разлогирование."""
 

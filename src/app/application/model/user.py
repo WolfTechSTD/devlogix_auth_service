@@ -1,45 +1,10 @@
 from dataclasses import dataclass
-from typing import Self, cast
+from typing import cast
 
 from ulid import ULID
 
 from app.domain.model.id import Id
 from app.domain.model.token import RefreshToken
-from app.domain.model.user import User
-
-
-@dataclass(slots=True)
-class UserView:
-    id: str
-    username: str
-    email: str
-    is_active: bool
-
-    @classmethod
-    def from_into(cls, value: User) -> Self:
-        return cls(
-            id=str(value.id),
-            username=value.username,
-            email=value.email,
-            is_active=value.is_active
-        )
-
-
-@dataclass(slots=True)
-class CreateUserView:
-    username: str
-    email: str
-    password: str
-
-    def into(self) -> User:
-        user_id = cast(Id, str(ULID()))
-        return User(
-            id=user_id,
-            username=self.username,
-            email=self.email,
-            password=self.password,
-            is_active=True,
-        )
 
 
 @dataclass(slots=True)

@@ -3,44 +3,9 @@ from typing import Self, Optional
 from pydantic import Field, model_validator
 
 from app.application.model.user import (
-    CreateUserView,
     UserLoginView,
 )
 from app.presentation.model.base import Base
-
-
-class JsonCreateUser(Base):
-    username: str = Field(
-        ...,
-        json_schema_extra={
-            "title": "username",
-            "description": "Юзернейм",
-            "example": "User"
-        }
-    )
-    email: str = Field(
-        ...,
-        json_schema_extra={
-            "title": "email",
-            "description": "E-mail",
-            "example": "operation@gmail.com"
-        }
-    )
-    password: str = Field(
-        ...,
-        json_schema_extra={
-            "title": "password",
-            "description": "Пароль",
-            "example": "UserPassword"
-        }
-    )
-
-    def into(self) -> CreateUserView:
-        return CreateUserView(
-            username=self.username,
-            email=self.email,
-            password=self.password
-        )
 
 
 class JsonUserLogin(Base):

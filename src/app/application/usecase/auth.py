@@ -12,9 +12,8 @@ from app.application.model.jwt import (
     UpdateRefreshTokenView,
     RefreshTokenView,
 )
-from app.application.model.user import CreateUserView, UserView, UserLoginView
+from app.application.model.user import UserLoginView
 from app.exceptions import (
-    UserExistsException,
     InvalidTokenException,
     UserLoginException,
 )
@@ -30,22 +29,6 @@ class AuthUseCase:
         self.refresh_token_gateway = refresh_token_gateway
         self.transaction = transaction
         self.user_gateway = user_gateway
-
-    async def create_user(
-            self,
-            user_permission: IUserPermission,
-            data: CreateUserView
-    ) -> UserView:
-        if await self.user_gateway.check_user(
-                username=data.username,
-                email=data.email,
-        ):
-            raise UserExistsException()
-
-        await user_permission.change_password(data)
-        user = await self.user_gateway.insert(data.into())
-        await self.transaction.commit()
-        return UserView.from_into(user)
 
     async def delete_refresh_token(
             self,

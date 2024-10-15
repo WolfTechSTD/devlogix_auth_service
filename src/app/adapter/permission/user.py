@@ -1,5 +1,4 @@
 from app.adapter.security import PasswordProvider, TokenProvider
-from app.application.interface.permission.user import BaseModel
 from app.domain.model.id import Id
 from app.exceptions import UserLoginException
 
@@ -12,13 +11,6 @@ class UserPermission:
     ) -> None:
         self.password_provider = password_provider
         self.jwt_provider = jwt_provider
-
-    async def change_password(
-            self,
-            source: BaseModel,
-    ) -> None:
-        if source.password is not None:
-            source.password = self.password_provider.get_hash(source.password)
 
     async def check_password(
             self,
