@@ -48,7 +48,6 @@ class AuthUseCase:
             data: UserLoginView
     ) -> TokensView:
         user = await self.user_gateway.get(data.username, data.email)
-
         if user is None:
             raise UserLoginException()
 
