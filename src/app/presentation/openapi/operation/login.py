@@ -69,10 +69,7 @@ class UserLoginOperation(Operation):
             }
         )
         self.responses = {
-            "200": OpenAPIResponse(
-                description="Ok",
-                content=None
-            ),
+            "204": None,
             "403": OpenAPIResponse(
                 description="Forbidden",
                 content={
