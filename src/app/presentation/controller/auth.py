@@ -21,7 +21,8 @@ from app.presentation.exception_handlers import (
 from app.presentation.interactor import InteractorFactory
 from app.presentation.middleware.auth import (
     LoginTokenMiddleware,
-    LogoutMiddleware, CookieUpdatingMiddleware,
+    LogoutMiddleware,
+    CookieUpdatingMiddleware,
 )
 from app.presentation.model.cookie import JsonCookieToken
 from app.presentation.model.jwt import (
