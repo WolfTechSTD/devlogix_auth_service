@@ -5,6 +5,7 @@ from pydantic import Field, model_validator
 from app.application.model.user import (
     UserLoginView,
     CreateUserView,
+    UpdateUserView,
 )
 from app.presentation.model.base import Base
 
@@ -103,4 +104,52 @@ class JsonCreateUser(Base):
             email=self.email,
             password=self.password,
             is_active=self.is_active
+        )
+
+
+class JsonUpdateUser(Base):
+    id: str = Field(
+        ...,
+        json_schema_extra={
+            "title": "id",
+            "description": "Уникальный идентификатор",
+            "example": "01J4HC5WQB3FK3FA1FMXYVYJ6Y"
+        }
+    )
+    username: Optional[str] = Field(
+        None,
+        json_schema_extra={
+            "title": "username",
+            "description": "Юзернейм",
+        }
+    )
+    email: Optional[str] = Field(
+        None,
+        json_schema_extra={
+            "title": "email",
+            "description": "E-mail",
+        }
+    )
+    password: Optional[str] = Field(
+        None,
+        json_schema_extra={
+            "title": "password",
+            "description": "Пароль",
+        }
+    )
+    is_active: Optional[bool] = Field(
+        None,
+        json_schema_extra={
+            "title": "isActive",
+            "description": "Статус пользователя",
+        }
+    )
+
+    def into(self) -> UpdateUserView:
+        return UpdateUserView(
+            id=self.id,
+            username=self.username,
+            email=self.email,
+            password=self.password,
+            is_active=self.is_active,
         )

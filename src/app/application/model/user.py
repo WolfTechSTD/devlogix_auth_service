@@ -38,3 +38,20 @@ class CreateUserView:
             password=self.password,
             is_active=self.is_active,
         )
+
+@dataclass(slots=True)
+class UpdateUserView:
+    id: str
+    username: str | None
+    email: str | None
+    password: str | None
+    is_active: bool | None
+
+    def into(self) -> User:
+        return User(
+            id=cast(Id, self.id),
+            username=self.username,
+            email=self.email,
+            password=self.password,
+            is_active=self.is_active
+        )
