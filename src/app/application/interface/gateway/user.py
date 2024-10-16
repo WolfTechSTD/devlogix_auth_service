@@ -14,3 +14,6 @@ class IUserGateway(Protocol):
 
     @abstractmethod
     async def insert(self, source: User) -> User: ...
+
+    @abstractmethod
+    async def update(self, source: User) -> User: ...
