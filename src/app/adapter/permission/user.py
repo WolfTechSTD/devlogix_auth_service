@@ -1,5 +1,4 @@
-from app.adapter.security import PasswordProvider
-from app.application.interface import ITokenProvider
+from app.application.interface import ITokenProvider, IPasswordProvider
 from app.config import JWTConfig
 from app.domain.model.id import Id
 from app.exceptions import UserLoginException
@@ -8,7 +7,7 @@ from app.exceptions import UserLoginException
 class UserPermission:
     def __init__(
             self,
-            password_provider: PasswordProvider,
+            password_provider: IPasswordProvider,
             jwt_provider: ITokenProvider,
             jwt_config: JWTConfig
     ) -> None:
@@ -22,7 +21,7 @@ class UserPermission:
 
     @property
     def time_access_token(self) -> int:
-        return self._jwt_config.assess_token_time
+        return self._jwt_config.access_token_time
 
     async def check_password(
             self,
