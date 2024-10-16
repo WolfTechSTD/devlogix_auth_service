@@ -22,7 +22,7 @@ class TokenProvider(ITokenProvider):
 
     def get_access_token(self, user_id: Id) -> str:
         date_on = dt.datetime.now(dt.timezone.utc)
-        exp = date_on + dt.timedelta(minutes=self.config.assess_token_time)
+        exp = date_on + dt.timedelta(minutes=self.config.access_token_time)
         return self.encode(
             {
                 "id": user_id,
