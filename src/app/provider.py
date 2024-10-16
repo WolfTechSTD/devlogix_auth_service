@@ -1,13 +1,16 @@
-from typing import AsyncIterable
+from typing import AsyncIterator
 
 from dishka import Provider, from_context, Scope, provide, AnyOf
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from app.adapter.db.connect import Transaction
 from app.adapter.permission import UserPermission
 from app.adapter.persistence import new_session_maker
 from app.adapter.security import PasswordProvider, TokenProvider
-from app.application.interface import IUserPermission, ITokenProvider
+from app.application.interface import (
+    IUserPermission,
+    ITokenProvider,
+    IPasswordProvider,
+)
 from app.config import ApplicationConfig, JWTConfig
 from app.ioc import IoC
 from app.presentation.interactor import InteractorFactory
@@ -34,12 +37,14 @@ class AppProvider(Provider):
     async def get_session(
             self,
             session_maker: async_sessionmaker[AsyncSession]
-    ) -> AsyncIterable[AnyOf[AsyncSession, Transaction]]:
+    ) -> AsyncIterator[AsyncSession]:
         async with session_maker() as session:
             yield session
 
     @provide(scope=Scope.APP)
-    def get_password_provider(self) -> PasswordProvider:
+    def get_password_provider(
+            self
+    ) -> AnyOf[PasswordProvider, IPasswordProvider]:
         return PasswordProvider()
 
     @provide(scope=Scope.APP)
