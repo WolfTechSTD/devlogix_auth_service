@@ -13,7 +13,7 @@ class DatabaseConfig:
 class JWTConfig:
     secret_key: str
     algorithm: str
-    assess_token_time: int
+    access_token_time: int
     refresh_token_time: int
 
 
@@ -72,6 +72,6 @@ def _load_jwt_config() -> JWTConfig:
     return JWTConfig(
         secret_key=get_str_env("SECRET_KEY"),
         algorithm=get_str_env("ALGORITHM"),
-        assess_token_time=int(get_str_env("ASSESS_TOKEN_TIME")),
+        access_token_time=int(get_str_env("ASSESS_TOKEN_TIME")),
         refresh_token_time=int(get_str_env("REFRESH_TOKEN_TIME"))
     )
