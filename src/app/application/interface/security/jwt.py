@@ -1,11 +1,11 @@
-from abc import ABC, abstractmethod
-from typing import Any
+from abc import abstractmethod
+from typing import Any, Protocol
 
 from app.domain.model.id import Id
 from app.domain.model.token import AccessToken
 
 
-class ITokenProvider(ABC):
+class ITokenProvider(Protocol):
     @abstractmethod
     def encode(self, data: dict[str, Any]) -> str: ...
 

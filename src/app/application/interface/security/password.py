@@ -1,7 +1,8 @@
-from abc import abstractmethod, ABC
+from abc import abstractmethod
+from typing import Protocol
 
 
-class IPasswordProvider(ABC):
+class IPasswordProvider(Protocol):
     @abstractmethod
     def verify_password(
             self,
