@@ -19,13 +19,6 @@ class RefreshTokenGateway(BaseGateway[RefreshToken]):
         super().__init__(session)
         self.refresh_token_time = refresh_token_time
 
-    async def delete(self, source: RefreshToken) -> None:
-        stmt = (
-            delete(RefreshTokenStorage)
-            .where(RefreshTokenStorage.name == source.name)
-        )
-        await self.session.execute(stmt)
-
     async def insert(self, source: RefreshToken) -> RefreshToken:
         if await self._check_user_id(source.user_id):
             return await self._update(source)
@@ -35,20 +28,6 @@ class RefreshTokenGateway(BaseGateway[RefreshToken]):
             .values(
                 id=str(source.id),
                 user_id=str(source.user_id),
-                name=source.name,
-                is_valid=source.is_valid
-            )
-            .options(selectinload(RefreshTokenStorage.user))
-            .returning(RefreshTokenStorage)
-        )
-        result = await self.session.execute(stmt)
-        return result.scalar().into()
-
-    async def update(self, name: str,  source: RefreshToken) -> RefreshToken:
-        stmt = (
-            update(RefreshTokenStorage)
-            .where(RefreshTokenStorage.name == name)
-            .values(
                 name=source.name,
                 is_valid=source.is_valid
             )
@@ -100,14 +79,26 @@ class RefreshTokenGateway(BaseGateway[RefreshToken]):
         result = await self.session.scalar(stmt)
         return result
 
-    async def check_token(self, name: str) -> bool:
-        stmt = select(
-            select(RefreshTokenStorage)
+    async def update(self, name: str,  source: RefreshToken) -> RefreshToken:
+        stmt = (
+            update(RefreshTokenStorage)
             .where(RefreshTokenStorage.name == name)
-            .exists()
+            .values(
+                name=source.name,
+                is_valid=source.is_valid
+            )
+            .options(selectinload(RefreshTokenStorage.user))
+            .returning(RefreshTokenStorage)
         )
-        result = await self.session.scalar(stmt)
-        return result
+        result = await self.session.execute(stmt)
+        return result.scalar().into()
+
+    async def delete(self, source: RefreshToken) -> None:
+        stmt = (
+            delete(RefreshTokenStorage)
+            .where(RefreshTokenStorage.name == source.name)
+        )
+        await self.session.execute(stmt)
 
     async def _check_user_id(self, user_id: Id) -> bool:
         stmt = select(
