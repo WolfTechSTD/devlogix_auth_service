@@ -48,5 +48,5 @@ class RefreshTokenStorage(BaseModel):
             user_id=cast(Id, self.user_id),
             name=self.name,
             is_valid=self.is_valid,
-            user=self.user
+            user=self.user.into()
         )
