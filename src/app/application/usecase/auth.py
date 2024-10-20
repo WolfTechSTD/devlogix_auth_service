@@ -61,7 +61,8 @@ class AuthUseCase:
         await self.transaction.commit()
         return TokensView.from_into(
             access_token,
-            refresh_token.name
+            refresh_token.name,
+            user_permission.time_access_token,
         )
 
     async def update_access_token(
@@ -80,7 +81,10 @@ class AuthUseCase:
             raise InvalidTokenException()
 
         access_token = await user_permission.get_access_token(user.id)
-        return AccessTokenView.from_into(access_token)
+        return AccessTokenView.from_into(
+            access_token,
+            user_permission.time_access_token,
+        )
 
     async def update_refresh_token(
             self,

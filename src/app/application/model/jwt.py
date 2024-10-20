@@ -13,11 +13,18 @@ class TokensView:
     refresh_token: str
 
     @classmethod
-    def from_into(cls, access_token: str, refresh_token: str) -> Self:
+    def from_into(
+            cls,
+            access_token: str,
+            refresh_token: str,
+            time_access_token: int
+    ) -> Self:
         return cls(
             token_type="Bearer",
             access_token=access_token,
-            expires_in=int(dt.timedelta(minutes=15).total_seconds()),
+            expires_in=int(
+                dt.timedelta(minutes=time_access_token).total_seconds()
+            ),
             refresh_token=refresh_token
         )
 
@@ -29,11 +36,17 @@ class AccessTokenView:
     expires_in: int
 
     @classmethod
-    def from_into(cls, access_token: str) -> Self:
+    def from_into(
+            cls,
+            access_token: str,
+            time_access_token: int
+    ) -> Self:
         return cls(
             token_type="Bearer",
             access_token=access_token,
-            expires_in=int(dt.timedelta(minutes=15).total_seconds()),
+            expires_in=int(
+                dt.timedelta(minutes=time_access_token).total_seconds()
+            ),
         )
 
 
