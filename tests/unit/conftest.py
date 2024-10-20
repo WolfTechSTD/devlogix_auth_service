@@ -10,6 +10,8 @@ from sqlalchemy.ext.asyncio import (
 from app.adapter.db.model import BaseModel
 from app.adapter.persistence import new_session_maker
 from app.config import DatabaseConfig, JWTConfig
+from tests.mock.adapter.security.jwt import MockTokenProvider
+from tests.mock.adapter.security.password import MockPasswordProvider
 
 
 @pytest.fixture(scope="session")
@@ -17,6 +19,7 @@ def get_db_config() -> DatabaseConfig:
     return DatabaseConfig(
         db_url=os.getenv("DATABASE_URL_TEST")
     )
+
 
 @pytest.fixture(scope="session")
 def get_jwt_config() -> JWTConfig:
@@ -67,3 +70,13 @@ async def session(
 ) -> AsyncSession:
     async with get_session_maker() as session:
         yield session
+
+
+@pytest.fixture(scope="function")
+def get_mock_password_provider() -> MockPasswordProvider:
+    return MockPasswordProvider()
+
+
+@pytest.fixture(scope="function")
+def get_mock_token_provider() -> MockTokenProvider:
+    return MockTokenProvider()
