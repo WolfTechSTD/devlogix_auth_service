@@ -57,3 +57,4 @@ def test_decode(get_jwt_config: JWTConfig) -> None:
     with pytest.raises(TokenTimeException) as err:
         token_provider.decode(AccessToken(value=jwt_token))
     assert str(err.value) == "Пользователь на авторизован"
+    token_provider.config.access_token_time = 15
