@@ -67,13 +67,13 @@ class AuthController(Controller):
             ioc: Depends[InteractorFactory],
             user_permission: Depends[IUserPermission],
     ) -> JsonCookieToken:
-        async with ioc.auth_usecase() as usecase:
-            token = await usecase.get_tokens(user_permission, data.into())
-            return JsonCookieToken.from_into(
-                user_permission.time_access_token,
-                user_permission.time_refresh_token,
-                token,
-            )
+        usecase = ioc.auth_usecase()
+        token = await usecase.get_tokens(user_permission, data.into())
+        return JsonCookieToken.from_into(
+            user_permission.time_access_token,
+            user_permission.time_refresh_token,
+            token,
+        )
 
     @post(
         path="/jwt",
@@ -87,9 +87,9 @@ class AuthController(Controller):
             ioc: Depends[InteractorFactory],
             user_permission: Depends[IUserPermission],
     ) -> JsonToken:
-        async with ioc.auth_usecase() as usecase:
-            token = await usecase.get_tokens(user_permission, data.into())
-            return JsonToken.from_into(token)
+        usecase = ioc.auth_usecase()
+        token = await usecase.get_tokens(user_permission, data.into())
+        return JsonToken.from_into(token)
 
     @post(
         "jwt/access",
@@ -103,12 +103,12 @@ class AuthController(Controller):
             ioc: Depends[InteractorFactory],
             user_permission: Depends[IUserPermission],
     ) -> JsonAccessToken:
-        async with ioc.auth_usecase() as usecase:
-            token = await usecase.update_access_token(
-                user_permission,
-                data.into()
-            )
-            return JsonAccessToken.from_into(token)
+        usecase = ioc.auth_usecase()
+        token = await usecase.update_access_token(
+            user_permission,
+            data.into()
+        )
+        return JsonAccessToken.from_into(token)
 
     @post(
         "jwt/refresh",
@@ -122,12 +122,12 @@ class AuthController(Controller):
             ioc: Depends[InteractorFactory],
             user_permission: Depends[IUserPermission],
     ) -> JsonRefreshToken:
-        async with ioc.auth_usecase() as usecase:
-            token = await usecase.update_refresh_token(
-                user_permission,
-                data.into()
-            )
-            return JsonRefreshToken.from_into(token)
+        usecase = ioc.auth_usecase()
+        token = await usecase.update_refresh_token(
+            user_permission,
+            data.into()
+        )
+        return JsonRefreshToken.from_into(token)
 
     @delete(
         "jwt/delete",
@@ -140,8 +140,8 @@ class AuthController(Controller):
             data: JsonDeleteRefreshToken,
             ioc: Depends[InteractorFactory],
     ) -> None:
-        async with ioc.auth_usecase() as usecase:
-            await usecase.delete_refresh_token(data.into())
+        usecase = ioc.auth_usecase()
+        await usecase.delete_refresh_token(data.into())
 
     @post(
         "/logout",
@@ -156,8 +156,8 @@ class AuthController(Controller):
             data: JsonDeleteRefreshToken,
             ioc: Depends[InteractorFactory],
     ) -> None:
-        async with ioc.auth_usecase() as usecase:
-            await usecase.delete_refresh_token(data.into())
+        usecase = ioc.auth_usecase()
+        await usecase.delete_refresh_token(data.into())
 
     @post(
         "/update",
@@ -173,9 +173,9 @@ class AuthController(Controller):
             ioc: Depends[InteractorFactory],
             user_permission: Depends[IUserPermission],
     ) -> JsonAccessToken:
-        async with ioc.auth_usecase() as usecase:
-            token = await usecase.update_access_token(
-                user_permission,
-                data.into()
-            )
-            return JsonAccessToken.from_into(token)
+        usecase = ioc.auth_usecase()
+        token = await usecase.update_access_token(
+            user_permission,
+            data.into()
+        )
+        return JsonAccessToken.from_into(token)

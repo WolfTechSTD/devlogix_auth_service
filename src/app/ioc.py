@@ -27,17 +27,15 @@ class IoC(InteractorFactory):
             jwt_config.refresh_token_time
         )
 
-    @asynccontextmanager
-    async def auth_usecase(self) -> AsyncIterator[AuthUseCase]:
-        yield AuthUseCase(
+    def auth_usecase(self) -> AuthUseCase:
+        return AuthUseCase(
             transaction=self.transaction,
             user_gateway=self.user_gateway,
             refresh_token_gateway=self.refresh_token_gateway
         )
 
-    @asynccontextmanager
-    async def user_usecase(self) -> AsyncIterator[UserUseCase]:
-        yield UserUseCase(
+    def user_usecase(self) -> UserUseCase:
+        return UserUseCase(
             transaction=self.transaction,
             user_gateway=self.user_gateway,
         )
