@@ -1,4 +1,5 @@
 import os
+from typing import AsyncIterator
 
 import pytest
 from sqlalchemy.ext.asyncio import (
@@ -55,7 +56,9 @@ async def delete_db(db_url: str) -> None:
 
 
 @pytest.fixture(scope='session')
-async def init_db(get_db_config: DatabaseConfig) -> None:
+async def init_db(
+    get_db_config: DatabaseConfig,
+) -> AsyncIterator[None] | None:
     await create_db(get_db_config.db_url)
     try:
         yield
@@ -67,7 +70,7 @@ async def init_db(get_db_config: DatabaseConfig) -> None:
 async def session(
         init_db: None,
         get_session_maker: async_sessionmaker[AsyncSession],
-) -> AsyncSession:
+) -> AsyncIterator[AsyncSession]:
     async with get_session_maker() as session:
         yield session
 
