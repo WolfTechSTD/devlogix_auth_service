@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script for local running
-filename=.env.dev
+filename=.env-dev
 
 if [ ! -f ./$filename ]; then
     echo "File ${filename} not found!"
