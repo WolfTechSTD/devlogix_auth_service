@@ -32,7 +32,8 @@ def get_faststream_app() -> FastStream:
 
 def get_litestar_app() -> Litestar:
     cors_config = CORSConfig(
-        allow_origins=config.cors.allow_origins
+        allow_origins=config.cors.allow_origins,
+        allow_credentials=True,
     )
     app = Litestar(
         debug=config.debug,
