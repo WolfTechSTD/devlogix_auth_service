@@ -1,12 +1,15 @@
 from litestar import Request
 from litestar.types import (
     Receive,
+    ReceiveMessage,
     Scope,
     Send,
-    ReceiveMessage,
 )
 
-from app.exceptions import UserAuthException, InvalidAuthenticationTokenError
+from app.presentation.exceptions import (
+    EmptyTokenException,
+    UnauthorizedException,
+)
 from app.presentation.middleware.base import BaseMiddleware
 from app.presentation.model.jwt import (
     JsonDeleteRefreshToken,
@@ -16,22 +19,16 @@ from app.presentation.model.jwt import (
 
 class LoginTokenMiddleware(BaseMiddleware):
     async def __call__(
-            self,
-            scope: Scope,
-            receive: Receive,
-            send: Send
+        self, scope: Scope, receive: Receive, send: Send
     ) -> None:
         if Request(scope).cookies.get("accessToken"):
-            raise UserAuthException()
+            raise UnauthorizedException()
         await self.app(scope, receive, send)
 
 
 class LogoutMiddleware(BaseMiddleware):
     async def __call__(
-            self,
-            scope: Scope,
-            receive: Receive,
-            send: Send
+        self, scope: Scope, receive: Receive, send: Send
     ) -> None:
         async def receive_wrapper() -> ReceiveMessage:
             message = await receive()
@@ -43,19 +40,16 @@ class LogoutMiddleware(BaseMiddleware):
     def _set_body(self, scope: Scope, message: ReceiveMessage) -> None:
         request = Request(scope)
         if (token := request.cookies.get("refreshToken")) is None:
-            raise InvalidAuthenticationTokenError()
+            raise EmptyTokenException()
         body = JsonDeleteRefreshToken(
-            refresh_token=token
+            refresh_token=token,
         )
         message["body"] = body.model_dump_json().encode("latin-1")
 
 
 class CookieUpdatingMiddleware(BaseMiddleware):
     async def __call__(
-            self,
-            scope: Scope,
-            receive: Receive,
-            send: Send
+        self, scope: Scope, receive: Receive, send: Send
     ) -> None:
         async def receive_wrapper() -> ReceiveMessage:
             message = await receive()
@@ -67,8 +61,8 @@ class CookieUpdatingMiddleware(BaseMiddleware):
     def _set_body(self, scope: Scope, message: ReceiveMessage) -> None:
         request = Request(scope)
         if (token := request.cookies.get("refreshToken")) is None:
-            raise InvalidAuthenticationTokenError()
+            raise EmptyTokenException()
         body = JsonUpdateAccessToken(
-            refresh_token=token
+            refresh_token=token,
         )
         message["body"] = body.model_dump_json().encode("latin-1")

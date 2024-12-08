@@ -48,6 +48,7 @@ def _load_kafka_config() -> KafkaConfig:
         url=get_str_env("KAFKA_URL"),
     )
 
+
 def load_database_config() -> DatabaseConfig:
     return DatabaseConfig(db_url=get_str_env("DATABASE_URL"))
 
@@ -58,7 +59,7 @@ def load_config() -> ApplicationConfig:
         db=load_database_config(),
         jwt=_load_jwt_config(),
         cors=_load_cors_config(),
-        kafka=_load_kafka_config()
+        kafka=_load_kafka_config(),
     )
 
 
@@ -73,5 +74,5 @@ def _load_jwt_config() -> JWTConfig:
         secret_key=get_str_env("SECRET_KEY"),
         algorithm=get_str_env("ALGORITHM"),
         access_token_time=int(get_str_env("ASSESS_TOKEN_TIME")),
-        refresh_token_time=int(get_str_env("REFRESH_TOKEN_TIME"))
+        refresh_token_time=int(get_str_env("REFRESH_TOKEN_TIME")),
     )

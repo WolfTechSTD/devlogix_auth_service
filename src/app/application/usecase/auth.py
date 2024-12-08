@@ -1,41 +1,41 @@
+from app.application.exceptions import (
+    InvalidEmailOrUsername,
+    InvalidTokenException,
+)
 from app.application.interface import (
+    IRefreshTokenGateway,
     ITransaction,
     IUserGateway,
     IUserPermission,
-    IRefreshTokenGateway,
 )
 from app.application.model.jwt import (
+    AccessTokenView,
     DeleteRefreshTokenView,
+    RefreshTokenView,
     TokensView,
     UpdateAccessTokenView,
-    AccessTokenView,
     UpdateRefreshTokenView,
-    RefreshTokenView,
 )
 from app.application.model.user import UserLoginView
-from app.exceptions import (
-    InvalidTokenException,
-    UserLoginException,
-)
 
 
 class AuthUseCase:
     def __init__(
-            self,
-            transaction: ITransaction,
-            user_gateway: IUserGateway,
-            refresh_token_gateway: IRefreshTokenGateway,
+        self,
+        transaction: ITransaction,
+        user_gateway: IUserGateway,
+        refresh_token_gateway: IRefreshTokenGateway,
     ) -> None:
         self.refresh_token_gateway = refresh_token_gateway
         self.transaction = transaction
         self.user_gateway = user_gateway
 
     async def delete_refresh_token(
-            self,
-            data: DeleteRefreshTokenView
+        self,
+        data: DeleteRefreshTokenView,
     ) -> None:
         if not await self.refresh_token_gateway.check_user_token(
-                data.refresh_token
+            data.refresh_token
         ):
             raise InvalidTokenException()
 
@@ -43,13 +43,16 @@ class AuthUseCase:
         await self.transaction.commit()
 
     async def get_tokens(
-            self,
-            user_permission: IUserPermission,
-            data: UserLoginView
+        self,
+        user_permission: IUserPermission,
+        data: UserLoginView,
     ) -> TokensView:
-        user = await self.user_gateway.get(data.username, data.email)
+        user = await self.user_gateway.get(
+            data.username,
+            data.email,
+        )
         if user is None:
-            raise UserLoginException()
+            raise InvalidEmailOrUsername()
 
         await user_permission.check_password(data.password, user.password)
         access_token = await user_permission.get_access_token(user.id)
@@ -66,13 +69,11 @@ class AuthUseCase:
         )
 
     async def update_access_token(
-            self,
-            user_permission: IUserPermission,
-            data: UpdateAccessTokenView
+        self,
+        user_permission: IUserPermission,
+        data: UpdateAccessTokenView,
     ) -> AccessTokenView:
-        refresh_token = await self.refresh_token_gateway.get(
-            data.refresh_token
-        )
+        refresh_token = await self.refresh_token_gateway.get(data.refresh_token)
         if refresh_token is None:
             raise InvalidTokenException()
 
@@ -87,12 +88,12 @@ class AuthUseCase:
         )
 
     async def update_refresh_token(
-            self,
-            user_permission: IUserPermission,
-            data: UpdateRefreshTokenView,
+        self,
+        user_permission: IUserPermission,
+        data: UpdateRefreshTokenView,
     ) -> RefreshTokenView:
         if not await self.refresh_token_gateway.check_user_token(
-                data.refresh_token
+            data.refresh_token
         ):
             raise InvalidTokenException()
 

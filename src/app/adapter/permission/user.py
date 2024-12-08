@@ -1,15 +1,17 @@
-from app.application.interface import ITokenProvider, IPasswordProvider
+import asyncio
+
+from app.adapter.exceptions import InvalidPassword
+from app.application.interface import IPasswordProvider, ITokenProvider
 from app.config import JWTConfig
 from app.domain.model.id import Id
-from app.exceptions import UserLoginException
 
 
 class UserPermission:
     def __init__(
-            self,
-            password_provider: IPasswordProvider,
-            jwt_provider: ITokenProvider,
-            jwt_config: JWTConfig
+        self,
+        password_provider: IPasswordProvider,
+        jwt_provider: ITokenProvider,
+        jwt_config: JWTConfig,
     ) -> None:
         self.password_provider = password_provider
         self.jwt_provider = jwt_provider
@@ -23,19 +25,22 @@ class UserPermission:
     def time_access_token(self) -> int:
         return self._jwt_config.access_token_time
 
-    async def check_password(
-            self,
-            password: str,
-            hashed_password: str
-    ) -> None:
-        if not self.password_provider.verify_password(
-                password,
-                hashed_password
-        ):
-            raise UserLoginException()
+    async def check_password(self, password: str, hashed_password: str) -> None:
+        is_verify = await asyncio.to_thread(
+            self.password_provider.verify_password,
+            secret=password,
+            hash=hashed_password,
+        )
+        if not is_verify:
+            raise InvalidPassword()
 
     async def get_access_token(self, user_id: Id) -> str:
-        return self.jwt_provider.get_access_token(user_id)
+        return await asyncio.to_thread(
+            self.jwt_provider.get_access_token,
+            user_id=user_id,
+        )
 
     async def get_refresh_token(self) -> str:
-        return self.jwt_provider.get_refresh_token()
+        return await asyncio.to_thread(
+            self.jwt_provider.get_refresh_token(),
+        )

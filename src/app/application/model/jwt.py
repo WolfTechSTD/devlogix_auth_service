@@ -17,7 +17,7 @@ class TokensView:
             cls,
             access_token: str,
             refresh_token: str,
-            time_access_token: int
+            time_access_token: int,
     ) -> Self:
         return cls(
             token_type="Bearer",

@@ -16,14 +16,14 @@ class UserUseCase:
 
     async def create_user(
             self,
-            data: CreateUserView
+            data: CreateUserView,
     ) -> None:
         await self.user_gateway.insert(data.into())
         await self.transaction.commit()
 
     async def update_user(
             self,
-            data: UpdateUserView
+            data: UpdateUserView,
     ) -> None:
         await self.user_gateway.update(data.into())
         await self.transaction.commit()

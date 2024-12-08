@@ -1,36 +1,69 @@
 from litestar import Response, status_codes
 
-from app.adapter.authentication.transport import CookieTransport
-from app.presentation.model.cookie import JsonCookieToken
+from app.presentation.model.cookie import (
+    JSONCookieAccessToken,
+    JSONCookieRefreshToken,
+    JsonCookieToken,
+)
 from app.presentation.model.jwt import JsonAccessToken
 
 
 async def set_login_cookie(response: Response) -> Response:
     content: JsonCookieToken = response.content
-    cookie = CookieTransport()
     response.content = None
     response.status_code = status_codes.HTTP_204_NO_CONTENT
-    return cookie.set_login_cookie(
-        response,
-        access_token=content.access_token,
-        access_token_time=content.access_token_time,
-        refresh_token=content.refresh_token,
-        refresh_token_time=content.refresh_token_time,
+
+    json_access_token = JSONCookieAccessToken.from_into(content)
+    json_refresh_token = JSONCookieRefreshToken.from_into(content)
+    response.set_cookie(
+        key=json_access_token.name,
+        value=json_access_token.access_token,
+        secure=json_access_token.secure,
+        httponly=json_access_token.httponly,
+        samesite=json_access_token.samesite,
+        max_age=json_access_token.max_age,
     )
+    response.set_cookie(
+        key=json_refresh_token.name,
+        value=json_refresh_token.access_token,
+        secure=json_refresh_token.secure,
+        httponly=json_refresh_token.httponly,
+        samesite=json_refresh_token.samesite,
+        max_age=json_refresh_token.max_age,
+    )
+    return response
 
 
 async def set_logout_cookie(response: Response) -> Response:
-    cookie = CookieTransport()
-    return cookie.set_logout_cookie(response)
+    json_access_token = JSONCookieAccessToken()
+    json_refresh_token = JSONCookieRefreshToken()
+    response.set_cookie(
+        key=json_access_token.name,
+        value=json_access_token.access_token,
+        max_age=json_access_token.max_age,
+    )
+    response.set_cookie(
+        key=json_refresh_token.name,
+        value=json_refresh_token.access_token,
+        max_age=json_refresh_token.max_age,
+    )
+    return response
 
 
-async def set_access_token(response: Response) -> Response:
+async def set_access_token_in_cookie(response: Response) -> Response:
     content: JsonAccessToken = response.content
-    cookie = CookieTransport()
     response.content = None
     response.status_code = status_codes.HTTP_204_NO_CONTENT
-    return cookie.update_access_token(
-        response,
+    json_access_token = JSONCookieAccessToken(
         access_token=content.access_token,
-        access_token_time=content.expires_in
+        max_age=content.expires_in,
     )
+    response.set_cookie(
+        key=json_access_token.name,
+        value=json_access_token.access_token,
+        secure=json_access_token.secure,
+        httponly=json_access_token.httponly,
+        samesite=json_access_token.samesite,
+        max_age=json_access_token.max_age,
+    )
+    return response

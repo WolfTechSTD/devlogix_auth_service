@@ -5,21 +5,17 @@ from faststream import FastStream
 from litestar import Litestar
 from litestar.config.cors import CORSConfig
 from litestar.openapi import OpenAPIConfig
-from litestar.openapi.plugins import SwaggerRenderPlugin, RedocRenderPlugin
+from litestar.openapi.plugins import RedocRenderPlugin, SwaggerRenderPlugin
 from litestar.openapi.spec import Components, SecurityScheme
 
 from app.adapter.persistence import new_broker
-from app.config import load_config, ApplicationConfig
+from app.config import ApplicationConfig, load_config
 from app.presentation.broker.user import UserController
 from app.presentation.controller.auth import AuthController
 from app.provider import AppProvider
 
 config = load_config()
-container = make_async_container(
-    AppProvider(), context={
-        ApplicationConfig: config
-    }
-)
+container = make_async_container(AppProvider(), context={ApplicationConfig: config})
 
 
 def get_faststream_app() -> FastStream:
@@ -46,11 +42,11 @@ def get_litestar_app() -> Litestar:
 
 
 def get_app() -> Litestar:
-    faststream_app = get_faststream_app()
+    # faststream_app = get_faststream_app()
     litestar_app = get_litestar_app()
 
-    litestar_app.on_startup.append(faststream_app.broker.start)
-    litestar_app.on_shutdown.append(faststream_app.broker.close)
+    # litestar_app.on_startup.append(faststream_app.broker.start)
+    # litestar_app.on_shutdown.append(faststream_app.broker.close)
     return litestar_app
 
 
@@ -59,8 +55,7 @@ def _init_openapi_config() -> OpenAPIConfig:
         title="Auth Service",
         description="Сервис аутентификации",
         version="0.0.1",
-        render_plugins=[SwaggerRenderPlugin(),
-                        RedocRenderPlugin()],
+        render_plugins=[SwaggerRenderPlugin(), RedocRenderPlugin()],
         components=Components(
             security_schemes={
                 "BearerToken": SecurityScheme(
@@ -68,5 +63,5 @@ def _init_openapi_config() -> OpenAPIConfig:
                     scheme="bearer",
                 )
             },
-        )
+        ),
     )

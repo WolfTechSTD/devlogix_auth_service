@@ -1,7 +1,5 @@
 from litestar.middleware.base import MiddlewareProtocol
-from litestar.types import (
-    ASGIApp,
-)
+from litestar.types import ASGIApp
 
 
 class BaseMiddleware(MiddlewareProtocol):

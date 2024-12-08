@@ -8,7 +8,7 @@ from app.config import DatabaseConfig
 
 
 def new_session_maker(
-        config: DatabaseConfig
+    config: DatabaseConfig,
 ) -> async_sessionmaker[AsyncSession]:
     engine = create_async_engine(
         config.db_url,
