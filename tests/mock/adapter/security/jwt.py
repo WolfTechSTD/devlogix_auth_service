@@ -2,8 +2,7 @@ from typing import Any
 
 from app.domain.model.id import Id
 from app.domain.model.token import AccessToken
-from app.exceptions import InvalidTokenException
-from app.exceptions.token import TokenTimeException
+from app.adapter.exceptions import ExpiredSignatureError, DecodeError
 
 
 class MockTokenProvider:
@@ -28,9 +27,9 @@ class MockTokenProvider:
 
     def decode(self, token: AccessToken) -> dict[str, Any]:
         if not self.is_expired:
-            raise TokenTimeException()
+            raise ExpiredSignatureError()
         elif self.user_id is None:
-            raise InvalidTokenException()
+            raise DecodeError()
         return {
             "id": self.user_id
         }

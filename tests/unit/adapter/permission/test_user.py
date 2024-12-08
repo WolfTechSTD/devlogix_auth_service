@@ -3,18 +3,18 @@ from typing import cast
 import pytest
 from ulid import ULID
 
+from app.adapter.exceptions import InvalidPasswordException
 from app.adapter.permission import UserPermission
 from app.config import JWTConfig
 from app.domain.model.id import Id
-from app.exceptions import UserLoginException
 from tests.mock.adapter.security.jwt import MockTokenProvider
 from tests.mock.adapter.security.password import MockPasswordProvider
 
 
 def test_time_refresh_token(
-        get_jwt_config: JWTConfig,
-        get_mock_password_provider: MockPasswordProvider,
-        get_mock_token_provider: MockTokenProvider,
+    get_jwt_config: JWTConfig,
+    get_mock_password_provider: MockPasswordProvider,
+    get_mock_token_provider: MockTokenProvider,
 ) -> None:
     password_provider = get_mock_password_provider
     jwt_provider = get_mock_token_provider
@@ -28,9 +28,9 @@ def test_time_refresh_token(
 
 
 def test_time_access_token(
-        get_jwt_config: JWTConfig,
-        get_mock_password_provider: MockPasswordProvider,
-        get_mock_token_provider: MockTokenProvider,
+    get_jwt_config: JWTConfig,
+    get_mock_password_provider: MockPasswordProvider,
+    get_mock_token_provider: MockTokenProvider,
 ) -> None:
     password_provider = get_mock_password_provider
     jwt_provider = get_mock_token_provider
@@ -44,9 +44,9 @@ def test_time_access_token(
 
 
 async def test_check_password(
-        get_jwt_config: JWTConfig,
-        get_mock_password_provider: MockPasswordProvider,
-        get_mock_token_provider: MockTokenProvider,
+    get_jwt_config: JWTConfig,
+    get_mock_password_provider: MockPasswordProvider,
+    get_mock_token_provider: MockTokenProvider,
 ) -> None:
     password_provider = get_mock_password_provider
     jwt_provider = get_mock_token_provider
@@ -56,13 +56,16 @@ async def test_check_password(
         jwt_provider=jwt_provider,
         jwt_config=jwt_config,
     )
-    assert await user_permission.check_password(
-        "password",
-        "hashPassword",
-    ) is None
+    assert (
+        await user_permission.check_password(
+            "password",
+            "hashPassword",
+        )
+        is None
+    )
 
     password_provider.is_verified = False
-    with pytest.raises(UserLoginException) as err:
+    with pytest.raises(InvalidPasswordException) as err:
         await user_permission.check_password(
             "password",
             "hashPassword",
@@ -71,9 +74,9 @@ async def test_check_password(
 
 
 async def test_get_access_token(
-        get_jwt_config: JWTConfig,
-        get_mock_password_provider: MockPasswordProvider,
-        get_mock_token_provider: MockTokenProvider,
+    get_jwt_config: JWTConfig,
+    get_mock_password_provider: MockPasswordProvider,
+    get_mock_token_provider: MockTokenProvider,
 ) -> None:
     password_provider = get_mock_password_provider
     jwt_provider = get_mock_token_provider
@@ -90,9 +93,9 @@ async def test_get_access_token(
 
 
 async def test_get_refresh_token(
-        get_jwt_config: JWTConfig,
-        get_mock_password_provider: MockPasswordProvider,
-        get_mock_token_provider: MockTokenProvider,
+    get_jwt_config: JWTConfig,
+    get_mock_password_provider: MockPasswordProvider,
+    get_mock_token_provider: MockTokenProvider,
 ) -> None:
     password_provider = get_mock_password_provider
     jwt_provider = get_mock_token_provider

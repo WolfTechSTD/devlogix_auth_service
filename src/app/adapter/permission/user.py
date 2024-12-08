@@ -1,6 +1,6 @@
 import asyncio
 
-from app.adapter.exceptions import InvalidPassword
+from app.adapter.exceptions import InvalidPasswordException
 from app.application.interface import IPasswordProvider, ITokenProvider
 from app.config import JWTConfig
 from app.domain.model.id import Id
@@ -32,7 +32,7 @@ class UserPermission:
             hash=hashed_password,
         )
         if not is_verify:
-            raise InvalidPassword()
+            raise InvalidPasswordException()
 
     async def get_access_token(self, user_id: Id) -> str:
         return await asyncio.to_thread(

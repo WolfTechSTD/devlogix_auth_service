@@ -6,7 +6,7 @@ from litestar.controller import Controller
 from app.adapter.exceptions import (
     DecodeError,
     ExpiredSignatureError,
-    InvalidPassword,
+    InvalidPasswordException,
 )
 from app.application.exceptions import (
     InvalidEmailOrUsername,
@@ -53,7 +53,7 @@ from app.presentation.openapi import (
 class AuthController(Controller):
     path = "/api/auth"
     exception_handlers = {
-        InvalidPassword: forbidden_exception_handler,
+        InvalidPasswordException: forbidden_exception_handler,
         InvalidEmailOrUsername: forbidden_exception_handler,
         InvalidTokenException: forbidden_exception_handler,
         ExpiredSignatureError: forbidden_exception_handler,
