@@ -1,8 +1,8 @@
-from .permission import InvalidPassword
+from .permission import InvalidPasswordException
 from .security import ExpiredSignatureError, DecodeError
 
 __all__ = (
-    "InvalidPassword",
+    "InvalidPasswordException",
     "ExpiredSignatureError",
     "DecodeError",
 )
