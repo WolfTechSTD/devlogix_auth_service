@@ -50,16 +50,16 @@ class AppProvider(Provider):
     @provide(scope=Scope.APP)
     def get_jwt_provider(
         self,
-        jwt_config: ApplicationConfig,
+        jwt_config: JWTConfig,
     ) -> AnyOf[TokenProvider, ITokenProvider]:
         return TokenProvider(config=jwt_config)
 
     @provide(scope=Scope.REQUEST)
     def get_broker(
         self,
-        kafka_config: KafkaConfig,
+        broker_config: KafkaConfig,
     ) -> AnyOf[KafkaBroker]:
-        return new_broker(kafka_config)
+        return new_broker(broker_config)
 
     ioc = provide(IoC, scope=Scope.REQUEST, provides=AnyOf[InteractorFactory])
     user_permission = provide(
