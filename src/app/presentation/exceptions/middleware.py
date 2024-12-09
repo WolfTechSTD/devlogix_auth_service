@@ -1,6 +1,6 @@
-class UnauthorizedException(Exception):
+class AuthorizedException(Exception):
     def __str__(self) -> str:
-        return "Пользователь не авторизован"
+        return "Пользователь авторизован"
 
 
 class EmptyTokenException(Exception):

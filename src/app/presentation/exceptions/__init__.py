@@ -1,6 +1,6 @@
-from .middleware import UnauthorizedException, EmptyTokenException
+from .middleware import AuthorizedException, EmptyTokenException
 
 __all__ = (
-    "UnauthorizedException",
+    "AuthorizedException",
     "EmptyTokenException",
 )

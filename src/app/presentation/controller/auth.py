@@ -21,7 +21,7 @@ from app.presentation.after_request.cookie import (
 from app.presentation.exception_handlers import forbidden_exception_handler
 from app.presentation.exceptions import (
     EmptyTokenException,
-    UnauthorizedException,
+    AuthorizedException,
 )
 from app.presentation.interactor import InteractorFactory
 from app.presentation.middleware.auth import (
@@ -58,7 +58,7 @@ class AuthController(Controller):
         InvalidTokenException: forbidden_exception_handler,
         ExpiredSignatureError: forbidden_exception_handler,
         DecodeError: forbidden_exception_handler,
-        UnauthorizedException: forbidden_exception_handler,
+        AuthorizedException: forbidden_exception_handler,
         EmptyTokenException: forbidden_exception_handler,
     }
 

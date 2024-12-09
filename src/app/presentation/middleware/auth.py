@@ -8,7 +8,7 @@ from litestar.types import (
 
 from app.presentation.exceptions import (
     EmptyTokenException,
-    UnauthorizedException,
+    AuthorizedException,
 )
 from app.presentation.middleware.base import BaseMiddleware
 from app.presentation.model.jwt import (
@@ -22,7 +22,7 @@ class LoginTokenMiddleware(BaseMiddleware):
         self, scope: Scope, receive: Receive, send: Send
     ) -> None:
         if Request(scope).cookies.get("accessToken"):
-            raise UnauthorizedException()
+            raise AuthorizedException()
         await self.app(scope, receive, send)
 
 
