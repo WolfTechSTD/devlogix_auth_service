@@ -25,7 +25,7 @@ async def set_login_cookie(response: Response) -> Response:
     )
     response.set_cookie(
         key=json_refresh_token.name,
-        value=json_refresh_token.access_token,
+        value=json_refresh_token.refresh_token,
         secure=json_refresh_token.secure,
         httponly=json_refresh_token.httponly,
         samesite=json_refresh_token.samesite,
@@ -44,7 +44,7 @@ async def set_logout_cookie(response: Response) -> Response:
     )
     response.set_cookie(
         key=json_refresh_token.name,
-        value=json_refresh_token.access_token,
+        value=json_refresh_token.refresh_token,
         max_age=json_refresh_token.max_age,
     )
     return response

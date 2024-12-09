@@ -42,5 +42,5 @@ class UserPermission:
 
     async def get_refresh_token(self) -> str:
         return await asyncio.to_thread(
-            self.jwt_provider.get_refresh_token(),
+            self.jwt_provider.get_refresh_token,
         )
