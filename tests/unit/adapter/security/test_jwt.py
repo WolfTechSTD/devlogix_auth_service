@@ -51,5 +51,5 @@ def test_decode(get_jwt_config: JWTConfig) -> None:
     jwt_token = token_provider.get_access_token(user_id=cast(Id, user_id))
     with pytest.raises(ExpiredSignatureError) as err:
         token_provider.decode(AccessToken(value=jwt_token))
-    assert str(err.value) == "Пользователь на авторизован"
+    assert str(err.value) == "Пользователь не авторизован"
     token_provider.config.access_token_time = 15
